@@ -17,15 +17,15 @@ body {
   color-scheme: dark;
 }
 
-/* Base panel/card styling */
+/* Base panel/card styling - Match map agent design */
 .panel {
-  @apply border border-neutral-700 bg-neutral-900 rounded;
-  border-top: 2px solid rgb(59, 130, 246);
+  @apply border border-neutral-800 bg-neutral-950 rounded-md;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .panel-header {
-  @apply border-b border-neutral-700 px-4 py-3 flex items-center justify-between;
-  background-color: rgba(23, 23, 23, 0.8);
+  @apply border-b border-neutral-800 px-4 py-3 flex items-center justify-between rounded-t-md;
+  background-color: rgba(23, 23, 23, 0.95);
 }
 
 .panel-header-title {
@@ -43,12 +43,29 @@ body {
   @apply p-4;
 }
 
-/* Button styles */
+/* Rounded rectangle cards - Map agent style */
+.card {
+  @apply bg-neutral-900 border border-neutral-800 rounded-md;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.card-lg {
+  @apply bg-neutral-900 border border-neutral-800 rounded-lg;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.card-xl {
+  @apply bg-neutral-900 border border-neutral-800 rounded-xl;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Button styles - Map agent style */
 .btn {
-  @apply border rounded transition-colors cursor-pointer px-3 py-2 font-bold;
+  @apply border rounded-md transition-colors cursor-pointer px-3 py-2 font-bold;
   font-family: 'Courier New', monospace;
   border-width: 1px;
   transition-duration: 100ms;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
   &:disabled {
     @apply text-neutral-500 cursor-not-allowed opacity-50;
@@ -56,20 +73,20 @@ body {
 }
 
 .btn-primary {
-  @apply border-blue-400 bg-neutral-800 text-white;
+  @apply border-neutral-600 bg-neutral-800 text-white;
 
   &:not(:disabled):hover {
-    @apply bg-neutral-700 border-blue-300;
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+    @apply bg-neutral-700 border-neutral-500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   }
 }
 
 .btn-secondary {
-  @apply border-neutral-500 bg-neutral-800 text-neutral-200;
+  @apply border-neutral-600 bg-neutral-800 text-neutral-200;
 
   &:not(:disabled):hover {
-    @apply bg-neutral-700 border-neutral-400;
-    box-shadow: 0 0 8px rgba(115, 115, 115, 0.3);
+    @apply bg-neutral-700 border-neutral-500;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -82,24 +99,25 @@ body {
 }
 
 .btn-danger {
-  @apply border-red-500 bg-red-900 text-red-200;
+  @apply border-red-600 bg-red-900 text-red-200;
 
   &:not(:disabled):hover {
-    @apply bg-red-800 border-red-400;
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+    @apply bg-red-800 border-red-500;
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
   }
 }
 
-/* Input styles */
+/* Input styles - Map agent style */
 input,
 select,
 textarea {
   font-family: 'Courier New', monospace;
-  @apply bg-neutral-800 border border-neutral-600 text-white rounded px-3 py-2;
+  @apply bg-neutral-900 border border-neutral-700 text-white rounded-md px-3 py-2;
+  transition-duration: 100ms;
 
   &:focus {
-    @apply outline-none border-blue-400;
-    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+    @apply outline-none border-neutral-600;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
   }
 
   &::placeholder {
@@ -107,33 +125,44 @@ textarea {
   }
 }
 
+/* Textarea pill-shaped input (for message input style) */
+textarea.textarea-pill {
+  @apply rounded-2xl !px-4 !py-3;
+}
+
+/* Message/Chat input style */
+input.input-chat,
+textarea.textarea-chat {
+  @apply bg-neutral-900 border border-neutral-700 rounded-2xl;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Courier New', monospace;
-  @apply font-bold;
+  @apply font-bold text-white;
 }
 
-/* Table styling */
+/* Table styling - Map agent style */
 table {
   @apply w-full border-collapse;
   font-family: 'Courier New', monospace;
 }
 
 th, td {
-  @apply border border-neutral-700 px-3 py-2 text-left;
+  @apply border border-neutral-800 px-3 py-2 text-left text-neutral-300;
 }
 
 th {
-  @apply bg-neutral-800 font-bold text-white;
-  border-bottom: 2px solid rgb(59, 130, 246);
+  @apply bg-neutral-900 font-bold text-white;
+  border-bottom: 1px solid #404040;
 }
 
 tr:nth-child(even) {
-  @apply bg-neutral-900;
+  @apply bg-neutral-950;
 }
 
 tr:hover {
-  @apply bg-neutral-800;
+  @apply bg-neutral-900;
 }
 
 /* Focus state */
