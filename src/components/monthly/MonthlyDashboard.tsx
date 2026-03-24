@@ -69,7 +69,7 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
       </div>
 
 {/* Charts row with heatmap, tasks, and brain */}
-      <div className="grid grid-cols-3 gap-1.5 -mt-1.5">
+      <div className="grid grid-cols-3 gap-1.5">
         <Panel compact>
           <div className="panel-header">
             <h3 className="panel-header-title">DAILY HABIT COUNT</h3>
