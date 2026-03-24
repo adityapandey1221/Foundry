@@ -34,12 +34,12 @@ body {
 }
 
 .panel-header {
-  @apply border-b border-neutral-800 px-4 py-3 flex items-center justify-between rounded-t-md;
+  @apply border-b border-neutral-800 px-3 py-1.5 flex items-center justify-between rounded-t-md;
   background-color: rgba(23, 23, 23, 0.95);
 }
 
 .panel-header-title {
-  @apply text-sm font-bold uppercase tracking-wider;
+  @apply text-xs font-bold uppercase tracking-wider;
   font-family: 'Monaco', 'Courier New', monospace;
   letter-spacing: 0.1em;
   color: var(--terminal-green);
@@ -53,7 +53,7 @@ body {
 }
 
 .panel-content {
-  @apply p-4;
+  @apply p-2;
 }
 
 /* Rounded rectangle cards - Map agent style */

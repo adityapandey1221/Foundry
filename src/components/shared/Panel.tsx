@@ -1,4 +1,4 @@
-export const Panel = ({ title, children, action, dot = true }: any) => {
+export const Panel = ({ title, children, action, dot = true, compact = false }: any) => {
   return (
     <div className="panel">
       {title && (
@@ -10,7 +10,7 @@ export const Panel = ({ title, children, action, dot = true }: any) => {
           {action && <div>{action}</div>}
         </div>
       )}
-      <div className="panel-content">{children}</div>
+      <div className={compact ? "p-2" : "panel-content"}>{children}</div>
     </div>
   );
 };
