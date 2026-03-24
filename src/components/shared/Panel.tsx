@@ -1,6 +1,6 @@
 export const Panel = ({ title, children, action, dot = true, compact = false }: any) => {
   return (
-    <div className="panel transition-[filter,opacity] duration-[280ms] ease-in-out">
+    <div className="panel transition-[filter,opacity] duration-[280ms] ease-in-out relative">
       {title && (
         <div className="panel-header">
           <div className="flex items-center gap-2.5">
