@@ -296,7 +296,7 @@ export const BodyHologram: React.FC<BodyHologramProps> = ({
             <BodyScene pct={pct} isCurrentWeek={true} />
             <EffectComposer>
               <Bloom
-                intensity={1.2}
+                intensity={pct * 1.2}
                 luminanceThreshold={0.2}
                 luminanceSmoothing={0.9}
                 radius={0.8}
