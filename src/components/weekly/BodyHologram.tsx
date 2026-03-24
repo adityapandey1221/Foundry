@@ -231,7 +231,7 @@ const BodyScene: React.FC<{ pct: number; isCurrentWeek?: boolean }> = ({ pct, is
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[0, -0.4, 0]}>
       <Suspense fallback={null}>
         <BodyMesh pct={pct} />
         <BodyWireframe pct={pct} />
@@ -286,9 +286,9 @@ export const BodyHologram: React.FC<BodyHologramProps> = ({
   // For standalone mode (dashboard), provide Canvas wrapper
   if (isStandalone) {
     return (
-      <div style={{ width: '100%', height: '300px', background: 'transparent' }}>
+      <div style={{ width: '100%', height: '270px', background: 'transparent' }}>
         <Canvas
-          camera={{ position: [0, 0, 4.2], fov: 40 }}
+          camera={{ position: [0, 0, 3.5], fov: 40 }}
           gl={{ alpha: true, antialias: true }}
           style={{ background: 'transparent', width: '100%', height: '100%' }}
         >
