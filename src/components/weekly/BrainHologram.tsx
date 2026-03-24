@@ -322,10 +322,10 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
             <BrainScene pct={pct} isCurrentWeek={true} theme={theme} />
             <EffectComposer>
               <Bloom
-                intensity={pct * 1.2}
-                luminanceThreshold={0.2}
+                intensity={theme === 'jarvis' ? pct * 2.5 : pct * 1.2}
+                luminanceThreshold={theme === 'jarvis' ? 0.1 : 0.2}
                 luminanceSmoothing={0.9}
-                radius={0.6}
+                radius={theme === 'jarvis' ? 0.9 : 0.6}
               />
             </EffectComposer>
           </Suspense>
@@ -336,7 +336,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
             fontFamily: 'Courier New, monospace',
             fontSize: '11px',
             fontWeight: 'bold',
-            color: '#39FF14',
+            color: theme === 'jarvis' ? '#FFFFFF' : '#39FF14',
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             marginTop: '4px',
