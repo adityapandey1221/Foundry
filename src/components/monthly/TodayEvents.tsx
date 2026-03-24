@@ -5,12 +5,18 @@ import { parseLocalDate } from '../../utils/timezone';
 
 interface TodayEventsProps {
   currentDate: any;
+  theme?: 'matrix' | 'jarvis';
 }
 
-const TodayEventsComponent = ({ currentDate }: TodayEventsProps) => {
+const TodayEventsComponent = ({ currentDate, theme = 'matrix' }: TodayEventsProps) => {
   const today = currentDate.today;
   const weekStart = getWeekStart(today);
   const { weekPlan } = useWeeklyPlan(weekStart);
+
+  // Theme-aware colors
+  const accentColor = theme === 'jarvis' ? '#FFFFFF' : '#39FF14';
+  const mutedColor = theme === 'jarvis' ? '#B0B0B0' : '#22AA44';
+  const successColor = theme === 'jarvis' ? '#B0B0B0' : '#43BF4D';
 
   const todayEvents = useMemo(() => {
     if (!weekPlan) return [];
@@ -64,7 +70,7 @@ const TodayEventsComponent = ({ currentDate }: TodayEventsProps) => {
 
   if (!weekPlan) {
     return (
-      <div style={{ fontSize: '11px', color: '#22AA44' }}>
+      <div style={{ fontSize: '11px', color: mutedColor }}>
         Loading...
       </div>
     );
@@ -72,7 +78,7 @@ const TodayEventsComponent = ({ currentDate }: TodayEventsProps) => {
 
   if (todayEvents.length === 0) {
     return (
-      <div style={{ fontSize: '11px', color: '#22AA44', textAlign: 'center', padding: '8px 0' }}>
+      <div style={{ fontSize: '11px', color: mutedColor, textAlign: 'center', padding: '8px 0' }}>
         No events scheduled
       </div>
     );
@@ -80,13 +86,13 @@ const TodayEventsComponent = ({ currentDate }: TodayEventsProps) => {
 
   return (
     <div className="space-y-1.5">
-      <div style={{ fontSize: '9px', color: '#39FF14', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+      <div style={{ fontSize: '9px', color: accentColor, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
         Today's Schedule
       </div>
       <div className="space-y-1">
         {todayEvents.map(event => {
           const upcoming = isEventUpcoming(event.time);
-          const color = event.color || '#39FF14';
+          const color = event.color || accentColor;
 
           return (
             <div
@@ -113,12 +119,12 @@ const TodayEventsComponent = ({ currentDate }: TodayEventsProps) => {
                 <div style={{ fontSize: '10px', fontWeight: 'bold', color }} >
                   {event.time}
                 </div>
-                <div style={{ fontSize: '10px', color: '#39FF14', marginTop: '1px' }}>
+                <div style={{ fontSize: '10px', color: accentColor, marginTop: '1px' }}>
                   {event.title}
                 </div>
               </div>
               {upcoming && (
-                <div style={{ fontSize: '8px', color: '#43BF4D', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '8px', color: successColor, whiteSpace: 'nowrap' }}>
                   UPCOMING
                 </div>
               )}

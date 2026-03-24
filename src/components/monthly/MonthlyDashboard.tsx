@@ -63,7 +63,7 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
               <h3 className="panel-header-title">TODAY</h3>
             </div>
             <div className="p-2">
-              <TodayEvents currentDate={currentDate} />
+              <TodayEvents currentDate={currentDate} theme={theme} />
             </div>
           </Panel>
         </div>
