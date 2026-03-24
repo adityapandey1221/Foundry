@@ -19,7 +19,10 @@ export const ProgressBars = ({ habits, completions, currentDate }) => {
 
         return (
           <div key={habit.id} className="space-y-1">
-            <p className="text-caption text-text-primary truncate">{habit.name}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-caption text-text-primary truncate flex-1">{habit.name}</p>
+              <p className="text-mono-sm text-text-muted ml-2">{percentage}%</p>
+            </div>
             <div className="w-full bg-bg-input rounded-sm h-2 overflow-hidden">
               <div
                 className="h-full transition-all duration-300"
@@ -29,7 +32,6 @@ export const ProgressBars = ({ habits, completions, currentDate }) => {
                 }}
               />
             </div>
-            <p className="text-mono-sm text-text-muted text-right">{percentage}%</p>
           </div>
         );
       })}
