@@ -22,13 +22,13 @@ class HolographicBrainMaterial extends THREE.ShaderMaterial {
     super({
       uniforms: {
         time: { value: 0 },
-        fresnelOpacity: { value: 0.0 },
-        fresnelAmount: { value: 0.0 },
+        fresnelOpacity: { value: 0.85 },
+        fresnelAmount: { value: 0.5 },
         scanlineSize: { value: 8.0 },
-        hologramBrightness: { value: 0.0 },
+        hologramBrightness: { value: 1.4 },
         signalSpeed: { value: 0.45 },
         hologramColor: { value: new THREE.Color('#39FF14') },
-        hologramOpacity: { value: 0.0 },
+        hologramOpacity: { value: 1.0 },
         completionPct: { value: 0.75 },
       },
       vertexShader: `
@@ -145,7 +145,7 @@ const BrainMesh: React.FC<{ pct: number }> = ({ pct }) => {
     if (!geo) {
       console.warn('Brain geometry not found from GLB');
     }
-    const scale = 1.4;
+    const scale = 1.1;
     const offsetY = 0.3;
     const mat = new HolographicBrainMaterial();
     return { geometry: geo, scale, offsetY, material: mat };
@@ -196,12 +196,12 @@ const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const mat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.1 + pct * 0.2,
+      opacity: 0.4 + pct * 0.5,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
 
-    const scale = 1.4;
+    const scale = 1.1;
     const offsetY = 0.3;
 
     return { lineSegmentsGeometry: wfGeo, material: mat, scale, offsetY };
@@ -295,7 +295,7 @@ export const BrainHologram: React.FC<BrainHologramProps> = (
     return (
       <div style={{ width: '100%', height: '270px', background: 'transparent' }}>
         <Canvas
-          camera={{ position: [0, 0, 6], fov: 40 }}
+          camera={{ position: [0, 0, 3.5], fov: 40 }}
           gl={{ alpha: true, antialias: true }}
           style={{ background: 'transparent', width: '100%', height: '100%' }}
         >
@@ -306,7 +306,7 @@ export const BrainHologram: React.FC<BrainHologramProps> = (
                 intensity={pct * 1.2}
                 luminanceThreshold={0.2}
                 luminanceSmoothing={0.9}
-                radius={0.8}
+                radius={0.6}
               />
             </EffectComposer>
           </Suspense>
