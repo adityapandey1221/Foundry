@@ -2,11 +2,13 @@ import { memo, useMemo, useState, useEffect } from 'react';
 import { getDayName } from '../../utils/dates';
 import { CATEGORIES } from '../../utils/constants';
 import { parseLocalDate } from '../../utils/timezone';
+import { HabitEditModal } from '../shared/HabitEditModal';
 
-const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate }) => {
+const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate, updateHabit, removeHabit }) => {
   const activeHabits = habits.filter((h: any) => h.isActive);
   const today = parseLocalDate(currentDate.today);
   const [lastBurst, setLastBurst] = useState<string | null>(null);
+  const [editingHabit, setEditingHabit] = useState<any>(null);
 
   const handleToggle = (habitId: string, date: string) => {
     const dayCompletions = completions[date] || [];
@@ -22,6 +24,7 @@ const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompleti
   };
 
   return (
+    <>
     <div className="overflow-x-auto">
       <table className="w-full text-mono-sm">
         <thead>
@@ -55,8 +58,27 @@ const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompleti
             const categoryColor = CATEGORIES[habit.category].hex;
             return (
               <tr key={habit.id} className="border-b border-border-subtle hover:bg-bg-elevated hover:bg-opacity-30 transition">
-                <td className="text-left py-2 px-2 text-text-primary sticky left-0 bg-surface text-body truncate">
-                  {habit.name}
+                <td className="text-left py-2 px-2 text-text-primary sticky left-0 bg-surface text-body flex items-center gap-2">
+                  <span className="truncate flex-1">{habit.name}</span>
+                  <button
+                    onClick={() => setEditingHabit(habit)}
+                    className="flex-shrink-0 px-2 py-1 rounded text-xs font-bold uppercase transition"
+                    style={{
+                      backgroundColor: 'rgba(57, 255, 20, 0.1)',
+                      color: '#39FF14',
+                      border: '1px solid rgba(57, 255, 20, 0.5)',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(57, 255, 20, 0.2)';
+                      e.currentTarget.style.boxShadow = '0 0 8px rgba(57, 255, 20, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(57, 255, 20, 0.1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    Edit
+                  </button>
                 </td>
                 {weekDates.map((date) => {
                   const dayCompletions = completions[date] || [];
@@ -98,6 +120,17 @@ const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompleti
         </tbody>
       </table>
     </div>
+
+    {editingHabit && (
+      <HabitEditModal
+        habit={editingHabit}
+        isOpen={!!editingHabit}
+        onClose={() => setEditingHabit(null)}
+        onSave={updateHabit}
+        onDelete={removeHabit}
+      />
+    )}
+    </>
   );
 };
 

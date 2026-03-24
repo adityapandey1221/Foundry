@@ -12,7 +12,7 @@ import { BrainHologram } from '../weekly/BrainHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 import { WeeklyGrid } from '../weekly/WeeklyGrid';
 
-const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion, currentDate }) => {
+const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion, updateHabit, removeHabit, currentDate }) => {
   const [selectedWeekStart, setSelectedWeekStart] = useState(getWeekStart(currentDate.today));
   const monthWeeks = getMonthWeeks(currentDate.year, currentDate.month);
   const weekDates = getWeekDates(selectedWeekStart);
@@ -114,6 +114,8 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
                 completions={completions}
                 weekDates={weekDates}
                 toggleHabitCompletion={toggleHabitCompletion}
+                updateHabit={updateHabit}
+                removeHabit={removeHabit}
                 currentDate={currentDate}
               />
             </div>
