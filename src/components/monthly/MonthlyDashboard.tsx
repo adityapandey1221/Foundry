@@ -6,6 +6,7 @@ import { WeeklyTasksList } from './WeeklyTasksList';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
 import { BodyHologram } from '../weekly/BodyHologram';
+import { BrainHologram } from '../weekly/BrainHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 import { WeeklyGrid } from '../weekly/WeeklyGrid';
 import { WeeklyCompletionBars } from '../weekly/WeeklyCompletionBars';
@@ -32,8 +33,8 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
         ))}
       </div>
 
-      {/* Header with summary, hologram, and weekly completion */}
-      <div className="grid grid-cols-4 gap-4">
+      {/* Header with summary, holograms, and weekly completion */}
+      <div className="grid grid-cols-3 gap-4">
         <div className="col-span-1">
           <Panel>
             <div className="panel-header">
@@ -44,13 +45,19 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
             </div>
           </Panel>
         </div>
-        <div className="col-span-1">
+        <div className="col-span-2">
           <Panel>
             <div className="panel-header">
               <h3 className="panel-header-title">WEEK</h3>
             </div>
-            <div className="panel-content" style={{ padding: '8px 0' }}>
+            <div className="panel-content" style={{ padding: '8px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <BodyHologram
+                habits={habits}
+                completions={completions}
+                selectedWeekStart={selectedWeekStart}
+                isStandalone={true}
+              />
+              <BrainHologram
                 habits={habits}
                 completions={completions}
                 selectedWeekStart={selectedWeekStart}
@@ -59,6 +66,10 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
             </div>
           </Panel>
         </div>
+      </div>
+
+      {/* Weekly completion */}
+      <div className="grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <Panel>
             <div className="panel-header">
