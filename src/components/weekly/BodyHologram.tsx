@@ -295,7 +295,7 @@ const BodyHologramComponent: React.FC<BodyHologramProps> = ({
   // For standalone mode (dashboard), provide Canvas wrapper
   if (isStandalone) {
     return (
-      <div style={{ width: '100%', height: '270px', background: 'transparent' }}>
+      <div style={{ width: '100%', height: '360px', background: 'transparent' }}>
         <Canvas
           camera={{ position: [0, 0, 3.5], fov: 40 }}
           gl={{ alpha: true, antialias: true }}
