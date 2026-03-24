@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { CATEGORIES } from '../../utils/constants';
+import { HabitEditModal } from '../shared/HabitEditModal';
 
 export const HabitManager = ({ habits, onAddHabit, onRemoveHabit, onUpdateHabit }) => {
   const [newHabitName, setNewHabitName] = useState('');
   const [newHabitCategory, setNewHabitCategory] = useState('productivity');
   const [isAdding, setIsAdding] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<any>(null);
 
   const handleAddHabit = () => {
     if (newHabitName.trim()) {
@@ -30,12 +32,20 @@ export const HabitManager = ({ habits, onAddHabit, onRemoveHabit, onUpdateHabit 
                 {CATEGORIES[habit.category]?.label || habit.category}
               </div>
             </div>
-            <button
-              onClick={() => onRemoveHabit(habit.id)}
-              className="ml-3 px-3 py-1 text-caption bg-status-danger hover:bg-opacity-80 text-white rounded-sm transition"
-            >
-              REMOVE
-            </button>
+            <div className="flex gap-2 ml-3">
+              <button
+                onClick={() => setEditingHabit(habit)}
+                className="px-3 py-1 text-caption bg-accent-3 hover:bg-opacity-80 text-bg-void rounded-sm transition font-bold"
+              >
+                EDIT
+              </button>
+              <button
+                onClick={() => onRemoveHabit(habit.id)}
+                className="px-3 py-1 text-caption bg-status-danger hover:bg-opacity-80 text-white rounded-sm transition"
+              >
+                REMOVE
+              </button>
+            </div>
           </div>
         ))}
 
@@ -120,6 +130,16 @@ export const HabitManager = ({ habits, onAddHabit, onRemoveHabit, onUpdateHabit 
             </button>
           </div>
         </div>
+      )}
+
+      {editingHabit && (
+        <HabitEditModal
+          habit={editingHabit}
+          isOpen={!!editingHabit}
+          onClose={() => setEditingHabit(null)}
+          onSave={onUpdateHabit}
+          onDelete={onRemoveHabit}
+        />
       )}
     </div>
   );
