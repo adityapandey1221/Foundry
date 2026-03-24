@@ -31,15 +31,15 @@ export const DailyHabitCountChart = ({ habits, completions, currentDate }) => {
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#404040" />
-        <XAxis dataKey="date" stroke="#a3a3a3" style={{ fontSize: '11px', fill: '#a3a3a3' }} />
-        <YAxis stroke="#a3a3a3" style={{ fontSize: '11px', fill: '#a3a3a3' }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#22AA44" opacity="0.2" />
+        <XAxis dataKey="date" stroke="#39FF14" style={{ fontSize: '11px', fill: '#39FF14' }} />
+        <YAxis stroke="#39FF14" style={{ fontSize: '11px', fill: '#39FF14' }} />
         <Tooltip
-          contentStyle={{ backgroundColor: '#171717', border: '1px solid #404040' }}
-          labelStyle={{ color: '#e5e5e5' }}
-          itemStyle={{ color: '#e5e5e5' }}
+          contentStyle={{ backgroundColor: '#000000', border: '1px solid #39FF14', boxShadow: '0 0 8px rgba(57, 255, 20, 0.3)' }}
+          labelStyle={{ color: '#39FF14' }}
+          itemStyle={{ color: '#39FF14' }}
         />
-        <Legend wrapperStyle={{ paddingTop: '20px', color: '#a3a3a3' }} />
+        <Legend wrapperStyle={{ paddingTop: '20px', color: '#39FF14' }} />
         {Object.keys(categoryHabits).map(category => (
           <Bar key={category} dataKey={category} fill={CATEGORIES[category].hex} />
         ))}

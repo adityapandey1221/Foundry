@@ -1,15 +1,25 @@
 @import "tailwindcss";
 
+/* Terminal-style green color scheme */
+:root {
+  --terminal-green: #39FF14;
+  --terminal-green-bright: #00FF41;
+  --terminal-green-dim: #22AA44;
+  --terminal-bg: #000000;
+}
+
 * {
   font-family: 'Courier New', monospace;
 }
 
 html {
-  @apply bg-black text-neutral-300;
+  @apply bg-black;
+  color: var(--terminal-green);
 }
 
 body {
-  @apply bg-black text-neutral-300;
+  @apply bg-black;
+  color: var(--terminal-green);
   font-family: 'Courier New', monospace;
 }
 
@@ -29,14 +39,17 @@ body {
 }
 
 .panel-header-title {
-  @apply text-sm font-bold text-white uppercase tracking-wider;
+  @apply text-sm font-bold uppercase tracking-wider;
   font-family: 'Courier New', monospace;
   letter-spacing: 0.1em;
+  color: var(--terminal-green);
+  text-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
 }
 
 .panel-header-dot {
-  @apply w-2 h-2 rounded-full bg-blue-400 mr-2;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+  @apply w-2 h-2 rounded-full mr-2;
+  background-color: var(--terminal-green);
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.6);
 }
 
 .panel-content {
@@ -59,69 +72,88 @@ body {
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* Button styles - Map agent style */
+/* Button styles - Terminal green theme */
 .btn {
   @apply border rounded-md transition-colors cursor-pointer px-3 py-2 font-bold;
   font-family: 'Courier New', monospace;
   border-width: 1px;
   transition-duration: 100ms;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  color: var(--terminal-green);
+  border-color: var(--terminal-green);
+  background-color: rgba(57, 255, 20, 0.05);
 
   &:disabled {
-    @apply text-neutral-500 cursor-not-allowed opacity-50;
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--terminal-green-dim);
   }
 }
 
 .btn-primary {
-  @apply border-neutral-600 bg-neutral-800 text-white;
+  border-color: var(--terminal-green);
+  background-color: rgba(57, 255, 20, 0.1);
+  color: var(--terminal-green);
 
   &:not(:disabled):hover {
-    @apply bg-neutral-700 border-neutral-500;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    background-color: rgba(57, 255, 20, 0.15);
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
   }
 }
 
 .btn-secondary {
-  @apply border-neutral-600 bg-neutral-800 text-neutral-200;
+  border-color: var(--terminal-green-dim);
+  background-color: rgba(57, 255, 20, 0.05);
+  color: var(--terminal-green);
 
   &:not(:disabled):hover {
-    @apply bg-neutral-700 border-neutral-500;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    background-color: rgba(57, 255, 20, 0.1);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
   }
 }
 
 .btn-ghost {
-  @apply border-transparent bg-transparent text-neutral-400;
+  border-color: transparent;
+  background-color: transparent;
+  color: var(--terminal-green);
 
   &:not(:disabled):hover {
-    @apply bg-neutral-800 border-neutral-600 text-neutral-200;
+    background-color: rgba(57, 255, 20, 0.05);
+    border-color: var(--terminal-green-dim);
   }
 }
 
 .btn-danger {
-  @apply border-red-600 bg-red-900 text-red-200;
+  border-color: #FF6B6B;
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #FF6B6B;
 
   &:not(:disabled):hover {
-    @apply bg-red-800 border-red-500;
-    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.3);
+    background-color: rgba(255, 107, 107, 0.2);
+    box-shadow: 0 0 12px rgba(255, 107, 107, 0.4);
   }
 }
 
-/* Input styles - Map agent style */
+/* Input styles - Terminal green theme */
 input,
 select,
 textarea {
   font-family: 'Courier New', monospace;
-  @apply bg-neutral-900 border border-neutral-700 text-white rounded-md px-3 py-2;
+  @apply bg-black border rounded-md px-3 py-2;
   transition-duration: 100ms;
+  border-color: var(--terminal-green-dim);
+  color: var(--terminal-green);
+  background-color: rgba(57, 255, 20, 0.02);
 
   &:focus {
-    @apply outline-none border-neutral-600;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    @apply outline-none;
+    border-color: var(--terminal-green);
+    box-shadow: 0 0 12px rgba(57, 255, 20, 0.3);
   }
 
   &::placeholder {
-    @apply text-neutral-500;
+    color: var(--terminal-green-dim);
+    opacity: 0.6;
   }
 }
 
@@ -139,39 +171,51 @@ textarea.textarea-chat {
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Courier New', monospace;
-  @apply font-bold text-white;
+  @apply font-bold;
+  color: var(--terminal-green);
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
 }
 
-/* Table styling - Map agent style */
+/* Table styling - Terminal green theme */
 table {
   @apply w-full border-collapse;
   font-family: 'Courier New', monospace;
 }
 
 th, td {
-  @apply border border-neutral-800 px-3 py-2 text-left text-neutral-300;
+  @apply border px-3 py-2 text-left;
+  border-color: var(--terminal-green-dim);
+  color: var(--terminal-green);
 }
 
 th {
-  @apply bg-neutral-900 font-bold text-white;
-  border-bottom: 1px solid #404040;
+  @apply font-bold;
+  background-color: rgba(57, 255, 20, 0.05);
+  border-bottom-color: var(--terminal-green);
+  border-bottom-width: 2px;
+  text-shadow: 0 0 6px rgba(57, 255, 20, 0.3);
 }
 
 tr:nth-child(even) {
-  @apply bg-neutral-950;
+  background-color: rgba(57, 255, 20, 0.02);
 }
 
 tr:hover {
-  @apply bg-neutral-900;
+  background-color: rgba(57, 255, 20, 0.05);
 }
 
 /* Focus state */
 .add-focus {
-  @apply focus-visible:ring-2 focus-visible:ring-blue-400 outline-none;
+  outline: none;
+}
+
+.add-focus:focus-visible {
+  box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
+  border-color: var(--terminal-green);
 }
 
 .add-disable {
-  @apply disabled:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50;
+  @apply disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 /* Size variants */
@@ -213,26 +257,29 @@ tr:hover {
   gap-width: 1rem;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - Terminal green theme */
 ::-webkit-scrollbar {
   @apply w-2 h-2;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-neutral-900;
+  background-color: rgba(57, 255, 20, 0.02);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-neutral-700 rounded;
+  background-color: var(--terminal-green-dim);
+  @apply rounded;
 
   &:hover {
-    @apply bg-neutral-600;
+    background-color: var(--terminal-green);
+    box-shadow: 0 0 8px rgba(57, 255, 20, 0.3);
   }
 }
 
 /* Selection */
 ::selection {
-  @apply bg-blue-500 text-white;
+  background-color: rgba(57, 255, 20, 0.3);
+  color: var(--terminal-green);
 }
 
 /* Markdown table styling */
@@ -242,18 +289,22 @@ tr:hover {
 
 .markdown-body th,
 .markdown-body td {
-  @apply border border-neutral-700 px-3 py-2 text-left;
+  @apply border px-3 py-2 text-left;
+  border-color: var(--terminal-green-dim);
+  color: var(--terminal-green);
 }
 
 .markdown-body th {
-  @apply bg-neutral-800 font-semibold text-white;
-  border-bottom: 2px solid rgb(59, 130, 246);
+  @apply font-semibold;
+  background-color: rgba(57, 255, 20, 0.05);
+  border-bottom: 2px solid var(--terminal-green);
+  text-shadow: 0 0 6px rgba(57, 255, 20, 0.3);
 }
 
 .markdown-body tr {
-  @apply text-neutral-300;
+  color: var(--terminal-green);
 }
 
 .markdown-body tr:nth-child(even) {
-  @apply bg-neutral-900;
+  background-color: rgba(57, 255, 20, 0.02);
 }

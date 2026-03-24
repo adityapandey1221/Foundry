@@ -17,19 +17,22 @@ export const SummaryRings = ({ habits, completions, currentDate }) => {
       <div className="relative w-32 h-32 mb-4">
         <svg className="w-full h-full" viewBox="0 0 120 120">
           {/* Background circle */}
-          <circle cx="60" cy="60" r="55" fill="none" stroke="#404040" strokeWidth="8" />
+          <circle cx="60" cy="60" r="55" fill="none" stroke="#22AA44" strokeWidth="8" opacity="0.3" />
           {/* Progress circle */}
           <circle
             cx="60"
             cy="60"
             r="55"
             fill="none"
-            stroke="#3b82f6"
+            stroke="#39FF14"
             strokeWidth="8"
             strokeDasharray={`${(percentage / 100) * 2 * Math.PI * 55} ${2 * Math.PI * 55}`}
             strokeDashoffset="0"
             transform="rotate(-90 60 60)"
-            style={{ transition: 'stroke-dasharray 0.4s ease-out' }}
+            style={{
+              transition: 'stroke-dasharray 0.4s ease-out',
+              filter: 'drop-shadow(0 0 8px rgba(57, 255, 20, 0.5))'
+            }}
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center flex-col">
