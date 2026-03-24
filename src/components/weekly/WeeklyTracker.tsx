@@ -3,6 +3,7 @@ import { Panel } from '../shared/Panel';
 import { WeeklyGrid } from './WeeklyGrid';
 import { WeeklyCompletionBars } from './WeeklyCompletionBars';
 import { WeeklyStats } from './WeeklyStats';
+import { BodyHologramRow, calculateWeekSummaries } from './BodyHologramRow';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 
 export const WeeklyTracker = ({ habits, completions, toggleHabitCompletion, currentDate }) => {
@@ -42,6 +43,18 @@ export const WeeklyTracker = ({ habits, completions, toggleHabitCompletion, curr
         />
       </Panel>
 
+      {/* Holographic body figures - one per week */}
+      {(() => {
+        const weekSummaries = calculateWeekSummaries(habits, completions, monthWeeks);
+        return (
+          <Panel title="WEEKLY COMPLETION %">
+            <div style={{ marginBottom: '-12px' }}>
+              <BodyHologramRow weekSummaries={weekSummaries} currentWeekStart={selectedWeekStart} />
+            </div>
+          </Panel>
+        );
+      })()}
+
       {/* Completion bars and stats */}
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-2">
@@ -54,20 +67,6 @@ export const WeeklyTracker = ({ habits, completions, toggleHabitCompletion, curr
             <WeeklyStats habits={habits} completions={completions} weekDates={weekDates} />
           </Panel>
         </div>
-      </div>
-
-      {/* Placeholder for body/brain maps (v2) */}
-      <div className="grid grid-cols-2 gap-4">
-        <Panel title="NEURAL MAP">
-          <div className="text-text-muted text-body text-center py-8">
-            Body & brain visualizations coming in v2.
-          </div>
-        </Panel>
-        <Panel title="BODY MAP">
-          <div className="text-text-muted text-body text-center py-8">
-            Body & brain visualizations coming in v2.
-          </div>
-        </Panel>
       </div>
     </div>
   );
