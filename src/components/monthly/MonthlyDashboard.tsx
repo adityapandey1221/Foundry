@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Panel } from '../shared/Panel';
 import { SummaryRings } from './SummaryRings';
-import { DailyHabitCountChart } from './DailyHabitCountChart';
+import { DailyHabitHeatmap } from './DailyHabitHeatmap';
 import { CategoryBreakdown } from './CategoryBreakdown';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
@@ -62,7 +62,7 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
             <h3 className="panel-header-title">DAILY HABIT COUNT</h3>
           </div>
           <div className="panel-content">
-            <DailyHabitCountChart habits={habits} completions={completions} currentDate={currentDate} />
+            <DailyHabitHeatmap habits={habits} completions={completions} currentDate={currentDate} />
           </div>
         </Panel>
         <Panel>
