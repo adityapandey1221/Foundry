@@ -1,7 +1,7 @@
 export const TabNav = ({ activeTab, onTabChange }) => {
   const tabs = [
-    { id: 'monthly', label: 'MONTHLY DASHBOARD' },
-    { id: 'weekly', label: 'WEEKLY TRACKER' },
+    { id: 'monthly', label: 'WEEKLY DASHBOARD' },
+    { id: 'weekly', label: 'DETAILED WEEKLY' },
     { id: 'planner', label: 'WEEKLY PLANNER' },
     { id: 'settings', label: 'SETTINGS' },
   ];
