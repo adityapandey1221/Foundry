@@ -6,6 +6,7 @@ import { WeeklyTasksList } from './WeeklyTasksList';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
 import { KpiStrip } from './KpiStrip';
+import { TodayEvents } from './TodayEvents';
 import { BodyHologram } from '../weekly/BodyHologram';
 import { BrainHologram } from '../weekly/BrainHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
@@ -83,10 +84,10 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
         </Panel>
         <Panel compact>
           <div className="panel-header">
-            <h3 className="panel-header-title">RADAR</h3>
+            <h3 className="panel-header-title">TODAY</h3>
           </div>
           <div className="p-2">
-            <div style={{ fontSize: '11px', color: '#22AA44' }}>Coming soon</div>
+            <TodayEvents currentDate={currentDate} />
           </div>
         </Panel>
       </div>
