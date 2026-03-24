@@ -5,7 +5,7 @@ import { DailyHabitHeatmap } from './DailyHabitHeatmap';
 import { WeeklyTasksList } from './WeeklyTasksList';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
-import { CurrentWeekHologram } from './CurrentWeekHologram';
+import { BodyHologram } from '../weekly/BodyHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 import { WeeklyGrid } from '../weekly/WeeklyGrid';
 import { WeeklyCompletionBars } from '../weekly/WeeklyCompletionBars';
@@ -50,10 +50,11 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
               <h3 className="panel-header-title">WEEK</h3>
             </div>
             <div className="panel-content" style={{ padding: '8px 0' }}>
-              <CurrentWeekHologram
+              <BodyHologram
                 habits={habits}
                 completions={completions}
                 selectedWeekStart={selectedWeekStart}
+                isStandalone={true}
               />
             </div>
           </Panel>

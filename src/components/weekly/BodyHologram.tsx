@@ -1,13 +1,19 @@
-import React, { useRef, useMemo } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
+import React, { useRef, useMemo, Suspense } from 'react';
+import { useFrame, useLoader, Canvas } from '@react-three/fiber';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { getWeekDates } from '../../utils/dates';
 
 interface BodyHologramProps {
+  habits?: any[];
+  completions?: Record<string, string[]>;
+  selectedWeekStart?: string;
   completionPercent?: number;
   position?: [number, number, number];
   isCurrentWeek?: boolean;
   index?: number;
+  isStandalone?: boolean;
 }
 
 // ─── Holographic shader material ─────────────────────────────────────────────
@@ -90,15 +96,14 @@ class HolographicBodyMaterial extends THREE.ShaderMaterial {
           vec2 vCoords = vPos.xy / vPos.w * 0.5 + 0.5;
           vec2 myUV = fract(vCoords);
 
-          // Base hologram color — mix(0.05, brightness, pct) so 0% is ghost
-          float brightness = mix(0.05, hologramBrightness, completionPct);
-          vec4 hColor = vec4(hologramColor, mix(brightness, vUv.y, 0.5));
+          float brightness = mix(0.0, hologramBrightness * 0.6, completionPct);
+          vec4 hColor = vec4(hologramColor, mix(brightness, vUv.y, 0.3));
 
-          // Scanlines (from ektogamat)
           float scanlines = 10.0;
           scanlines += 20.0 * sin(time * signalSpeed * 20.8 - myUV.y * 60.0 * scanlineSize);
           scanlines *= smoothstep(1.3 * cos(time * signalSpeed + myUV.y * scanlineSize), 0.78, 0.9);
           scanlines *= max(0.25, sin(time * signalSpeed) * 1.0);
+          scanlines *= completionPct;
 
           float r = random(vUv.x, vUv.y);
           float g = random(vUv.y * 20.2, vUv.y * 0.2);
@@ -106,17 +111,15 @@ class HolographicBodyMaterial extends THREE.ShaderMaterial {
           hColor += vec4(r * scanlines, b * scanlines, r, 1.0) / 84.0;
           vec4 scanlineMix = mix(vec4(0.0), hColor, hColor.a);
 
-          // Fresnel rim glow
           vec3 viewDir = normalize(cameraPosition - vPositionW);
           float fresnelEffect = dot(viewDir, vNormalW) * (1.6 - fresnelOpacity / 2.0);
           fresnelEffect = clamp(fresnelAmount - fresnelEffect, 0.0, fresnelOpacity);
           fresnelEffect *= mix(0.3, 1.0, completionPct);
 
-          // Blink
           float blink = flicker(0.6 - signalSpeed, time * signalSpeed * 0.02);
 
           vec3 finalColor = scanlineMix.rgb * blink + fresnelEffect;
-          gl_FragColor = vec4(finalColor, hologramOpacity * mix(0.35, 1.0, completionPct));
+          gl_FragColor = vec4(finalColor, hologramOpacity * mix(0.05, 0.7, completionPct));
         }
       `,
       transparent: true,
@@ -127,7 +130,7 @@ class HolographicBodyMaterial extends THREE.ShaderMaterial {
   }
 }
 
-// ─── OBJ body mesh (solid faces with holographic shader) ────────────────────
+// ─── Inner body mesh rendering ──────────────────────────────────────────────
 const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const obj = useLoader(OBJLoader, '/body.obj');
@@ -139,7 +142,6 @@ const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
         geo = (child as THREE.Mesh).geometry;
       }
     });
-    // body.obj Y range ≈ -10..55; center at ~22, total height ~65 units → scale to ~1.9 world units
     const scale = 1.9 / 65;
     const offsetY = -22 * scale;
     const mat = new HolographicBodyMaterial();
@@ -167,7 +169,7 @@ const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
   );
 };
 
-// ─── OBJ wireframe overlay (LineSegments with uniform green) ────────────────
+// ─── Wireframe overlay ──────────────────────────────────────────────────────
 const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
   const obj = useLoader(OBJLoader, '/body.obj');
 
@@ -181,8 +183,6 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     if (!srcGeo) return { lineSegmentsGeometry: null, material: null, scale: 1, offsetY: 0 };
 
     const wfGeo = new THREE.WireframeGeometry(srcGeo!);
-
-    // Uniform green vertex colors
     const positions = wfGeo.attributes.position.array;
     const colors: number[] = [];
     const green = new THREE.Color('#39FF14');
@@ -194,8 +194,8 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const mat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.15 + pct * 0.45,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.4 + pct * 0.5,
+      blending: THREE.NormalBlending,
       depthWrite: false,
     });
 
@@ -217,19 +217,13 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
   );
 };
 
-// ─── Main BodyHologram component ─────────────────────────────────────────────
-export const BodyHologram: React.FC<BodyHologramProps> = ({
-  completionPercent = 75,
-  position = [0, 0, 0],
-  isCurrentWeek = false,
-}) => {
+// ─── Inner body scene (renders the 3D objects) ──────────────────────────────
+const BodyScene: React.FC<{ pct: number; isCurrentWeek?: boolean }> = ({ pct, isCurrentWeek = false }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const pct = Math.max(0, Math.min(100, completionPercent)) / 100;
 
   useFrame((state, delta) => {
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * 0.5;
-      // Current week spins slightly faster
       if (isCurrentWeek) {
         groupRef.current.rotation.y += delta * 0.2;
       }
@@ -237,11 +231,97 @@ export const BodyHologram: React.FC<BodyHologramProps> = ({
   });
 
   return (
-    <group ref={groupRef} position={position}>
-      <React.Suspense fallback={null}>
+    <group ref={groupRef}>
+      <Suspense fallback={null}>
         <BodyMesh pct={pct} />
         <BodyWireframe pct={pct} />
-      </React.Suspense>
+      </Suspense>
     </group>
   );
+};
+
+// ─── Calculate week completion ──────────────────────────────────────────────
+function calculateWeekCompletion(
+  habits: any[],
+  completions: Record<string, string[]>,
+  weekStart: string
+): number {
+  const activeHabits = habits.filter(h => h.isActive);
+  const totalPossible = activeHabits.length || 1;
+  const weekDates = getWeekDates(weekStart);
+
+  let totalCompleted = 0;
+  weekDates.forEach(date => {
+    const dayCompletions = completions[date] || [];
+    dayCompletions.forEach(habitId => {
+      if (activeHabits.find(h => h.id === habitId)) {
+        totalCompleted++;
+      }
+    });
+  });
+
+  const totalWeekPossible = totalPossible * 7;
+  return totalWeekPossible === 0 ? 0 : Math.round((totalCompleted / totalWeekPossible) * 100);
+}
+
+// ─── Main component ────────────────────────────────────────────────────────
+export const BodyHologram: React.FC<BodyHologramProps> = ({
+  habits,
+  completions,
+  selectedWeekStart,
+  completionPercent,
+  isCurrentWeek = false,
+  isStandalone = false,
+}) => {
+  // Determine completion percent
+  let pct: number;
+  if (isStandalone) {
+    // In standalone mode, always calculate from actual data
+    const percent = calculateWeekCompletion(habits || [], completions || {}, selectedWeekStart || '');
+    pct = percent / 100;
+  } else {
+    pct = Math.max(0, Math.min(100, completionPercent || 0)) / 100;
+  }
+
+  // For standalone mode (dashboard), provide Canvas wrapper
+  if (isStandalone) {
+    return (
+      <div style={{ width: '100%', height: '300px', background: 'transparent' }}>
+        <Canvas
+          camera={{ position: [0, 0, 4.2], fov: 40 }}
+          gl={{ alpha: true, antialias: true }}
+          style={{ background: 'transparent', width: '100%', height: '100%' }}
+        >
+          <Suspense fallback={null}>
+            <BodyScene pct={pct} isCurrentWeek={true} />
+            <EffectComposer>
+              <Bloom
+                intensity={1.2}
+                luminanceThreshold={0.2}
+                luminanceSmoothing={0.9}
+                radius={0.8}
+              />
+            </EffectComposer>
+          </Suspense>
+        </Canvas>
+        <div
+          style={{
+            textAlign: 'center',
+            fontFamily: 'Courier New, monospace',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            color: '#39FF14',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginTop: '4px',
+          }}
+        >
+          {Math.round(pct * 100)}%
+        </div>
+      </div>
+    );
+  }
+
+  // For multi-body mode (if needed in future), just render the scene
+  return <BodyScene pct={pct} isCurrentWeek={isCurrentWeek} />;
 };

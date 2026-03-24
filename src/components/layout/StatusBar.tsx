@@ -43,16 +43,18 @@ export const StatusBar = ({ date, habits, completions }) => {
 
   return (
     <div className="bg-surface border-b border-border-subtle px-6 py-3">
-      <div className="flex items-center justify-between">
+      <div className="relative flex items-center justify-between">
         <div>
-          <h1 className="font-display text-display text-text-accent">
-            STACK
-            <span className="ml-2 font-light text-text-secondary">{monthName}</span>
-          </h1>
-          <p className="text-caption text-text-muted uppercase tracking-widest mt-1">
+          <p className="font-light text-3xl text-text-secondary">
+            {monthName}
+          </p>
+          <p className="text-caption text-text-muted uppercase tracking-widest text-center mt-1">
             — HABIT TRACKER —
           </p>
         </div>
+        <h1 className="text-6xl text-text-accent absolute left-1/2 transform -translate-x-1/2 top-0 font-black" style={{ fontFamily: 'Impact, Arial Black, sans-serif', WebkitTextStroke: '2px rgba(57, 255, 20, 0.5)', textShadow: '0 0 15px rgba(57, 255, 20, 0.4)' }}>
+          GOTHAM
+        </h1>
 
         <div className="flex items-center gap-8">
           {/* Today's completion */}
