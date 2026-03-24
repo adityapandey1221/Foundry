@@ -325,7 +325,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
                 intensity={theme === 'jarvis' ? pct * 2.5 : pct * 1.2}
                 luminanceThreshold={theme === 'jarvis' ? 0.1 : 0.2}
                 luminanceSmoothing={0.9}
-                radius={theme === 'jarvis' ? 0.9 : 0.6}
+                radius={theme === 'jarvis' ? 0.5 : 0.6}
               />
             </EffectComposer>
           </Suspense>

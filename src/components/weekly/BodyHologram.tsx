@@ -314,7 +314,7 @@ const BodyHologramComponent: React.FC<BodyHologramProps> = ({
                 intensity={theme === 'jarvis' ? pct * 2.5 : pct * 1.2}
                 luminanceThreshold={theme === 'jarvis' ? 0.1 : 0.2}
                 luminanceSmoothing={0.9}
-                radius={theme === 'jarvis' ? 0.9 : 0.8}
+                radius={theme === 'jarvis' ? 0.5 : 0.8}
               />
             </EffectComposer>
           </Suspense>
