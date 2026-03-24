@@ -112,3 +112,101 @@ export const calculateMonthSummary = (year, month, habits, completions, getMonth
 
   return summary;
 };
+
+/**
+ * Calculate the best (longest) streak from all completion history
+ */
+export const calculateBestStreak = (habits, completions) => {
+  const activeHabits = habits.filter(h => h.isActive);
+  if (activeHabits.length === 0) return 0;
+
+  const sortedDates = Object.keys(completions).sort().reverse();
+  let bestStreak = 0;
+  let currentStreak = 0;
+
+  for (const dateStr of sortedDates) {
+    const dayCompletions = completions[dateStr] || [];
+    const completed = dayCompletions.filter(id => activeHabits.some(h => h.id === id)).length;
+
+    if (completed === activeHabits.length) {
+      currentStreak++;
+      bestStreak = Math.max(bestStreak, currentStreak);
+    } else {
+      currentStreak = 0;
+    }
+  }
+
+  return bestStreak;
+};
+
+/**
+ * Calculate habit score (0-100) based on week%, month%, and streak
+ */
+export const calculateHabitScore = (weekPct, monthPct, streak, bestStreak) => {
+  const weekWeight = 0.4;
+  const monthWeight = 0.3;
+  const streakWeight = 0.3;
+
+  const streakScore = bestStreak > 0 ? Math.min(100, (streak / Math.max(bestStreak, 7)) * 100) : 0;
+
+  return Math.round(weekPct * weekWeight + monthPct * monthWeight + streakScore * streakWeight);
+};
+
+/**
+ * Get letter grade and color from score (0-100)
+ */
+export const getGradeFromScore = (score) => {
+  if (score >= 95) return { grade: 'S', color: '#39FF14' };
+  if (score >= 90) return { grade: 'A+', color: '#39FF14' };
+  if (score >= 80) return { grade: 'A', color: '#43BF4D' };
+  if (score >= 70) return { grade: 'B', color: '#F7C948' };
+  if (score >= 60) return { grade: 'C', color: '#E866A0' };
+  if (score >= 50) return { grade: 'D', color: '#FF9500' };
+  return { grade: 'F', color: '#CD4246' };
+};
+
+/**
+ * Calculate N-day sparkline data (daily completion percentages)
+ */
+export const calculateNDaySparkline = (habits, completions, endDate, n = 7, habitId = null) => {
+  const activeHabits = habitId
+    ? habits.filter(h => h.isActive && h.id === habitId)
+    : habits.filter(h => h.isActive);
+
+  if (activeHabits.length === 0) return Array(n).fill(0);
+
+  const data = [];
+  const endDateObj = new Date(endDate + 'T00:00:00');
+
+  for (let i = n - 1; i >= 0; i--) {
+    const checkDate = new Date(endDateObj);
+    checkDate.setDate(checkDate.getDate() - i);
+    const dateStr = `${checkDate.getFullYear()}-${String(checkDate.getMonth() + 1).padStart(2, '0')}-${String(checkDate.getDate()).padStart(2, '0')}`;
+
+    const dayCompletions = completions[dateStr] || [];
+    const completed = dayCompletions.filter(id => activeHabits.some(h => h.id === id)).length;
+    const percentage = Math.round((completed / activeHabits.length) * 100);
+
+    data.push(percentage);
+  }
+
+  return data;
+};
+
+/**
+ * Calculate delta between two values with direction and formatting
+ */
+export const calculateDelta = (current, previous) => {
+  if (previous === 0) return { value: 0, direction: 'flat', formatted: '—' };
+
+  const delta = current - previous;
+  const pctChange = Math.round((delta / Math.max(previous, 1)) * 100);
+  const direction = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
+  const sign = delta > 0 ? '+' : '';
+
+  return {
+    value: delta,
+    direction,
+    formatted: `${sign}${pctChange}%`,
+  };
+};
