@@ -29,7 +29,7 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
         </div>
       </Panel>
 
-{/* Header with summary, holograms, and weekly completion */}
+{/* Header with summary, body hologram, and today events */}
       <div className="grid grid-cols-3 gap-1.5">
         <div className="col-span-1">
           <Panel compact>
@@ -41,19 +41,13 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
             </div>
           </Panel>
         </div>
-        <div className="col-span-2">
+        <div className="col-span-1">
           <Panel compact>
             <div className="panel-header">
-              <h3 className="panel-header-title">WEEK</h3>
+              <h3 className="panel-header-title">BODY</h3>
             </div>
-            <div style={{ padding: '6px 0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div className="p-2">
               <BodyHologram
-                habits={habits}
-                completions={completions}
-                selectedWeekStart={selectedWeekStart}
-                isStandalone={true}
-              />
-              <BrainHologram
                 habits={habits}
                 completions={completions}
                 selectedWeekStart={selectedWeekStart}
@@ -62,9 +56,19 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
             </div>
           </Panel>
         </div>
+        <div className="col-span-1">
+          <Panel compact>
+            <div className="panel-header">
+              <h3 className="panel-header-title">TODAY</h3>
+            </div>
+            <div className="p-2">
+              <TodayEvents currentDate={currentDate} />
+            </div>
+          </Panel>
+        </div>
       </div>
 
-{/* Charts row */}
+{/* Charts row with heatmap, tasks, and brain */}
       <div className="grid grid-cols-3 gap-1.5 -mt-1.5">
         <Panel compact>
           <div className="panel-header">
@@ -84,10 +88,15 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
         </Panel>
         <Panel compact>
           <div className="panel-header">
-            <h3 className="panel-header-title">TODAY</h3>
+            <h3 className="panel-header-title">BRAIN</h3>
           </div>
           <div className="p-2">
-            <TodayEvents currentDate={currentDate} />
+            <BrainHologram
+              habits={habits}
+              completions={completions}
+              selectedWeekStart={selectedWeekStart}
+              isStandalone={true}
+            />
           </div>
         </Panel>
       </div>
