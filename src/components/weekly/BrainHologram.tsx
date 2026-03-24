@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, Suspense } from 'react';
+import React, { useRef, useMemo, Suspense, memo } from 'react';
 import { useFrame, useLoader, Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
@@ -175,6 +175,8 @@ const BrainMesh: React.FC<{ pct: number }> = ({ pct }) => {
 const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
   const gltf = useLoader(GLTFLoader, '/brain.glb');
 
+  const lineSegmentsRef = useRef<THREE.LineSegments>(null);
+
   const { lineSegmentsGeometry, material, scale, offsetY } = useMemo(() => {
     let srcGeo: THREE.BufferGeometry | null = null;
     gltf.scene.traverse((child) => {
@@ -196,7 +198,7 @@ const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const mat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.4 + pct * 0.5,
+      opacity: 0.4,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
@@ -205,12 +207,19 @@ const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const offsetY = 0.3;
 
     return { lineSegmentsGeometry: wfGeo, material: mat, scale, offsetY };
-  }, [gltf, pct]);
+  }, [gltf]);
+
+  useFrame(() => {
+    if (lineSegmentsRef.current && lineSegmentsRef.current.material instanceof THREE.LineBasicMaterial) {
+      (lineSegmentsRef.current.material as THREE.LineBasicMaterial).opacity = 0.4 + pct * 0.5;
+    }
+  });
 
   if (!lineSegmentsGeometry || !material) return null;
 
   return (
     <lineSegments
+      ref={lineSegmentsRef}
       geometry={lineSegmentsGeometry}
       material={material}
       scale={[scale, scale, scale]}
@@ -270,7 +279,7 @@ function calculateWeekCompletion(
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
-export const BrainHologram: React.FC<BrainHologramProps> = (
+const BrainHologramComponent: React.FC<BrainHologramProps> = (
   {
     habits,
     completions,
@@ -332,3 +341,5 @@ export const BrainHologram: React.FC<BrainHologramProps> = (
   // For multi-brain mode (if needed in future), just render the scene
   return <BrainScene pct={pct} isCurrentWeek={isCurrentWeek} />;
 };
+
+export const BrainHologram = memo(BrainHologramComponent);

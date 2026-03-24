@@ -1,15 +1,14 @@
-import { getMonthDates } from '../../utils/dates';
 import { calculatePercentage } from '../../utils/scoring';
 
-export const SummaryRings = ({ habits, completions, currentDate }) => {
-  const monthDates = getMonthDates(currentDate.year, currentDate.month);
+export const SummaryRings = ({ habits, completions, weekDates }) => {
   const activeHabits = habits.filter(h => h.isActive);
 
-  const totalCompleted = Object.values(completions).reduce((sum, dayCompletes: any) => {
+  const totalCompleted = weekDates.reduce((sum, date) => {
+    const dayCompletes = completions[date] || [];
     return sum + dayCompletes.filter((id: any) => activeHabits.find((h: any) => h.id === id)).length;
   }, 0);
 
-  const totalPossible = activeHabits.length * monthDates.length;
+  const totalPossible = activeHabits.length * weekDates.length;
   const percentage = calculatePercentage(totalCompleted, totalPossible);
 
   return (

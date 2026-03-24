@@ -30,7 +30,6 @@ export const WeeklyPlannerView = ({ currentDate }) => {
     deleteDayTask,
     addDayEvent,
     deleteDayEvent,
-    updateDayFocus,
     toggleWeeklyHabit,
     addWeeklyHabit,
     deleteWeeklyHabit,
@@ -95,7 +94,6 @@ export const WeeklyPlannerView = ({ currentDate }) => {
             onDeleteTask={(taskId) => deleteDayTask(dayIndex, taskId)}
             onAddEvent={(time, title) => addDayEvent(dayIndex, time, title)}
             onDeleteEvent={(eventId) => deleteDayEvent(dayIndex, eventId)}
-            onUpdateFocus={(focus) => updateDayFocus(dayIndex, focus)}
           />
         ))}
       </div>

@@ -12,7 +12,6 @@ interface DayColumnProps {
   onDeleteTask: (taskId: string) => void;
   onAddEvent: (time: string, title: string) => void;
   onDeleteEvent: (eventId: string) => void;
-  onUpdateFocus: (focus: string) => void;
 }
 
 const DAY_COLORS = [
@@ -34,22 +33,14 @@ export const DayColumn = ({
   onToggleTask,
   onDeleteTask,
   onAddEvent,
-  onDeleteEvent,
-  onUpdateFocus
+  onDeleteEvent
 }: DayColumnProps) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newEventTime, setNewEventTime] = useState('');
   const [newEventTitle, setNewEventTitle] = useState('');
-  const [editingFocus, setEditingFocus] = useState(false);
-  const [focusValue, setFocusValue] = useState(day.focus);
 
   const bgColor = DAY_COLORS[dayIndex];
   const completedTasks = day.tasks.filter(t => t.completed).length;
-
-  const handleSaveFocus = () => {
-    onUpdateFocus(focusValue);
-    setEditingFocus(false);
-  };
 
   return (
     <div className="flex flex-col gap-2 w-40 flex-shrink-0">
@@ -65,30 +56,6 @@ export const DayColumn = ({
         <div className="text-xs text-neutral-400">
           {parseLocalDate(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </div>
-      </div>
-
-      {/* Focus Section */}
-      <div className="card-lg p-3">
-        <div className="text-xs mb-1 opacity-60" style={{ color: '#39FF14' }}>focus</div>
-        {editingFocus ? (
-          <input
-            type="text"
-            value={focusValue}
-            onChange={(e) => setFocusValue(e.target.value)}
-            onBlur={handleSaveFocus}
-            onKeyDown={(e) => e.key === 'Enter' && handleSaveFocus()}
-            autoFocus
-            className="w-full text-xs"
-          />
-        ) : (
-          <div
-            onClick={() => setEditingFocus(true)}
-            className="text-xs cursor-pointer hover:opacity-80 min-h-6"
-            style={{ color: '#39FF14' }}
-          >
-            {focusValue || 'set your intention...'}
-          </div>
-        )}
       </div>
 
       {/* Events Section */}

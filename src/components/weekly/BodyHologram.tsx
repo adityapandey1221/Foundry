@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, Suspense } from 'react';
+import React, { useRef, useMemo, Suspense, memo } from 'react';
 import { useFrame, useLoader, Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
@@ -173,6 +173,8 @@ const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
 const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
   const obj = useLoader(OBJLoader, '/body.obj');
 
+  const lineSegmentsRef = useRef<THREE.LineSegments>(null);
+
   const { lineSegmentsGeometry, material, scale, offsetY } = useMemo(() => {
     let srcGeo: THREE.BufferGeometry | null = null;
     obj.traverse((child) => {
@@ -194,7 +196,7 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const mat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.4 + pct * 0.5,
+      opacity: 0.4,
       blending: THREE.NormalBlending,
       depthWrite: false,
     });
@@ -203,12 +205,19 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const offsetY = -22 * scale;
 
     return { lineSegmentsGeometry: wfGeo, material: mat, scale, offsetY };
-  }, [obj, pct]);
+  }, [obj]);
+
+  useFrame(() => {
+    if (lineSegmentsRef.current && lineSegmentsRef.current.material instanceof THREE.LineBasicMaterial) {
+      (lineSegmentsRef.current.material as THREE.LineBasicMaterial).opacity = 0.4 + pct * 0.5;
+    }
+  });
 
   if (!lineSegmentsGeometry || !material) return null;
 
   return (
     <lineSegments
+      ref={lineSegmentsRef}
       geometry={lineSegmentsGeometry}
       material={material}
       scale={[scale, scale, scale]}
@@ -265,7 +274,7 @@ function calculateWeekCompletion(
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
-export const BodyHologram: React.FC<BodyHologramProps> = ({
+const BodyHologramComponent: React.FC<BodyHologramProps> = ({
   habits,
   completions,
   selectedWeekStart,
@@ -325,3 +334,5 @@ export const BodyHologram: React.FC<BodyHologramProps> = ({
   // For multi-body mode (if needed in future), just render the scene
   return <BodyScene pct={pct} isCurrentWeek={isCurrentWeek} />;
 };
+
+export const BodyHologram = memo(BodyHologramComponent);

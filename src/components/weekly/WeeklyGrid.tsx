@@ -1,8 +1,9 @@
+import { memo, useMemo } from 'react';
 import { getDayName } from '../../utils/dates';
 import { CATEGORIES } from '../../utils/constants';
 import { parseLocalDate } from '../../utils/timezone';
 
-export const WeeklyGrid = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate }) => {
+const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate }) => {
   const activeHabits = habits.filter((h: any) => h.isActive);
   const today = parseLocalDate(currentDate.today);
 
@@ -83,3 +84,5 @@ export const WeeklyGrid = ({ habits, completions, weekDates, toggleHabitCompleti
     </div>
   );
 };
+
+export const WeeklyGrid = memo(WeeklyGridContent);

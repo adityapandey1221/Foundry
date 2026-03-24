@@ -18,7 +18,6 @@ export interface DayTask {
 
 export interface DayPlan {
   date: string;
-  focus: string;
   events: DayEvent[];
   tasks: DayTask[];
 }
@@ -63,7 +62,6 @@ export const useWeeklyPlan = (weekStart: string) => {
           date.setDate(date.getDate() + i);
           return {
             date: date.toISOString().split('T')[0],
-            focus: '',
             events: [],
             tasks: []
           };
@@ -139,6 +137,35 @@ export const useWeeklyPlan = (weekStart: string) => {
     updateDay(dayIndex, updated);
   };
 
+  const sortEventsByTime = (events: DayEvent[]): DayEvent[] => {
+    return [...events].sort((a, b) => {
+      // Parse time strings to comparable format (HH:MM in 24-hour format)
+      const parseTime = (timeStr: string): number => {
+        // Remove extra spaces and convert to lowercase
+        const normalized = timeStr.trim().toLowerCase();
+
+        // Match formats like "9:30 AM", "9:30AM", "14:30", "9:30", "9 AM"
+        const match = normalized.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+        if (!match) return 0;
+
+        let hours = parseInt(match[1], 10);
+        const minutes = match[2] ? parseInt(match[2], 10) : 0;
+        const meridiem = match[3];
+
+        // Convert to 24-hour format
+        if (meridiem === 'pm' && hours !== 12) {
+          hours += 12;
+        } else if (meridiem === 'am' && hours === 12) {
+          hours = 0;
+        }
+
+        return hours * 60 + minutes;
+      };
+
+      return parseTime(a.time) - parseTime(b.time);
+    });
+  };
+
   const addDayEvent = (dayIndex: number, time: string, title: string) => {
     const day = weekPlan?.days[dayIndex];
     if (!day) return;
@@ -151,7 +178,7 @@ export const useWeeklyPlan = (weekStart: string) => {
 
     const updated = {
       ...day,
-      events: [...day.events, newEvent]
+      events: sortEventsByTime([...day.events, newEvent])
     };
     updateDay(dayIndex, updated);
   };
@@ -164,14 +191,6 @@ export const useWeeklyPlan = (weekStart: string) => {
       ...day,
       events: day.events.filter(e => e.id !== eventId)
     };
-    updateDay(dayIndex, updated);
-  };
-
-  const updateDayFocus = (dayIndex: number, focus: string) => {
-    const day = weekPlan?.days[dayIndex];
-    if (!day) return;
-
-    const updated = { ...day, focus };
     updateDay(dayIndex, updated);
   };
 
@@ -271,7 +290,6 @@ export const useWeeklyPlan = (weekStart: string) => {
     deleteDayTask,
     addDayEvent,
     deleteDayEvent,
-    updateDayFocus,
     toggleWeeklyHabit,
     addWeeklyHabit,
     deleteWeeklyHabit,

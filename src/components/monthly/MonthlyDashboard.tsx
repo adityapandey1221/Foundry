@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Panel } from '../shared/Panel';
 import { SummaryRings } from './SummaryRings';
 import { DailyHabitHeatmap } from './DailyHabitHeatmap';
@@ -9,31 +9,15 @@ import { BodyHologram } from '../weekly/BodyHologram';
 import { BrainHologram } from '../weekly/BrainHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 import { WeeklyGrid } from '../weekly/WeeklyGrid';
-import { WeeklyCompletionBars } from '../weekly/WeeklyCompletionBars';
 
-export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, currentDate }) => {
+const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion, currentDate }) => {
   const [selectedWeekStart, setSelectedWeekStart] = useState(getWeekStart(currentDate.today));
   const monthWeeks = getMonthWeeks(currentDate.year, currentDate.month);
   const weekDates = getWeekDates(selectedWeekStart);
 
   return (
     <div className="space-y-4 p-6">
-      {/* Week selector */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {monthWeeks.map((weekStart, idx) => (
-          <button
-            key={weekStart}
-            onClick={() => setSelectedWeekStart(weekStart)}
-            className={`btn ${
-              weekStart === selectedWeekStart ? 'btn-primary' : 'btn-secondary'
-            } text-xs uppercase`}
-          >
-            W{idx + 1}
-          </button>
-        ))}
-      </div>
-
-      {/* Header with summary, holograms, and weekly completion */}
+{/* Header with summary, holograms, and weekly completion */}
       <div className="grid grid-cols-3 gap-4">
         <div className="col-span-1">
           <Panel>
@@ -41,7 +25,7 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
               <h3 className="panel-header-title">SUMMARY</h3>
             </div>
             <div className="panel-content">
-              <SummaryRings habits={habits} completions={completions} currentDate={currentDate} />
+              <SummaryRings habits={habits} completions={completions} weekDates={weekDates} />
             </div>
           </Panel>
         </div>
@@ -68,21 +52,7 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
         </div>
       </div>
 
-      {/* Weekly completion */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2">
-          <Panel>
-            <div className="panel-header">
-              <h3 className="panel-header-title">WEEKLY COMPLETION</h3>
-            </div>
-            <div className="panel-content">
-              <WeeklyCompletionBars habits={habits} completions={completions} weekDates={weekDates} />
-            </div>
-          </Panel>
-        </div>
-      </div>
-
-      {/* Charts row */}
+{/* Charts row */}
       <div className="grid grid-cols-2 gap-4">
         <Panel>
           <div className="panel-header">
@@ -134,3 +104,5 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
     </div>
   );
 };
+
+export const MonthlyDashboard = memo(MonthlyDashboardComponent);

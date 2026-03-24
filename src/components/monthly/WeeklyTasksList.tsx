@@ -23,7 +23,7 @@ export const WeeklyTasksList = ({ selectedWeekStart }) => {
   return (
     <div className="space-y-4">
       {/* Summary */}
-      <div className="text-sm" style={{ color: '#39FF14' }}>
+      <div className="text-base font-bold" style={{ color: '#39FF14' }}>
         {completedTasks}/{totalTasks} tasks completed
       </div>
 
@@ -38,14 +38,14 @@ export const WeeklyTasksList = ({ selectedWeekStart }) => {
 
           return (
             <div key={day.date} className="space-y-2">
-              <div className="text-xs uppercase font-bold" style={{ color: '#39FF14' }}>
+              <div className="text-sm uppercase font-bold" style={{ color: '#39FF14' }}>
                 {dayLabel} {dayNum}
               </div>
               <div className="space-y-1 pl-3 border-l" style={{ borderColor: '#22AA44' }}>
                 {day.tasks.map(task => (
                   <div
                     key={task.id}
-                    className="flex items-center gap-2 text-xs cursor-pointer hover:opacity-80 transition"
+                    className="flex items-center gap-2 text-sm cursor-pointer hover:opacity-80 transition"
                     onClick={() => toggleDayTask(dayIndex, task.id)}
                   >
                     <input
@@ -75,7 +75,7 @@ export const WeeklyTasksList = ({ selectedWeekStart }) => {
         })}
 
         {weekPlan.days.every(d => d.tasks.length === 0) && (
-          <div className="text-xs" style={{ color: '#22AA44' }}>
+          <div className="text-sm" style={{ color: '#22AA44' }}>
             No tasks for this week. Add some in the Weekly Planner!
           </div>
         )}
