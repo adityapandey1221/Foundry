@@ -1,0 +1,230 @@
+@import "tailwindcss";
+
+* {
+  font-family: 'Courier New', monospace;
+}
+
+html {
+  @apply bg-black text-neutral-300;
+}
+
+body {
+  @apply bg-black text-neutral-300;
+  font-family: 'Courier New', monospace;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Base panel/card styling */
+.panel {
+  @apply border border-neutral-700 bg-neutral-900 rounded;
+  border-top: 2px solid rgb(59, 130, 246);
+}
+
+.panel-header {
+  @apply border-b border-neutral-700 px-4 py-3 flex items-center justify-between;
+  background-color: rgba(23, 23, 23, 0.8);
+}
+
+.panel-header-title {
+  @apply text-sm font-bold text-white uppercase tracking-wider;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+}
+
+.panel-header-dot {
+  @apply w-2 h-2 rounded-full bg-blue-400 mr-2;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.panel-content {
+  @apply p-4;
+}
+
+/* Button styles */
+.btn {
+  @apply border rounded transition-colors cursor-pointer px-3 py-2 font-bold;
+  font-family: 'Courier New', monospace;
+  border-width: 1px;
+  transition-duration: 100ms;
+
+  &:disabled {
+    @apply text-neutral-500 cursor-not-allowed opacity-50;
+  }
+}
+
+.btn-primary {
+  @apply border-blue-400 bg-neutral-800 text-white;
+
+  &:not(:disabled):hover {
+    @apply bg-neutral-700 border-blue-300;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  }
+}
+
+.btn-secondary {
+  @apply border-neutral-500 bg-neutral-800 text-neutral-200;
+
+  &:not(:disabled):hover {
+    @apply bg-neutral-700 border-neutral-400;
+    box-shadow: 0 0 8px rgba(115, 115, 115, 0.3);
+  }
+}
+
+.btn-ghost {
+  @apply border-transparent bg-transparent text-neutral-400;
+
+  &:not(:disabled):hover {
+    @apply bg-neutral-800 border-neutral-600 text-neutral-200;
+  }
+}
+
+.btn-danger {
+  @apply border-red-500 bg-red-900 text-red-200;
+
+  &:not(:disabled):hover {
+    @apply bg-red-800 border-red-400;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+  }
+}
+
+/* Input styles */
+input,
+select,
+textarea {
+  font-family: 'Courier New', monospace;
+  @apply bg-neutral-800 border border-neutral-600 text-white rounded px-3 py-2;
+
+  &:focus {
+    @apply outline-none border-blue-400;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+  }
+
+  &::placeholder {
+    @apply text-neutral-500;
+  }
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Courier New', monospace;
+  @apply font-bold;
+}
+
+/* Table styling */
+table {
+  @apply w-full border-collapse;
+  font-family: 'Courier New', monospace;
+}
+
+th, td {
+  @apply border border-neutral-700 px-3 py-2 text-left;
+}
+
+th {
+  @apply bg-neutral-800 font-bold text-white;
+  border-bottom: 2px solid rgb(59, 130, 246);
+}
+
+tr:nth-child(even) {
+  @apply bg-neutral-900;
+}
+
+tr:hover {
+  @apply bg-neutral-800;
+}
+
+/* Focus state */
+.add-focus {
+  @apply focus-visible:ring-2 focus-visible:ring-blue-400 outline-none;
+}
+
+.add-disable {
+  @apply disabled:text-neutral-500 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+/* Size variants */
+.add-size-sm {
+  @apply h-6 rounded px-2 text-sm;
+}
+
+.add-size-md {
+  @apply h-8 rounded px-2.5 text-base;
+}
+
+.add-size-base {
+  @apply h-9 rounded px-3 text-base;
+}
+
+/* Animations */
+@keyframes float {
+  to {
+    transform: translate(5px, 15px);
+  }
+}
+
+.float {
+  animation: float 5s linear infinite alternate;
+}
+
+@keyframes refresh {
+  to {
+    transform: rotate(360deg) scale(0.9);
+  }
+}
+
+.refresh {
+  animation: refresh 0.5s ease-in-out infinite;
+}
+
+/* Grid and layout styling */
+.grid {
+  gap-width: 1rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  @apply w-2 h-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-neutral-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-700 rounded;
+
+  &:hover {
+    @apply bg-neutral-600;
+  }
+}
+
+/* Selection */
+::selection {
+  @apply bg-blue-500 text-white;
+}
+
+/* Markdown table styling */
+.markdown-body table {
+  @apply w-full border-collapse my-4;
+}
+
+.markdown-body th,
+.markdown-body td {
+  @apply border border-neutral-700 px-3 py-2 text-left;
+}
+
+.markdown-body th {
+  @apply bg-neutral-800 font-semibold text-white;
+  border-bottom: 2px solid rgb(59, 130, 246);
+}
+
+.markdown-body tr {
+  @apply text-neutral-300;
+}
+
+.markdown-body tr:nth-child(even) {
+  @apply bg-neutral-900;
+}

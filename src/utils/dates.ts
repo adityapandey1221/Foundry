@@ -1,0 +1,109 @@
+/**
+ * Get ISO date string for today (YYYY-MM-DD)
+ */
+export const today = () => {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+};
+
+/**
+ * Get the start of the week (Monday) for a given date
+ */
+export const getWeekStart = (dateStr, weekStartsOn = 'monday') => {
+  const d = new Date(dateStr);
+  const day = d.getDay();
+  const diff = weekStartsOn === 'monday' ? d.getDate() - day + (day === 0 ? -6 : 1) : d.getDate() - day;
+  const startDate = new Date(d.setDate(diff));
+  return startDate.toISOString().split('T')[0];
+};
+
+/**
+ * Get the end of the week (Sunday) for a given date
+ */
+export const getWeekEnd = (dateStr) => {
+  const start = new Date(dateStr);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+  return end.toISOString().split('T')[0];
+};
+
+/**
+ * Get all 7 dates in a week (Mon-Sun)
+ */
+export const getWeekDates = (dateStr) => {
+  const start = new Date(dateStr);
+  const dates: string[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
+/**
+ * Get all weeks in a month
+ */
+export const getMonthWeeks = (year, month) => {
+  const weeks: string[] = [];
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+
+  let current = new Date(firstDay);
+  // Back to Monday
+  current.setDate(current.getDate() - (current.getDay() === 0 ? 6 : current.getDay() - 1));
+
+  while (current <= lastDay) {
+    const weekStart = current.toISOString().split('T')[0];
+    weeks.push(weekStart);
+    current.setDate(current.getDate() + 7);
+  }
+
+  return weeks;
+};
+
+/**
+ * Get all dates in a month
+ */
+export const getMonthDates = (year, month) => {
+  const dates: string[] = [];
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= lastDay; day++) {
+    const d = new Date(year, month, day);
+    dates.push(d.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
+/**
+ * Format a date string to readable format
+ */
+export const formatDate = (dateStr, format = 'short') => {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  if (format === 'short') {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  if (format === 'long') {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  if (format === 'full') {
+    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  }
+  return dateStr;
+};
+
+/**
+ * Get the current month and year
+ */
+export const getCurrentMonth = () => {
+  const d = new Date();
+  return { month: d.getMonth(), year: d.getFullYear() };
+};
+
+/**
+ * Get day name from date string
+ */
+export const getDayName = (dateStr) => {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  return d.toLocaleDateString('en-US', { weekday: 'short' });
+};
