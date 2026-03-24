@@ -52,7 +52,7 @@ export const StatusBar = ({ date, habits, completions, theme = 'matrix' }) => {
             — COMMAND CENTER —
           </p>
         </div>
-        <h1 className="text-6xl text-text-accent absolute left-1/2 transform -translate-x-1/2 top-0 font-black" style={{ fontFamily: 'Impact, Arial Black, sans-serif', WebkitTextStroke: theme === 'jarvis' ? '2px rgba(255, 255, 255, 0.35)' : '2px rgba(57, 255, 20, 0.5)', textShadow: theme === 'jarvis' ? '0 0 20px rgba(255, 255, 255, 0.35)' : '0 0 15px rgba(57, 255, 20, 0.4)' }}>
+        <h1 className="text-6xl text-text-accent absolute left-1/2 transform -translate-x-1/2 top-0 font-black" style={{ fontFamily: 'Impact, Arial Black, sans-serif', WebkitTextStroke: theme === 'jarvis' ? '2px rgba(255, 255, 255, 0.5)' : '2px rgba(57, 255, 20, 0.5)', textShadow: theme === 'jarvis' ? '0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.4), 0 0 60px rgba(255, 255, 255, 0.2)' : '0 0 15px rgba(57, 255, 20, 0.4)' }}>
           GOTHAM
         </h1>
 
