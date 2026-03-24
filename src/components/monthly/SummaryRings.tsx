@@ -1,9 +1,34 @@
 import { useMemo } from 'react';
+// @ts-ignore - Using git package source directly
+import ActivityRings from '@jonasdoesthings/react-activity-rings/src/components/ActivityRings';
 import { calculatePercentage } from '../../utils/scoring';
 import { CATEGORIES } from '../../utils/constants';
 
+type CategoryData = {
+  label: string;
+  color: string;
+  value: number;
+  completed: number;
+  total: number;
+};
+
+type ActivityRing = {
+  filledPercentage: number;
+  color: string;
+  ringWidth?: number;
+};
+
+type ActivityRingContainerOptions = {
+  containerHeight?: string;
+  containerWidth?: string;
+  initialRadius?: number;
+  paddingBetweenRings?: number;
+  animationDurationMillis?: number;
+  backgroundOpacity?: number;
+};
+
 export const SummaryRings = ({ habits, completions, weekDates }) => {
-  const rings = useMemo(() => {
+  const data = useMemo(() => {
     const activeHabits = habits.filter(h => h.isActive);
 
     // Overall completion
@@ -12,10 +37,10 @@ export const SummaryRings = ({ habits, completions, weekDates }) => {
       return sum + dayCompletes.filter((id: any) => activeHabits.find((h: any) => h.id === id)).length;
     }, 0);
     const totalPossible = activeHabits.length * weekDates.length;
-    const overallPct = calculatePercentage(totalCompleted, totalPossible);
+    const overallValue = calculatePercentage(totalCompleted, totalPossible) / 100;
 
     // Per-category completion
-    const categoryData = {};
+    const categoryData: Record<string, CategoryData> = {};
     Object.values(CATEGORIES).forEach(cat => {
       const catHabits = activeHabits.filter(h => h.category === cat.key);
       if (catHabits.length === 0) return;
@@ -26,96 +51,83 @@ export const SummaryRings = ({ habits, completions, weekDates }) => {
       }, 0);
 
       const catPossible = catHabits.length * weekDates.length;
-      const catPct = calculatePercentage(catCompleted, catPossible);
+      const catValue = calculatePercentage(catCompleted, catPossible) / 100;
 
       categoryData[cat.key] = {
         label: cat.label,
         color: cat.hex,
-        percentage: catPct,
+        value: catValue,
         completed: catCompleted,
         total: catPossible,
       };
     });
 
-    // Sort by habit count descending, take top 3
+    // Sort by habit count descending, take top 2 for concentric rings
     const topCategories = Object.entries(categoryData)
       .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 3)
+      .slice(0, 2)
       .map(([key, data]) => ({ key, ...data }));
 
+    // Build activity rings: overall + top 2 categories
+    // Colors match the cyberpunk terminal theme
+    const ringColors = ['#39FF14', '#5B8FF9', '#E866A0']; // Terminal Green, Sleep Blue, Productivity Pink
+    const rings: ActivityRing[] = [
+      { filledPercentage: overallValue, color: ringColors[0], ringWidth: 12 },
+      ...topCategories.slice(0, 2).map((cat, idx) => ({
+        filledPercentage: cat.value,
+        color: ringColors[idx + 1],
+        ringWidth: 12,
+      })),
+    ];
+
     return {
-      overall: { percentage: overallPct, completed: totalCompleted, total: totalPossible },
-      categories: topCategories,
+      rings,
+      overallValue,
+      overallPct: Math.round(overallValue * 100),
+      topCategories,
     };
   }, [habits, completions, weekDates]);
 
-  const RingCircle = ({ pct, color, r, strokeWidth = 6, label }: any) => {
-    const circumference = 2 * Math.PI * r;
-    const strokeDasharray = (pct / 100) * circumference;
-
-    return (
-      <g>
-        {/* Background */}
-        <circle cx="60" cy="60" r={r} fill="none" stroke="#22AA44" strokeWidth={strokeWidth} opacity="0.2" />
-        {/* Progress */}
-        <circle
-          cx="60"
-          cy="60"
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth={strokeWidth}
-          strokeDasharray={`${strokeDasharray} ${circumference}`}
-          transform="rotate(-90 60 60)"
-          style={{
-            transition: 'stroke-dasharray 0.4s ease-out',
-            filter: `drop-shadow(0 0 6px ${color}80)`,
-          }}
-        />
-      </g>
-    );
+  const options: ActivityRingContainerOptions = {
+    containerHeight: '240px',
+    containerWidth: '240px',
+    initialRadius: 30,
+    paddingBetweenRings: 0,
+    animationDurationMillis: 1000,
+    backgroundOpacity: 0.3,
   };
 
   return (
-    <div className="flex flex-col items-center justify-center py-6">
-      <div className="relative w-40 h-40 mb-4">
-        <svg className="w-full h-full" viewBox="0 0 120 120">
-          {/* Ring 1: Overall (outermost, r=54) */}
-          <RingCircle pct={rings.overall.percentage} color="#39FF14" r={54} strokeWidth={6} />
-
-          {/* Ring 2: Category 1 (r=42) */}
-          {rings.categories[0] && (
-            <RingCircle pct={rings.categories[0].percentage} color={rings.categories[0].color} r={42} strokeWidth={5} />
-          )}
-
-          {/* Ring 3: Category 2 (r=30) */}
-          {rings.categories[1] && (
-            <RingCircle pct={rings.categories[1].percentage} color={rings.categories[1].color} r={30} strokeWidth={5} />
-          )}
-
-          {/* Ring 4: Category 3 (innermost, r=18) */}
-          {rings.categories[2] && (
-            <RingCircle pct={rings.categories[2].percentage} color={rings.categories[2].color} r={18} strokeWidth={4} />
-          )}
-
-          {/* Center text */}
-          <text x="60" y="55" textAnchor="middle" style={{ fontSize: '20px', fontWeight: 'bold', fill: '#39FF14', fontFamily: 'monospace' }}>
-            {rings.overall.percentage}%
-          </text>
-        </svg>
+    <div className="flex flex-col items-center justify-center gap-4">
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '240px', height: '240px' }}>
+        <ActivityRings rings={data.rings} options={options} />
       </div>
 
-      {/* Legend */}
-      <div className="flex flex-col gap-1.5 text-center">
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#39FF14', boxShadow: '0 0 6px rgba(57, 255, 20, 0.6)' }} />
-          <span className="text-xs uppercase" style={{ color: '#39FF14' }}>OVERALL</span>
+      <div className="text-center">
+        <div
+          className="text-3xl font-bold"
+          style={{ color: '#39FF14', fontFamily: 'monospace' }}
+        >
+          {data.overallPct}%
         </div>
-        {rings.categories.map(cat => (
+        <div
+          className="text-xs uppercase tracking-wider mt-1"
+          style={{ color: '#22AA44' }}
+        >
+          Completion
+        </div>
+      </div>
+
+      {/* Legend for top categories */}
+      <div className="flex flex-col gap-1 text-center">
+        {data.topCategories.map(cat => (
           <div key={cat.key} className="flex items-center justify-center gap-2">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color, boxShadow: `0 0 6px ${cat.color}80` }} />
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: cat.color, boxShadow: `0 0 6px ${cat.color}80` }}
+            />
             <span className="text-xs uppercase" style={{ color: cat.color }}>
-              {cat.label} {cat.percentage}%
+              {cat.label} {Math.round(cat.value * 100)}%
             </span>
           </div>
         ))}

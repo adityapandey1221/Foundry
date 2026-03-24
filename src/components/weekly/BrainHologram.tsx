@@ -159,6 +159,10 @@ const BrainMesh: React.FC<{ pct: number }> = ({ pct }) => {
     }
   });
 
+  if (!geometry) {
+    return null;
+  }
+
   return (
     <mesh
       ref={meshRef}

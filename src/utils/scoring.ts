@@ -175,7 +175,7 @@ export const calculateNDaySparkline = (habits, completions, endDate, n = 7, habi
 
   if (activeHabits.length === 0) return Array(n).fill(0);
 
-  const data = [];
+  const data: number[] = [];
   const endDateObj = new Date(endDate + 'T00:00:00');
 
   for (let i = n - 1; i >= 0; i--) {
