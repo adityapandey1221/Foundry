@@ -1,10 +1,11 @@
 import { getMonthDates } from '../../utils/dates';
+import { parseLocalDate } from '../../utils/timezone';
 import { CATEGORIES } from '../../utils/constants';
 
 export const MonthlyHabitGrid = ({ habits, completions, toggleHabitCompletion, currentDate }) => {
   const monthDates = getMonthDates(currentDate.year, currentDate.month);
   const activeHabits = habits.filter((h: any) => h.isActive);
-  const today = new Date(currentDate.today);
+  const today = parseLocalDate(currentDate.today);
 
   return (
     <div className="overflow-x-auto">
@@ -13,7 +14,7 @@ export const MonthlyHabitGrid = ({ habits, completions, toggleHabitCompletion, c
           <tr className="border-b border-border-subtle">
             <th className="text-left py-2 px-2 text-text-muted sticky left-0 bg-surface w-32">HABIT</th>
             {monthDates.map((date) => {
-              const cellDate = new Date(date);
+              const cellDate = parseLocalDate(date);
               const isToday = date === currentDate.today;
               return (
                 <th
@@ -42,7 +43,7 @@ export const MonthlyHabitGrid = ({ habits, completions, toggleHabitCompletion, c
                 {monthDates.map((date) => {
                   const dayCompletions = completions[date] || [];
                   const isCompleted = dayCompletions.includes(habit.id);
-                  const cellDate = new Date(date);
+                  const cellDate = parseLocalDate(date);
                   const isFuture = cellDate > today;
                   const isToday = date === currentDate.today;
 

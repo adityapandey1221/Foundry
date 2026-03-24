@@ -1,5 +1,6 @@
 import { useWeeklyPlan } from '../../hooks/useWeeklyPlan';
 import { getWeekDates } from '../../utils/dates';
+import { parseLocalDate } from '../../utils/timezone';
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -31,7 +32,7 @@ export const WeeklyTasksList = ({ selectedWeekStart }) => {
         {weekPlan.days.map((day, dayIndex) => {
           if (day.tasks.length === 0) return null;
 
-          const dayDate = new Date(day.date);
+          const dayDate = parseLocalDate(day.date);
           const dayNum = dayDate.getDate();
           const dayLabel = DAY_LABELS[dayDate.getDay()];
 
