@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useWeeklyPlan } from '../../hooks/useWeeklyPlan';
-import { getMonday, getWeekDates } from '../../utils/dates';
+import { getWeekDates } from '../../utils/dates';
+import { getMondayOfWeek, formatLocalDate, getTodayLocal, getUserTimezone, parseLocalDate } from '../../utils/timezone';
 import { Sidebar } from './Sidebar';
 import { DayColumn } from './DayColumn';
 
 export const WeeklyPlannerView = ({ currentDate }) => {
-  // Get Monday of the current week
-  const today = new Date();
-  const day = today.getDay();
-  const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-  const monday = new Date(today);
-  monday.setDate(diff);
-  const weekStartStr = monday.toISOString().split('T')[0];
+  // Use currentDate.today as single source of truth (passed from App)
+  const todayStr = currentDate.today;
+  const todayDate = parseLocalDate(todayStr);
+  const monday = getMondayOfWeek(todayDate);
+  const weekStartStr = formatLocalDate(monday);
 
   const [selectedWeekStart, setSelectedWeekStart] = useState(weekStartStr);
+  const [debugTime, setDebugTime] = useState(new Date().toLocaleString());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDebugTime(new Date().toLocaleString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const {
     weekPlan,
@@ -54,7 +61,14 @@ export const WeeklyPlannerView = ({ currentDate }) => {
   const dayNames = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
   return (
-    <div className="flex h-full gap-4 p-4 bg-black overflow-hidden">
+    <div className="flex flex-col h-full bg-black overflow-hidden">
+      {/* Debug display */}
+      <div className="px-4 py-2 border-b border-neutral-800 text-xs" style={{ color: '#39FF14' }}>
+        <div>Current Time: {debugTime} | Timezone: {getUserTimezone()}</div>
+        <div>App thinks today is: {todayStr} | Week starts: {weekStartStr}</div>
+      </div>
+
+      <div className="flex flex-1 gap-4 p-4 overflow-hidden">
       <Sidebar
         weekStart={selectedWeekStart}
         weekPlan={weekPlan}
@@ -75,7 +89,7 @@ export const WeeklyPlannerView = ({ currentDate }) => {
             day={day}
             dayIndex={dayIndex}
             dayName={dayNames[dayIndex]}
-            isToday={day.date === today.toISOString().split('T')[0]}
+            isToday={day.date === todayStr}
             onAddTask={(title) => addDayTask(dayIndex, title)}
             onToggleTask={(taskId) => toggleDayTask(dayIndex, taskId)}
             onDeleteTask={(taskId) => deleteDayTask(dayIndex, taskId)}
@@ -84,6 +98,7 @@ export const WeeklyPlannerView = ({ currentDate }) => {
             onUpdateFocus={(focus) => updateDayFocus(dayIndex, focus)}
           />
         ))}
+      </div>
       </div>
     </div>
   );

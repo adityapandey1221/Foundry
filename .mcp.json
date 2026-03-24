@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "node",
+      "args": [
+        "/Users/adityapandey/Desktop/HabitTracker/mcp-server/playwright-mcp/dist/index.js"
+      ],
+      "description": "Playwright browser automation MCP server"
+    }
+  }
+}

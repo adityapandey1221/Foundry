@@ -1,9 +1,10 @@
 import { getDayName } from '../../utils/dates';
 import { CATEGORIES } from '../../utils/constants';
+import { parseLocalDate } from '../../utils/timezone';
 
 export const WeeklyGrid = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate }) => {
   const activeHabits = habits.filter((h: any) => h.isActive);
-  const today = new Date(currentDate.today);
+  const today = parseLocalDate(currentDate.today);
 
   return (
     <div className="overflow-x-auto">
@@ -12,7 +13,7 @@ export const WeeklyGrid = ({ habits, completions, weekDates, toggleHabitCompleti
           <tr className="border-b border-border-subtle">
             <th className="text-left py-2 px-2 text-text-muted sticky left-0 bg-surface w-32">HABIT</th>
             {weekDates.map((date) => {
-              const cellDate = new Date(date);
+              const cellDate = parseLocalDate(date);
               const isToday = date === currentDate.today;
               return (
                 <th
@@ -45,7 +46,7 @@ export const WeeklyGrid = ({ habits, completions, weekDates, toggleHabitCompleti
                 {weekDates.map((date) => {
                   const dayCompletions = completions[date] || [];
                   const isCompleted = dayCompletions.includes(habit.id);
-                  const cellDate = new Date(date);
+                  const cellDate = parseLocalDate(date);
                   const isFuture = cellDate > today;
                   const isToday = date === currentDate.today;
 

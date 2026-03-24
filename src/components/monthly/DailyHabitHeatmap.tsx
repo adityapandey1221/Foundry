@@ -1,8 +1,30 @@
+import { useState } from 'react';
 import { getMonthDates } from '../../utils/dates';
 
 export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
-  const monthDates = getMonthDates(currentDate.year, currentDate.month);
+  const [displayMonth, setDisplayMonth] = useState(currentDate.month);
+  const [displayYear, setDisplayYear] = useState(currentDate.year);
+
+  const monthDates = getMonthDates(displayYear, displayMonth);
   const activeHabits = habits.filter(h => h.isActive);
+
+  const handlePreviousMonth = () => {
+    if (displayMonth === 0) {
+      setDisplayMonth(11);
+      setDisplayYear(displayYear - 1);
+    } else {
+      setDisplayMonth(displayMonth - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (displayMonth === 11) {
+      setDisplayMonth(0);
+      setDisplayYear(displayYear + 1);
+    } else {
+      setDisplayMonth(displayMonth + 1);
+    }
+  };
 
   // Calculate completion percentage for each day
   const totalActiveHabits = Math.max(activeHabits.length, 1);
@@ -60,6 +82,27 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
 
   return (
     <div className="p-4">
+      {/* Month navigation */}
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={handlePreviousMonth}
+          className="px-3 py-1 text-xs border rounded"
+          style={{ color: '#39FF14', borderColor: '#39FF14' }}
+        >
+          ←
+        </button>
+        <div className="text-sm font-bold" style={{ color: '#39FF14' }}>
+          {monthNames[displayMonth]} {displayYear}
+        </div>
+        <button
+          onClick={handleNextMonth}
+          className="px-3 py-1 text-xs border rounded"
+          style={{ color: '#39FF14', borderColor: '#39FF14' }}
+        >
+          →
+        </button>
+      </div>
+
       <div className="flex items-start gap-6">
         {/* Day labels */}
         <div className="flex flex-col gap-1 justify-start pt-6">
@@ -94,7 +137,7 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
                         backgroundColor: color,
                         boxShadow: `0 0 ${percentage > 0 ? 6 : 0}px rgba(57, 255, 20, 0.3)`
                       }}
-                      title={`${monthNames[currentDate.month]} ${dayNum}: ${completionCount}/${totalActiveHabits} habits (${Math.round(percentage)}%)`}
+                      title={`${monthNames[displayMonth]} ${dayNum}: ${completionCount}/${totalActiveHabits} habits (${Math.round(percentage)}%)`}
                     />
                   );
                 })}

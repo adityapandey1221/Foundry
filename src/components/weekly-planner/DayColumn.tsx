@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { DayPlan } from '../../hooks/useWeeklyPlan';
+import { parseLocalDate } from '../../utils/timezone';
 
 interface DayColumnProps {
   day: DayPlan;
@@ -62,7 +63,7 @@ export const DayColumn = ({
         </div>
         {isToday && <div className="text-xs" style={{ color: '#39FF14' }}>TODAY</div>}
         <div className="text-xs text-neutral-400">
-          {new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          {parseLocalDate(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </div>
       </div>
 

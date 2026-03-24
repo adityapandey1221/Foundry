@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
+import { parseLocalDate, formatLocalDate } from '../../utils/timezone';
 
 export const StatusBar = ({ date, habits, completions }) => {
-  const dateObj = new Date(date.today);
+  const dateObj = parseLocalDate(date.today);
   const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
 
   // Calculate today's completion count
@@ -19,12 +20,12 @@ export const StatusBar = ({ date, habits, completions }) => {
     if (activeHabits.length === 0) return 0;
 
     let streak = 0;
-    const currentDate = new Date(date.today);
+    const currentDate = parseLocalDate(date.today);
 
     for (let i = 0; i < 365; i++) {
       const checkDate = new Date(currentDate);
       checkDate.setDate(checkDate.getDate() - i);
-      const dateStr = checkDate.toISOString().split('T')[0];
+      const dateStr = formatLocalDate(checkDate);
 
       const completed = (completions[dateStr] || []).filter((id: string) =>
         activeHabits.some((h: any) => h.id === id)

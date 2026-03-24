@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Panel } from '../shared/Panel';
 import { SummaryRings } from './SummaryRings';
 import { DailyHabitHeatmap } from './DailyHabitHeatmap';
-import { CategoryBreakdown } from './CategoryBreakdown';
+import { WeeklyTasksList } from './WeeklyTasksList';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
@@ -67,10 +67,10 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
         </Panel>
         <Panel>
           <div className="panel-header">
-            <h3 className="panel-header-title">HABIT COUNT BY CATEGORY</h3>
+            <h3 className="panel-header-title">WEEKLY TASKS</h3>
           </div>
           <div className="panel-content">
-            <CategoryBreakdown habits={habits} completions={completions} currentDate={currentDate} />
+            <WeeklyTasksList selectedWeekStart={selectedWeekStart} />
           </div>
         </Panel>
       </div>
