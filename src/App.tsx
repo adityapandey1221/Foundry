@@ -3,6 +3,7 @@ import { StatusBar } from './components/layout/StatusBar';
 import { TabNav } from './components/layout/TabNav';
 import { MonthlyDashboard } from './components/monthly/MonthlyDashboard';
 import { WeeklyTracker } from './components/weekly/WeeklyTracker';
+import { WeeklyPlannerView } from './components/weekly-planner/WeeklyPlannerView';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { useHabitStore } from './hooks/useHabitStore';
 import { useCurrentDate } from './hooks/useCurrentDate';
@@ -34,6 +35,10 @@ function App() {
             toggleHabitCompletion={store.toggleHabitCompletion}
             currentDate={currentDate}
           />
+        )}
+
+        {activeTab === 'planner' && (
+          <WeeklyPlannerView currentDate={currentDate} />
         )}
 
         {activeTab === 'settings' && <SettingsPanel store={store} />}

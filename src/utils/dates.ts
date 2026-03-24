@@ -107,3 +107,34 @@ export const getDayName = (dateStr) => {
   const d = new Date(dateStr + 'T00:00:00Z');
   return d.toLocaleDateString('en-US', { weekday: 'short' });
 };
+
+/**
+ * Get Monday of the week containing the given date
+ */
+export const getMonday = (year, month, date) => {
+  const d = new Date(year, month, date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return { year: d.getFullYear(), month: d.getMonth(), date: d.getDate() };
+};
+
+/**
+ * Format a week range as "Mar 23 – Mar 29, 2026"
+ */
+export const formatWeekRange = (weekStartStr) => {
+  const start = new Date(weekStartStr + 'T00:00:00Z');
+  const end = new Date(start);
+  end.setDate(end.getDate() + 6);
+
+  const startMonth = start.toLocaleDateString('en-US', { month: 'short' });
+  const startDay = start.getDate();
+  const endMonth = end.toLocaleDateString('en-US', { month: 'short' });
+  const endDay = end.getDate();
+  const year = end.getFullYear();
+
+  if (startMonth === endMonth) {
+    return `${startMonth} ${startDay} – ${endDay}, ${year}`;
+  }
+  return `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${year}`;
+};
