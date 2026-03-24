@@ -4,32 +4,27 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
   const monthDates = getMonthDates(currentDate.year, currentDate.month);
   const activeHabits = habits.filter(h => h.isActive);
 
-  // Calculate completion count for each day
-  const dailyCompletions = monthDates.map(date => {
+  // Calculate completion percentage for each day
+  const totalActiveHabits = Math.max(activeHabits.length, 1);
+  const dailyPercentages = monthDates.map(date => {
     const dayCompletions = completions[date] || [];
-    return dayCompletions.filter(id => activeHabits.find(h => h.id === id)).length;
+    const completed = dayCompletions.filter(id => activeHabits.find(h => h.id === id)).length;
+    return (completed / totalActiveHabits) * 100;
   });
 
-  const maxCompletions = Math.max(...dailyCompletions, 1);
-
-  // GitHub-style color scale: terminal green gradient
-  const getHeatmapColor = (completionCount: number) => {
-    if (completionCount === 0) return '#1a1a1a'; // darkest (no activity)
-    const intensity = completionCount / maxCompletions;
-    const hues = [
-      '#0d3d0d', // 10%
-      '#1a5c1a', // 20%
-      '#228c22', // 30%
-      '#2eaa2e', // 40%
-      '#3fc83f', // 50%
-      '#4dd64d', // 60%
-      '#5be45b', // 70%
-      '#72f272', // 80%
-      '#39FF14', // 90%
-      '#39FF14', // 100% (bright terminal green)
-    ];
-    const index = Math.floor(intensity * (hues.length - 1));
-    return hues[index];
+  // GitHub-style color scale: terminal green gradient based on percentage
+  const getHeatmapColor = (percentage: number) => {
+    if (percentage === 0) return '#1a1a1a'; // darkest (no activity)
+    if (percentage <= 10) return '#0d3d0d';
+    if (percentage <= 20) return '#1a5c1a';
+    if (percentage <= 30) return '#228c22';
+    if (percentage <= 40) return '#2eaa2e';
+    if (percentage <= 50) return '#3fc83f';
+    if (percentage <= 60) return '#4dd64d';
+    if (percentage <= 70) return '#5be45b';
+    if (percentage <= 80) return '#72f272';
+    if (percentage <= 90) return '#39FF14';
+    return '#39FF14'; // 100% (brightest terminal green)
   };
 
   // Group dates by week for GitHub-style layout
@@ -86,8 +81,9 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
                   }
 
                   const dayIndex_ = monthDates.indexOf(date);
-                  const completionCount = dailyCompletions[dayIndex_];
-                  const color = getHeatmapColor(completionCount);
+                  const percentage = dailyPercentages[dayIndex_];
+                  const completionCount = Math.round((percentage / 100) * totalActiveHabits);
+                  const color = getHeatmapColor(percentage);
                   const dayNum = new Date(date).getDate();
 
                   return (
@@ -96,9 +92,9 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
                       className="w-5 h-5 rounded-sm border border-neutral-700 hover:border-neutral-400 cursor-pointer transition-all hover:shadow-lg"
                       style={{
                         backgroundColor: color,
-                        boxShadow: `0 0 ${completionCount > 0 ? 6 : 0}px rgba(57, 255, 20, 0.3)`
+                        boxShadow: `0 0 ${percentage > 0 ? 6 : 0}px rgba(57, 255, 20, 0.3)`
                       }}
-                      title={`${monthNames[currentDate.month]} ${dayNum}: ${completionCount}/${activeHabits.length} habits`}
+                      title={`${monthNames[currentDate.month]} ${dayNum}: ${completionCount}/${totalActiveHabits} habits (${Math.round(percentage)}%)`}
                     />
                   );
                 })}
@@ -110,19 +106,19 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
 
       {/* Legend */}
       <div className="flex items-center gap-4 mt-6 pt-4 border-t border-neutral-800">
-        <span className="text-xs" style={{ color: '#39FF14' }}>Less</span>
+        <span className="text-xs" style={{ color: '#39FF14' }}>0%</span>
         <div className="flex gap-1">
-          {[0, 0.25, 0.5, 0.75, 1].map((intensity, i) => (
+          {[0, 20, 40, 60, 80, 100].map((percentage, i) => (
             <div
               key={i}
               className="w-3 h-3 rounded-sm border border-neutral-700"
               style={{
-                backgroundColor: getHeatmapColor(intensity * maxCompletions)
+                backgroundColor: getHeatmapColor(percentage)
               }}
             />
           ))}
         </div>
-        <span className="text-xs" style={{ color: '#39FF14' }}>More</span>
+        <span className="text-xs" style={{ color: '#39FF14' }}>100%</span>
       </div>
     </div>
   );
