@@ -357,14 +357,18 @@ tr:hover {
 
 /* Panel chrome in JARVIS */
 [data-theme="jarvis"] .panel {
-  border-color: rgba(255, 255, 255, 0.08);
-  background-color: rgba(8, 8, 8, 1);
-  box-shadow: none;
+  background-color: rgba(0, 20, 30, 0.08);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(0, 255, 255, 0.15);
+  box-shadow: 0 4px 6px rgba(0, 255, 255, 0.08);
 }
 
 [data-theme="jarvis"] .panel-header {
-  border-bottom-color: rgba(255, 255, 255, 0.07);
-  background-color: rgba(14, 14, 14, 0.98);
+  background-color: rgba(0, 20, 30, 0.05);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border-bottom-color: rgba(0, 255, 255, 0.1);
 }
 
 [data-theme="jarvis"] .panel-header-title {
@@ -380,44 +384,70 @@ tr:hover {
   height: 4px;
 }
 
+/* Cards in JARVIS */
+[data-theme="jarvis"] .card {
+  background-color: rgba(0, 20, 30, 0.08);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-color: rgba(0, 255, 255, 0.12);
+  box-shadow: 0 4px 6px rgba(0, 255, 255, 0.08);
+}
+
+[data-theme="jarvis"] .card-lg,
+[data-theme="jarvis"] .card-xl {
+  background-color: rgba(0, 20, 30, 0.08);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-color: rgba(0, 255, 255, 0.12);
+  box-shadow: 0 8px 16px rgba(0, 255, 255, 0.08);
+}
+
 /* Buttons in JARVIS */
 [data-theme="jarvis"] .btn {
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #FFFFFF;
-  background-color: rgba(255, 255, 255, 0.05);
-  box-shadow: none;
+  border-color: rgba(0, 255, 255, 0.2);
+  color: #00FFFF;
+  background-color: rgba(0, 20, 30, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.05);
 }
 
 [data-theme="jarvis"] .btn-primary:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
-  border-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(0, 20, 30, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(0, 255, 255, 0.15);
+  border-color: rgba(0, 255, 255, 0.4);
 }
 
 [data-theme="jarvis"] .btn-secondary:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  box-shadow: none;
+  background-color: rgba(0, 20, 30, 0.08);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 255, 255, 0.1);
 }
 
 [data-theme="jarvis"] .btn-ghost:not(:disabled):hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(0, 20, 30, 0.08);
+  border-color: rgba(0, 255, 255, 0.3);
 }
 
 /* Inputs in JARVIS */
 [data-theme="jarvis"] input,
 [data-theme="jarvis"] select,
 [data-theme="jarvis"] textarea {
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(0, 255, 255, 0.15);
+  color: #00FFFF;
+  background-color: rgba(0, 20, 30, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 [data-theme="jarvis"] input:focus,
 [data-theme="jarvis"] select:focus,
 [data-theme="jarvis"] textarea:focus {
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.15);
+  border-color: rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.2);
 }
 
 [data-theme="jarvis"] h1,
