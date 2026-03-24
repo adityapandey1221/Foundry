@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Panel } from '../shared/Panel';
 import { HabitManager } from './HabitManager';
 
-export const SettingsPanel = ({ store }) => {
+export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect }) => {
   const importInputRef = useRef<HTMLInputElement>(null);
 
   const handleExportData = () => {
@@ -67,6 +67,24 @@ export const SettingsPanel = ({ store }) => {
           onRemoveHabit={store.removeHabit}
           onUpdateHabit={store.updateHabit}
         />
+      </Panel>
+
+      <Panel title="VISUAL EFFECTS">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <label className="text-body">MATRIX LETTERS</label>
+            <button
+              onClick={() => onToggleMatrixEffect(!showMatrixEffect)}
+              className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                showMatrixEffect
+                  ? 'bg-accent-5 text-text-accent'
+                  : 'bg-border-subtle text-text-muted'
+              }`}
+            >
+              {showMatrixEffect ? 'ON' : 'OFF'}
+            </button>
+          </div>
+        </div>
       </Panel>
 
       <Panel title="DATA MANAGEMENT">

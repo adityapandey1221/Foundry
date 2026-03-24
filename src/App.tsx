@@ -13,6 +13,7 @@ const AmbientParticles = lazy(() => import('./components/effects/AmbientParticle
 
 function App() {
   const [activeTab, setActiveTab] = useState('monthly');
+  const [showMatrixEffect, setShowMatrixEffect] = useState(true);
   const store = useHabitStore();
   const currentDate = useCurrentDate();
 
@@ -32,9 +33,11 @@ function App() {
     <div className="min-h-screen bg-void flex flex-col relative">
       {/* Atmospheric effects layer behind content */}
       <AtmosphericGlow completionPercent={todayPct} />
-      <Suspense fallback={null}>
-        <AmbientParticles completionPercent={todayPct} />
-      </Suspense>
+      {showMatrixEffect && (
+        <Suspense fallback={null}>
+          <AmbientParticles completionPercent={todayPct} />
+        </Suspense>
+      )}
 
       {/* Main content */}
       <div style={{ position: 'relative', zIndex: 10 }} className="flex flex-col h-screen">
@@ -66,7 +69,7 @@ function App() {
           <WeeklyPlannerView currentDate={currentDate} />
         )}
 
-        {activeTab === 'settings' && <SettingsPanel store={store} />}
+        {activeTab === 'settings' && <SettingsPanel store={store} showMatrixEffect={showMatrixEffect} onToggleMatrixEffect={setShowMatrixEffect} />}
         </div>
       </div>
     </div>
