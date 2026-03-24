@@ -1,10 +1,13 @@
-export const TabNav = ({ activeTab, onTabChange }) => {
+export const TabNav = ({ activeTab, onTabChange, theme = 'matrix' }) => {
   const tabs = [
     { id: 'monthly', label: 'WEEKLY DASHBOARD' },
     { id: 'weekly', label: 'DETAILED WEEKLY' },
     { id: 'planner', label: 'WEEKLY PLANNER' },
     { id: 'settings', label: 'SETTINGS' },
   ];
+
+  const accentColor = theme === 'jarvis' ? '#FFFFFF' : '#39FF14';
+  const glowColor = theme === 'jarvis' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(57, 255, 20, 0.3)';
 
   return (
     <div className="bg-black border-b border-neutral-800 px-6 py-3 flex gap-6">
@@ -18,9 +21,9 @@ export const TabNav = ({ activeTab, onTabChange }) => {
               : 'text-neutral-500 hover:text-neutral-300'
           }`}
           style={{
-            borderBottomColor: activeTab === tab.id ? '#39FF14' : 'transparent',
-            color: activeTab === tab.id ? '#39FF14' : undefined,
-            textShadow: activeTab === tab.id ? '0 0 8px rgba(57, 255, 20, 0.3)' : 'none'
+            borderBottomColor: activeTab === tab.id ? accentColor : 'transparent',
+            color: activeTab === tab.id ? accentColor : undefined,
+            textShadow: activeTab === tab.id ? `0 0 8px ${glowColor}` : 'none'
           }}
         >
           {tab.label}

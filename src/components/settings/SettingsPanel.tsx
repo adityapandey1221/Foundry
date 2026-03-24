@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Panel } from '../shared/Panel';
 import { HabitManager } from './HabitManager';
 
-export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect }) => {
+export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, theme, onThemeChange }) => {
   const importInputRef = useRef<HTMLInputElement>(null);
 
   const handleExportData = () => {
@@ -84,6 +84,54 @@ export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect })
               {showMatrixEffect ? 'ON' : 'OFF'}
             </button>
           </div>
+        </div>
+      </Panel>
+
+      <Panel title="VISUAL EFFECTS">
+        <div className="space-y-3">
+          {/* Theme selector */}
+          <div className="flex items-center justify-between">
+            <label className="text-body">THEME</label>
+            <div className="flex gap-1">
+              <button
+                onClick={() => onThemeChange('matrix')}
+                className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                  theme === 'matrix'
+                    ? 'bg-accent-5 text-text-accent'
+                    : 'bg-border-subtle text-text-muted'
+                }`}
+              >
+                MATRIX
+              </button>
+              <button
+                onClick={() => onThemeChange('jarvis')}
+                className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                  theme === 'jarvis'
+                    ? 'bg-accent-5 text-text-accent'
+                    : 'bg-border-subtle text-text-muted'
+                }`}
+              >
+                JARVIS
+              </button>
+            </div>
+          </div>
+
+          {/* Matrix letters toggle (hidden in JARVIS mode) */}
+          {theme !== 'jarvis' && (
+            <div className="flex items-center justify-between">
+              <label className="text-body">MATRIX LETTERS</label>
+              <button
+                onClick={() => onToggleMatrixEffect(!showMatrixEffect)}
+                className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                  showMatrixEffect
+                    ? 'bg-accent-5 text-text-accent'
+                    : 'bg-border-subtle text-text-muted'
+                }`}
+              >
+                {showMatrixEffect ? 'ON' : 'OFF'}
+              </button>
+            </div>
+          )}
         </div>
       </Panel>
 

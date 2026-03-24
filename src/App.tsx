@@ -14,6 +14,7 @@ const AmbientParticles = lazy(() => import('./components/effects/AmbientParticle
 function App() {
   const [activeTab, setActiveTab] = useState('monthly');
   const [showMatrixEffect, setShowMatrixEffect] = useState(true);
+  const [theme, setTheme] = useState<'matrix' | 'jarvis'>('matrix');
   const store = useHabitStore();
   const currentDate = useCurrentDate();
 
@@ -30,10 +31,13 @@ function App() {
   }, [store.habits, store.completions, currentDate.today]);
 
   return (
-    <div className="min-h-screen bg-void flex flex-col relative">
+    <div
+      className="min-h-screen bg-void flex flex-col relative"
+      data-theme={theme === 'jarvis' ? 'jarvis' : undefined}
+    >
       {/* Atmospheric effects layer behind content */}
-      <AtmosphericGlow completionPercent={todayPct} />
-      {showMatrixEffect && (
+      {theme !== 'jarvis' && <AtmosphericGlow completionPercent={todayPct} />}
+      {theme !== 'jarvis' && showMatrixEffect && (
         <Suspense fallback={null}>
           <AmbientParticles completionPercent={todayPct} />
         </Suspense>
@@ -41,8 +45,8 @@ function App() {
 
       {/* Main content */}
       <div style={{ position: 'relative', zIndex: 10 }} className="flex flex-col h-screen">
-        <StatusBar date={currentDate} habits={store.habits} completions={store.completions} />
-        <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
+        <StatusBar date={currentDate} habits={store.habits} completions={store.completions} theme={theme} />
+        <TabNav activeTab={activeTab} onTabChange={setActiveTab} theme={theme} />
 
         <div className="flex-1 overflow-auto">
         {activeTab === 'monthly' && (
@@ -53,6 +57,7 @@ function App() {
             updateHabit={store.updateHabit}
             removeHabit={store.removeHabit}
             currentDate={currentDate}
+            theme={theme}
           />
         )}
 
@@ -69,7 +74,15 @@ function App() {
           <WeeklyPlannerView currentDate={currentDate} />
         )}
 
-        {activeTab === 'settings' && <SettingsPanel store={store} showMatrixEffect={showMatrixEffect} onToggleMatrixEffect={setShowMatrixEffect} />}
+        {activeTab === 'settings' && (
+          <SettingsPanel
+            store={store}
+            showMatrixEffect={showMatrixEffect}
+            onToggleMatrixEffect={setShowMatrixEffect}
+            theme={theme}
+            onThemeChange={setTheme}
+          />
+        )}
         </div>
       </div>
     </div>

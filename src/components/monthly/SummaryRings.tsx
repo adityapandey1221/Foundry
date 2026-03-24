@@ -27,7 +27,7 @@ type ActivityRingContainerOptions = {
   backgroundOpacity?: number;
 };
 
-export const SummaryRings = ({ habits, completions, weekDates }) => {
+export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' }) => {
   const data = useMemo(() => {
     const activeHabits = habits.filter(h => h.isActive);
 
@@ -69,8 +69,9 @@ export const SummaryRings = ({ habits, completions, weekDates }) => {
       .map(([key, data]) => ({ key, ...data }));
 
     // Build activity rings: overall + top 2 categories
-    // Colors match the cyberpunk terminal theme
-    const ringColors = ['#39FF14', '#5B8FF9', '#E866A0']; // Terminal Green, Sleep Blue, Productivity Pink
+    // Colors match the cyberpunk terminal theme (or white for JARVIS)
+    const overallColor = theme === 'jarvis' ? '#FFFFFF' : '#39FF14';
+    const ringColors = [overallColor, '#5B8FF9', '#E866A0']; // Overall, Sleep Blue, Productivity Pink
     const rings: ActivityRing[] = [
       { filledPercentage: overallValue, color: ringColors[0], ringWidth: 12 },
       ...topCategories.slice(0, 2).map((cat, idx) => ({

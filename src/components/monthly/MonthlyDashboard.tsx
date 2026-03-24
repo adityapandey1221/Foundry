@@ -12,7 +12,7 @@ import { BrainHologram } from '../weekly/BrainHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 import { WeeklyGrid } from '../weekly/WeeklyGrid';
 
-const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion, updateHabit, removeHabit, currentDate }) => {
+const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion, updateHabit, removeHabit, currentDate, theme = 'matrix' }) => {
   const [selectedWeekStart, setSelectedWeekStart] = useState(getWeekStart(currentDate.today));
   const monthWeeks = getMonthWeeks(currentDate.year, currentDate.month);
   const weekDates = getWeekDates(selectedWeekStart);
@@ -30,14 +30,14 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
       </Panel>
 
 {/* Header with summary, body hologram, and today events */}
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 gap-1.5 jarvis-panel-grid">
         <div className="col-span-1">
           <Panel compact>
             <div className="panel-header">
               <h3 className="panel-header-title">SUMMARY</h3>
             </div>
             <div className="p-2">
-              <SummaryRings habits={habits} completions={completions} weekDates={weekDates} />
+              <SummaryRings habits={habits} completions={completions} weekDates={weekDates} theme={theme} />
             </div>
           </Panel>
         </div>
@@ -52,6 +52,7 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
                 completions={completions}
                 selectedWeekStart={selectedWeekStart}
                 isStandalone={true}
+                theme={theme}
               />
             </div>
           </Panel>
@@ -69,7 +70,7 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
       </div>
 
 {/* Charts row with heatmap, tasks, and brain */}
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 gap-1.5 jarvis-panel-grid">
         <Panel compact>
           <div className="panel-header">
             <h3 className="panel-header-title">DAILY HABIT COUNT</h3>
@@ -96,13 +97,14 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
               completions={completions}
               selectedWeekStart={selectedWeekStart}
               isStandalone={true}
+              theme={theme}
             />
           </div>
         </Panel>
       </div>
 
       {/* Weekly grid and progress */}
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 gap-1.5 jarvis-panel-grid">
         <div className="col-span-2">
           <Panel compact>
             <div className="panel-header">

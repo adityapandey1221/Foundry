@@ -14,6 +14,7 @@ interface BodyHologramProps {
   isCurrentWeek?: boolean;
   index?: number;
   isStandalone?: boolean;
+  theme?: 'matrix' | 'jarvis';
 }
 
 // ─── Holographic shader material ─────────────────────────────────────────────
@@ -131,7 +132,7 @@ class HolographicBodyMaterial extends THREE.ShaderMaterial {
 }
 
 // ─── Inner body mesh rendering ──────────────────────────────────────────────
-const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
+const BodyMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const obj = useLoader(OBJLoader, '/body.obj');
 
@@ -145,14 +146,18 @@ const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
     const scale = 1.9 / 65;
     const offsetY = -22 * scale;
     const mat = new HolographicBodyMaterial();
+    const hologramColor = theme === 'jarvis' ? '#909090' : '#39FF14';
+    mat.uniforms.hologramColor.value.set(hologramColor);
     return { geometry: geo!, scale, offsetY, material: mat };
-  }, [obj]);
+  }, [obj, theme]);
 
   useFrame((state) => {
     if (meshRef.current && meshRef.current.material instanceof HolographicBodyMaterial) {
       const mat = meshRef.current.material as HolographicBodyMaterial;
       mat.uniforms.time.value = state.clock.elapsedTime;
       mat.uniforms.completionPct.value = pct;
+      const hologramColor = theme === 'jarvis' ? '#909090' : '#39FF14';
+      mat.uniforms.hologramColor.value.set(hologramColor);
     }
   });
 
@@ -170,7 +175,7 @@ const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
 };
 
 // ─── Wireframe overlay ──────────────────────────────────────────────────────
-const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
+const BodyWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
   const obj = useLoader(OBJLoader, '/body.obj');
 
   const lineSegmentsRef = useRef<THREE.LineSegments>(null);
@@ -187,9 +192,9 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const wfGeo = new THREE.WireframeGeometry(srcGeo!);
     const positions = wfGeo.attributes.position.array;
     const colors: number[] = [];
-    const green = new THREE.Color('#39FF14');
+    const wireframeColor = theme === 'jarvis' ? new THREE.Color('#808080') : new THREE.Color('#39FF14');
     for (let i = 0; i < positions.length; i += 3) {
-      colors.push(green.r, green.g, green.b);
+      colors.push(wireframeColor.r, wireframeColor.g, wireframeColor.b);
     }
     wfGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
@@ -205,7 +210,7 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const offsetY = -22 * scale;
 
     return { lineSegmentsGeometry: wfGeo, material: mat, scale, offsetY };
-  }, [obj]);
+  }, [obj, theme]);
 
   useFrame(() => {
     if (lineSegmentsRef.current && lineSegmentsRef.current.material instanceof THREE.LineBasicMaterial) {
@@ -227,7 +232,7 @@ const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
 };
 
 // ─── Inner body scene (renders the 3D objects) ──────────────────────────────
-const BodyScene: React.FC<{ pct: number; isCurrentWeek?: boolean }> = ({ pct, isCurrentWeek = false }) => {
+const BodyScene: React.FC<{ pct: number; isCurrentWeek?: boolean; theme?: 'matrix' | 'jarvis' }> = ({ pct, isCurrentWeek = false, theme = 'matrix' }) => {
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state, delta) => {
@@ -242,8 +247,8 @@ const BodyScene: React.FC<{ pct: number; isCurrentWeek?: boolean }> = ({ pct, is
   return (
     <group ref={groupRef} position={[0, -0.4, 0]}>
       <Suspense fallback={null}>
-        <BodyMesh pct={pct} />
-        <BodyWireframe pct={pct} />
+        <BodyMesh pct={pct} theme={theme} />
+        <BodyWireframe pct={pct} theme={theme} />
       </Suspense>
     </group>
   );
@@ -281,6 +286,7 @@ const BodyHologramComponent: React.FC<BodyHologramProps> = ({
   completionPercent,
   isCurrentWeek = false,
   isStandalone = false,
+  theme = 'matrix',
 }) => {
   // Determine completion percent
   let pct: number;
@@ -302,7 +308,7 @@ const BodyHologramComponent: React.FC<BodyHologramProps> = ({
           style={{ background: 'transparent', width: '100%', height: '100%' }}
         >
           <Suspense fallback={null}>
-            <BodyScene pct={pct} isCurrentWeek={true} />
+            <BodyScene pct={pct} isCurrentWeek={true} theme={theme} />
             <EffectComposer>
               <Bloom
                 intensity={pct * 1.2}

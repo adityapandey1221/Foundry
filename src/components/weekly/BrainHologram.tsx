@@ -14,6 +14,7 @@ interface BrainHologramProps {
   isCurrentWeek?: boolean;
   index?: number;
   isStandalone?: boolean;
+  theme?: 'matrix' | 'jarvis';
 }
 
 // ─── Holographic shader material ─────────────────────────────────────────────
@@ -131,7 +132,7 @@ class HolographicBrainMaterial extends THREE.ShaderMaterial {
 }
 
 // ─── Inner brain mesh rendering ──────────────────────────────────────────────
-const BrainMesh: React.FC<{ pct: number }> = ({ pct }) => {
+const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const gltf = useLoader(GLTFLoader, '/brain.glb');
 
@@ -148,14 +149,18 @@ const BrainMesh: React.FC<{ pct: number }> = ({ pct }) => {
     const scale = 1.1;
     const offsetY = 0.3;
     const mat = new HolographicBrainMaterial();
+    const hologramColor = theme === 'jarvis' ? '#909090' : '#39FF14';
+    mat.uniforms.hologramColor.value.set(hologramColor);
     return { geometry: geo, scale, offsetY, material: mat };
-  }, [gltf]);
+  }, [gltf, theme]);
 
   useFrame((state) => {
     if (meshRef.current && meshRef.current.material instanceof HolographicBrainMaterial) {
       const mat = meshRef.current.material as HolographicBrainMaterial;
       mat.uniforms.time.value = state.clock.elapsedTime;
       mat.uniforms.completionPct.value = pct;
+      const hologramColor = theme === 'jarvis' ? '#909090' : '#39FF14';
+      mat.uniforms.hologramColor.value.set(hologramColor);
     }
   });
 
@@ -176,7 +181,7 @@ const BrainMesh: React.FC<{ pct: number }> = ({ pct }) => {
 };
 
 // ─── Wireframe overlay ──────────────────────────────────────────────────────
-const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
+const BrainWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
   const gltf = useLoader(GLTFLoader, '/brain.glb');
 
   const lineSegmentsRef = useRef<THREE.LineSegments>(null);
@@ -193,9 +198,9 @@ const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const wfGeo = new THREE.WireframeGeometry(srcGeo!);
     const positions = wfGeo.attributes.position.array;
     const colors: number[] = [];
-    const green = new THREE.Color('#39FF14');
+    const wireframeColor = theme === 'jarvis' ? new THREE.Color('#808080') : new THREE.Color('#39FF14');
     for (let i = 0; i < positions.length; i += 3) {
-      colors.push(green.r, green.g, green.b);
+      colors.push(wireframeColor.r, wireframeColor.g, wireframeColor.b);
     }
     wfGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
@@ -211,7 +216,7 @@ const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
     const offsetY = 0.3;
 
     return { lineSegmentsGeometry: wfGeo, material: mat, scale, offsetY };
-  }, [gltf]);
+  }, [gltf, theme]);
 
   useFrame(() => {
     if (lineSegmentsRef.current && lineSegmentsRef.current.material instanceof THREE.LineBasicMaterial) {
@@ -234,7 +239,7 @@ const BrainWireframe: React.FC<{ pct: number }> = ({ pct }) => {
 };
 
 // ─── Inner brain scene (renders the 3D objects) ──────────────────────────────
-const BrainScene: React.FC<{ pct: number; isCurrentWeek?: boolean }> = ({ pct, isCurrentWeek = false }) => {
+const BrainScene: React.FC<{ pct: number; isCurrentWeek?: boolean; theme?: 'matrix' | 'jarvis' }> = ({ pct, isCurrentWeek = false, theme = 'matrix' }) => {
   const groupRef = useRef<THREE.Group>(null);
   const initialRotation = [0, 0, 0]; // ADJUST THIS FOR ROTATION
 
@@ -251,8 +256,8 @@ const BrainScene: React.FC<{ pct: number; isCurrentWeek?: boolean }> = ({ pct, i
   return (
     <group ref={groupRef} position={[0, -0.4, 0]}>
       <Suspense fallback={null}>
-        <BrainMesh pct={pct} />
-        <BrainWireframe pct={pct} />
+        <BrainMesh pct={pct} theme={theme} />
+        <BrainWireframe pct={pct} theme={theme} />
       </Suspense>
     </group>
   );
@@ -291,6 +296,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
     completionPercent,
     isCurrentWeek = false,
     isStandalone = false,
+    theme = 'matrix',
   }
 ) => {
   // Determine completion percent
@@ -313,7 +319,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
           style={{ background: 'transparent', width: '100%', height: '100%' }}
         >
           <Suspense fallback={null}>
-            <BrainScene pct={pct} isCurrentWeek={true} />
+            <BrainScene pct={pct} isCurrentWeek={true} theme={theme} />
             <EffectComposer>
               <Bloom
                 intensity={pct * 1.2}

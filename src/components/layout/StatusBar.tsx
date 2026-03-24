@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { parseLocalDate, formatLocalDate } from '../../utils/timezone';
 
-export const StatusBar = ({ date, habits, completions }) => {
+export const StatusBar = ({ date, habits, completions, theme = 'matrix' }) => {
   const dateObj = parseLocalDate(date.today);
   const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
 
@@ -52,7 +52,7 @@ export const StatusBar = ({ date, habits, completions }) => {
             — COMMAND CENTER —
           </p>
         </div>
-        <h1 className="text-6xl text-text-accent absolute left-1/2 transform -translate-x-1/2 top-0 font-black" style={{ fontFamily: 'Impact, Arial Black, sans-serif', WebkitTextStroke: '2px rgba(57, 255, 20, 0.5)', textShadow: '0 0 15px rgba(57, 255, 20, 0.4)' }}>
+        <h1 className="text-6xl text-text-accent absolute left-1/2 transform -translate-x-1/2 top-0 font-black" style={{ fontFamily: 'Impact, Arial Black, sans-serif', WebkitTextStroke: theme === 'jarvis' ? '2px rgba(255, 255, 255, 0.2)' : '2px rgba(57, 255, 20, 0.5)', textShadow: theme === 'jarvis' ? '0 0 15px rgba(255, 255, 255, 0.08)' : '0 0 15px rgba(57, 255, 20, 0.4)' }}>
           GOTHAM
         </h1>
 
