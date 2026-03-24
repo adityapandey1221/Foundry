@@ -369,7 +369,7 @@ tr:hover {
 
 [data-theme="jarvis"] .panel-header-title {
   color: #FFFFFF;
-  text-shadow: none;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
 [data-theme="jarvis"] .panel-header-dot {
@@ -427,7 +427,7 @@ tr:hover {
 [data-theme="jarvis"] h5,
 [data-theme="jarvis"] h6 {
   color: #FFFFFF;
-  text-shadow: none;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
 }
 
 [data-theme="jarvis"] html,
