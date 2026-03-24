@@ -14,9 +14,9 @@ const TodayEventsComponent = ({ currentDate, theme = 'matrix' }: TodayEventsProp
   const { weekPlan } = useWeeklyPlan(weekStart);
 
   // Theme-aware colors
-  const accentColor = theme === 'jarvis' ? '#FFFFFF' : '#39FF14';
-  const mutedColor = theme === 'jarvis' ? '#B0B0B0' : '#22AA44';
-  const successColor = theme === 'jarvis' ? '#B0B0B0' : '#43BF4D';
+  const accentColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+  const mutedColor = theme === 'jarvis' ? '#0099CC' : '#22AA44';
+  const successColor = theme === 'jarvis' ? '#00FFFF' : '#43BF4D';
 
   const todayEvents = useMemo(() => {
     if (!weekPlan) return [];

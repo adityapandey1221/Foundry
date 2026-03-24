@@ -69,8 +69,8 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
       .map(([key, data]) => ({ key, ...data }));
 
     // Build activity rings: overall + top 2 categories
-    // Colors match the cyberpunk terminal theme (or white for JARVIS)
-    const overallColor = theme === 'jarvis' ? '#FFFFFF' : '#39FF14';
+    // Colors match the cyberpunk terminal theme (or cyan for JARVIS)
+    const overallColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
     const ringColors = [overallColor, '#5B8FF9', '#E866A0']; // Overall, Sleep Blue, Productivity Pink
     const rings: ActivityRing[] = [
       { filledPercentage: overallValue, color: ringColors[0], ringWidth: 12 },
@@ -107,13 +107,13 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
       <div className="text-center">
         <div
           className="text-3xl font-bold"
-          style={{ color: '#39FF14', fontFamily: 'monospace' }}
+          style={{ color: theme === 'jarvis' ? '#00FFFF' : '#39FF14', fontFamily: 'monospace' }}
         >
           {data.overallPct}%
         </div>
         <div
           className="text-xs uppercase tracking-wider mt-1"
-          style={{ color: '#22AA44' }}
+          style={{ color: theme === 'jarvis' ? '#0099CC' : '#22AA44' }}
         >
           Completion
         </div>

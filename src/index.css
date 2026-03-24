@@ -348,10 +348,10 @@ tr:hover {
 /* ────────────────────────────────────────────────────────────────────────── */
 
 [data-theme="jarvis"] {
-  /* Core palette - all white/grey shades */
-  --terminal-green: #FFFFFF;
-  --terminal-green-bright: #FFFFFF;
-  --terminal-green-dim: #B0B0B0;
+  /* Core palette - cyan cyberpunk */
+  --terminal-green: #00FFFF;
+  --terminal-green-bright: #00FFFF;
+  --terminal-green-dim: #0099CC;
   --terminal-bg: #000000;
 }
 
@@ -368,8 +368,8 @@ tr:hover {
 }
 
 [data-theme="jarvis"] .panel-header-title {
-  color: #FFFFFF;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  color: #00FFFF;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
 }
 
 [data-theme="jarvis"] .panel-header-dot {
@@ -426,8 +426,8 @@ tr:hover {
 [data-theme="jarvis"] h4,
 [data-theme="jarvis"] h5,
 [data-theme="jarvis"] h6 {
-  color: #FFFFFF;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  color: #00FFFF;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 [data-theme="jarvis"] html,

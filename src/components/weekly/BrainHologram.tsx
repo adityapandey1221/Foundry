@@ -149,7 +149,7 @@ const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct
     const scale = 1.1;
     const offsetY = 0.3;
     const mat = new HolographicBrainMaterial();
-    const hologramColor = theme === 'jarvis' ? '#909090' : '#39FF14';
+    const hologramColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
     mat.uniforms.hologramColor.value.set(hologramColor);
     return { geometry: geo, scale, offsetY, material: mat };
   }, [gltf, theme]);
@@ -159,7 +159,7 @@ const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct
       const mat = meshRef.current.material as HolographicBrainMaterial;
       mat.uniforms.time.value = state.clock.elapsedTime;
       mat.uniforms.completionPct.value = pct;
-      const hologramColor = theme === 'jarvis' ? '#909090' : '#39FF14';
+      const hologramColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
       mat.uniforms.hologramColor.value.set(hologramColor);
     }
   });
@@ -198,7 +198,7 @@ const BrainWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = (
     const wfGeo = new THREE.WireframeGeometry(srcGeo!);
     const positions = wfGeo.attributes.position.array;
     const colors: number[] = [];
-    const wireframeColor = theme === 'jarvis' ? new THREE.Color('#808080') : new THREE.Color('#39FF14');
+    const wireframeColor = theme === 'jarvis' ? new THREE.Color('#00FFFF') : new THREE.Color('#39FF14');
     for (let i = 0; i < positions.length; i += 3) {
       colors.push(wireframeColor.r, wireframeColor.g, wireframeColor.b);
     }
@@ -336,7 +336,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
             fontFamily: 'Courier New, monospace',
             fontSize: '11px',
             fontWeight: 'bold',
-            color: theme === 'jarvis' ? '#FFFFFF' : '#39FF14',
+            color: theme === 'jarvis' ? '#00FFFF' : '#39FF14',
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             marginTop: '4px',
