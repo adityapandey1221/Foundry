@@ -64,7 +64,7 @@ export const WeeklyGrid = ({ habits, completions, weekDates, toggleHabitCompleti
                         className="inline-flex items-center justify-center w-6 h-6 rounded-sm transition-all duration-150 font-mono-sm"
                         style={{
                           backgroundColor: isCompleted ? categoryColor : 'transparent',
-                          border: `1.5px solid ${isCompleted ? categoryColor : 'var(--border-subtle)'}`,
+                          border: `1px solid ${isCompleted ? categoryColor : 'rgba(57, 255, 20, 0.5)'}`,
                           color: isCompleted ? '#fff' : 'var(--text-muted)',
                           opacity: isFuture ? 0.4 : 1,
                           cursor: isFuture ? 'not-allowed' : 'pointer',
