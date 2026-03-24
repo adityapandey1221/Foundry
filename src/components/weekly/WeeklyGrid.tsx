@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import { getDayName } from '../../utils/dates';
 import { CATEGORIES } from '../../utils/constants';
 import { parseLocalDate } from '../../utils/timezone';
@@ -6,6 +6,20 @@ import { parseLocalDate } from '../../utils/timezone';
 const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate }) => {
   const activeHabits = habits.filter((h: any) => h.isActive);
   const today = parseLocalDate(currentDate.today);
+  const [lastBurst, setLastBurst] = useState<string | null>(null);
+
+  const handleToggle = (habitId: string, date: string) => {
+    const dayCompletions = completions[date] || [];
+    const wasCompleted = dayCompletions.includes(habitId);
+
+    // Trigger burst animation only when completing (not un-completing)
+    if (!wasCompleted) {
+      setLastBurst(`${habitId}-${date}`);
+      setTimeout(() => setLastBurst(null), 400);
+    }
+
+    toggleHabitCompletion(habitId, date);
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -60,9 +74,11 @@ const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompleti
                       }}
                     >
                       <button
-                        onClick={() => !isFuture && toggleHabitCompletion(habit.id, date)}
+                        onClick={() => !isFuture && handleToggle(habit.id, date)}
                         disabled={isFuture}
-                        className="inline-flex items-center justify-center w-6 h-6 rounded-sm transition-all duration-150 font-mono-sm"
+                        className={`inline-flex items-center justify-center w-6 h-6 rounded-sm transition-all duration-150 font-mono-sm ${
+                          lastBurst === `${habit.id}-${date}` ? 'animate-burst' : ''
+                        }`}
                         style={{
                           backgroundColor: isCompleted ? categoryColor : 'transparent',
                           border: `1px solid ${isCompleted ? categoryColor : 'rgba(57, 255, 20, 0.5)'}`,
