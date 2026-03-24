@@ -5,6 +5,7 @@ import { DailyHabitHeatmap } from './DailyHabitHeatmap';
 import { WeeklyTasksList } from './WeeklyTasksList';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
+import { CurrentWeekHologram } from './CurrentWeekHologram';
 import { getWeekStart, getWeekDates, getMonthWeeks } from '../../utils/dates';
 import { WeeklyGrid } from '../weekly/WeeklyGrid';
 import { WeeklyCompletionBars } from '../weekly/WeeklyCompletionBars';
@@ -31,8 +32,8 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
         ))}
       </div>
 
-      {/* Header with summary and weekly rings */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Header with summary, hologram, and weekly completion */}
+      <div className="grid grid-cols-4 gap-4">
         <div className="col-span-1">
           <Panel>
             <div className="panel-header">
@@ -40,6 +41,20 @@ export const MonthlyDashboard = ({ habits, completions, toggleHabitCompletion, c
             </div>
             <div className="panel-content">
               <SummaryRings habits={habits} completions={completions} currentDate={currentDate} />
+            </div>
+          </Panel>
+        </div>
+        <div className="col-span-1">
+          <Panel>
+            <div className="panel-header">
+              <h3 className="panel-header-title">WEEK</h3>
+            </div>
+            <div className="panel-content" style={{ padding: '8px 0' }}>
+              <CurrentWeekHologram
+                habits={habits}
+                completions={completions}
+                selectedWeekStart={selectedWeekStart}
+              />
             </div>
           </Panel>
         </div>
