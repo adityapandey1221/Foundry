@@ -6,7 +6,6 @@ import { WeeklyTracker } from './components/weekly/WeeklyTracker';
 import { WeeklyPlannerView } from './components/weekly-planner/WeeklyPlannerView';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { AtmosphericGlow } from './components/effects/AtmosphericGlow';
-import { JarvisMesh } from './components/effects/JarvisMesh';
 import { useHabitStore } from './hooks/useHabitStore';
 import { useCurrentDate } from './hooks/useCurrentDate';
 
@@ -43,7 +42,6 @@ function App() {
           <AmbientParticles completionPercent={todayPct} />
         </Suspense>
       )}
-      {theme === 'jarvis' && <JarvisMesh completionPercent={todayPct} />}
 
       {/* Main content */}
       <div style={{ position: 'relative', zIndex: 10 }} className="flex flex-col h-screen">
