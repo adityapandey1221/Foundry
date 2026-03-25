@@ -28,8 +28,10 @@ export const WeeklyPlannerView = ({ currentDate }) => {
     addDayTask,
     toggleDayTask,
     deleteDayTask,
+    editDayTask,
     addDayEvent,
     deleteDayEvent,
+    editDayEvent,
     toggleWeeklyHabit,
     addWeeklyHabit,
     deleteWeeklyHabit,
@@ -92,8 +94,10 @@ export const WeeklyPlannerView = ({ currentDate }) => {
             onAddTask={(title) => addDayTask(dayIndex, title)}
             onToggleTask={(taskId) => toggleDayTask(dayIndex, taskId)}
             onDeleteTask={(taskId) => deleteDayTask(dayIndex, taskId)}
+            onEditTask={(taskId, newTitle) => editDayTask(dayIndex, taskId, newTitle)}
             onAddEvent={(time, title) => addDayEvent(dayIndex, time, title)}
             onDeleteEvent={(eventId) => deleteDayEvent(dayIndex, eventId)}
+            onEditEvent={(eventId, newTime, newTitle) => editDayEvent(dayIndex, eventId, newTime, newTitle)}
           />
         ))}
       </div>

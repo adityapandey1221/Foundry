@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Panel } from '../shared/Panel';
 import { HabitManager } from './HabitManager';
+import { CalendarImportPanel } from './CalendarImportPanel';
 
 export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, theme, onThemeChange }) => {
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -164,6 +165,8 @@ export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, t
           </button>
         </div>
       </Panel>
+
+      <CalendarImportPanel />
     </div>
   );
 };

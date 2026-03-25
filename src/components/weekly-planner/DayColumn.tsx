@@ -10,8 +10,10 @@ interface DayColumnProps {
   onAddTask: (title: string) => void;
   onToggleTask: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
+  onEditTask: (taskId: string, newTitle: string) => void;
   onAddEvent: (time: string, title: string) => void;
   onDeleteEvent: (eventId: string) => void;
+  onEditEvent: (eventId: string, newTime: string, newTitle: string) => void;
 }
 
 const DAY_COLORS = [
@@ -32,12 +34,19 @@ export const DayColumn = ({
   onAddTask,
   onToggleTask,
   onDeleteTask,
+  onEditTask,
   onAddEvent,
-  onDeleteEvent
+  onDeleteEvent,
+  onEditEvent
 }: DayColumnProps) => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newEventTime, setNewEventTime] = useState('');
   const [newEventTitle, setNewEventTitle] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState('');
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [editingEventTime, setEditingEventTime] = useState('');
+  const [editingEventTitle, setEditingEventTitle] = useState('');
 
   const bgColor = DAY_COLORS[dayIndex];
   const completedTasks = day.tasks.filter(t => t.completed).length;
@@ -66,22 +75,68 @@ export const DayColumn = ({
             <div className="text-xs opacity-50" style={{ color: '#39FF14' }}>no events</div>
           ) : (
             day.events.map(event => (
-              <div key={event.id} className="flex items-start gap-2 group">
-                <div
-                  className="w-1 h-4 rounded-full flex-shrink-0 mt-0.5"
-                  style={{ backgroundColor: event.color || '#39FF14' }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs" style={{ color: '#39FF14' }}>
-                    <span className="font-bold">{event.time}</span> — {event.title}
+              <div key={event.id}>
+                {editingEventId === event.id ? (
+                  <div className="flex flex-col gap-1">
+                    <input
+                      type="text"
+                      value={editingEventTime}
+                      onChange={(e) => setEditingEventTime(e.target.value)}
+                      placeholder="Time"
+                      className="w-full text-xs"
+                      autoFocus
+                    />
+                    <input
+                      type="text"
+                      value={editingEventTitle}
+                      onChange={(e) => setEditingEventTitle(e.target.value)}
+                      placeholder="Event"
+                      className="w-full text-xs"
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => {
+                          onEditEvent(event.id, editingEventTime, editingEventTitle);
+                          setEditingEventId(null);
+                        }}
+                        className="btn btn-sm text-xs flex-1"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingEventId(null)}
+                        className="btn btn-ghost btn-sm text-xs flex-1"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <button
-                  onClick={() => onDeleteEvent(event.id)}
-                  className="btn btn-ghost text-xs px-1 py-0 opacity-0 group-hover:opacity-100 flex-shrink-0"
-                >
-                  ×
-                </button>
+                ) : (
+                  <div className="flex items-start gap-2 group">
+                    <div
+                      className="w-1 h-4 rounded-full flex-shrink-0 mt-0.5"
+                      style={{ backgroundColor: event.color || '#39FF14' }}
+                    />
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onDoubleClick={() => {
+                        setEditingEventId(event.id);
+                        setEditingEventTime(event.time);
+                        setEditingEventTitle(event.title);
+                      }}
+                    >
+                      <div className="text-xs" style={{ color: '#39FF14' }}>
+                        <span className="font-bold">{event.time}</span> — {event.title}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => onDeleteEvent(event.id)}
+                      className="btn btn-ghost text-xs px-1 py-0 opacity-0 group-hover:opacity-100 flex-shrink-0"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}
@@ -114,27 +169,63 @@ export const DayColumn = ({
         <div className="text-xs font-bold mb-2 uppercase" style={{ color: '#39FF14' }}>tasks</div>
         <div className="space-y-1 flex-1 overflow-y-auto">
           {day.tasks.map(task => (
-            <div key={task.id} className="flex items-start gap-2 group">
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => onToggleTask(task.id)}
-                className="mt-0.5 w-3 h-3 cursor-pointer accent-green-500 flex-shrink-0"
-              />
-              <span
-                className={`text-xs flex-1 ${
-                  task.completed ? 'line-through opacity-50' : ''
-                }`}
-                style={{ color: '#39FF14' }}
-              >
-                {task.title}
-              </span>
-              <button
-                onClick={() => onDeleteTask(task.id)}
-                className="btn btn-ghost text-xs px-1 py-0 opacity-0 group-hover:opacity-100 flex-shrink-0"
-              >
-                ×
-              </button>
+            <div key={task.id}>
+              {editingTaskId === task.id ? (
+                <div className="flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={editingTaskTitle}
+                    onChange={(e) => setEditingTaskTitle(e.target.value)}
+                    placeholder="Task"
+                    className="w-full text-xs"
+                    autoFocus
+                  />
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => {
+                        onEditTask(task.id, editingTaskTitle);
+                        setEditingTaskId(null);
+                      }}
+                      className="btn btn-sm text-xs flex-1"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingTaskId(null)}
+                      className="btn btn-ghost btn-sm text-xs flex-1"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start gap-2 group">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => onToggleTask(task.id)}
+                    className="mt-0.5 w-3 h-3 cursor-pointer accent-green-500 flex-shrink-0"
+                  />
+                  <span
+                    className={`text-xs flex-1 cursor-pointer ${
+                      task.completed ? 'line-through opacity-50' : ''
+                    }`}
+                    style={{ color: '#39FF14' }}
+                    onDoubleClick={() => {
+                      setEditingTaskId(task.id);
+                      setEditingTaskTitle(task.title);
+                    }}
+                  >
+                    {task.title}
+                  </span>
+                  <button
+                    onClick={() => onDeleteTask(task.id)}
+                    className="btn btn-ghost text-xs px-1 py-0 opacity-0 group-hover:opacity-100 flex-shrink-0"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

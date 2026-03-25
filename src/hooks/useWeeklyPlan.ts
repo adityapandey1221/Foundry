@@ -280,6 +280,28 @@ export const useWeeklyPlan = (weekStart: string) => {
     });
   };
 
+  const editDayTask = (dayIndex: number, taskId: string, newTitle: string) => {
+    const day = weekPlan?.days[dayIndex];
+    if (!day) return;
+
+    const updated = {
+      ...day,
+      tasks: day.tasks.map(t => t.id === taskId ? { ...t, title: newTitle } : t)
+    };
+    updateDay(dayIndex, updated);
+  };
+
+  const editDayEvent = (dayIndex: number, eventId: string, newTime: string, newTitle: string) => {
+    const day = weekPlan?.days[dayIndex];
+    if (!day) return;
+
+    const updated = {
+      ...day,
+      events: sortEventsByTime(day.events.map(e => e.id === eventId ? { ...e, time: newTime, title: newTitle } : e))
+    };
+    updateDay(dayIndex, updated);
+  };
+
   return {
     weekPlan,
     loading,
@@ -288,8 +310,10 @@ export const useWeeklyPlan = (weekStart: string) => {
     addDayTask,
     toggleDayTask,
     deleteDayTask,
+    editDayTask,
     addDayEvent,
     deleteDayEvent,
+    editDayEvent,
     toggleWeeklyHabit,
     addWeeklyHabit,
     deleteWeeklyHabit,
