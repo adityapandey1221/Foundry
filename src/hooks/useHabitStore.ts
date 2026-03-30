@@ -65,15 +65,6 @@ export const useHabitStore = () => {
     });
   }, [setState]);
 
-  const toggleHabitActive = useCallback((habitId) => {
-    setState((prev) => ({
-      ...prev,
-      habits: prev.habits.map(h =>
-        h.id === habitId ? { ...h, isActive: !h.isActive } : h
-      ),
-    }));
-  }, [setState]);
-
   const updateHabit = useCallback((habitId, updates) => {
     setState((prev) => ({
       ...prev,
@@ -83,20 +74,9 @@ export const useHabitStore = () => {
     }));
   }, [setState]);
 
-  const reorderHabits = useCallback((newOrder) => {
-    setState((prev) => ({
-      ...prev,
-      habits: newOrder,
-    }));
-  }, [setState]);
-
   const clearAllData = useCallback(() => {
     setState(createDefaultState());
   }, [setState]);
-
-  const exportData = useCallback(() => {
-    return JSON.stringify(state, null, 2);
-  }, [state]);
 
   const importData = useCallback((jsonString) => {
     try {
@@ -119,11 +99,8 @@ export const useHabitStore = () => {
     addHabit,
     removeHabit,
     toggleHabitCompletion,
-    toggleHabitActive,
     updateHabit,
-    reorderHabits,
     clearAllData,
-    exportData,
     importData,
   };
 };

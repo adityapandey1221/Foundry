@@ -3,18 +3,20 @@ import { useFrame, useLoader, Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { getWeekDates } from '../../utils/dates';
+import { getMonthDates } from '../../utils/dates';
+import { getThemeColor } from '../../utils/theme';
 
 interface BrainHologramProps {
   habits?: any[];
   completions?: Record<string, string[]>;
-  selectedWeekStart?: string;
+  year?: number;
+  month?: number;
   completionPercent?: number;
   position?: [number, number, number];
   isCurrentWeek?: boolean;
   index?: number;
   isStandalone?: boolean;
-  theme?: 'matrix' | 'jarvis';
+  theme?: 'matrix' | 'jarvis' | 'tactical';
 }
 
 // ─── Holographic shader material ─────────────────────────────────────────────
@@ -132,7 +134,7 @@ class HolographicBrainMaterial extends THREE.ShaderMaterial {
 }
 
 // ─── Inner brain mesh rendering ──────────────────────────────────────────────
-const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
+const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' | 'tactical' }> = ({ pct, theme = 'matrix' }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const gltf = useLoader(GLTFLoader, '/brain.glb');
 
@@ -149,7 +151,7 @@ const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct
     const scale = 1.1;
     const offsetY = 0.3;
     const mat = new HolographicBrainMaterial();
-    const hologramColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+    const hologramColor = getThemeColor(theme);
     mat.uniforms.hologramColor.value.set(hologramColor);
     return { geometry: geo, scale, offsetY, material: mat };
   }, [gltf, theme]);
@@ -159,7 +161,7 @@ const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct
       const mat = meshRef.current.material as HolographicBrainMaterial;
       mat.uniforms.time.value = state.clock.elapsedTime;
       mat.uniforms.completionPct.value = pct;
-      const hologramColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+      const hologramColor = getThemeColor(theme);
       mat.uniforms.hologramColor.value.set(hologramColor);
     }
   });
@@ -181,7 +183,7 @@ const BrainMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct
 };
 
 // ─── Wireframe overlay ──────────────────────────────────────────────────────
-const BrainWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
+const BrainWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' | 'tactical' }> = ({ pct, theme = 'matrix' }) => {
   const gltf = useLoader(GLTFLoader, '/brain.glb');
 
   const lineSegmentsRef = useRef<THREE.LineSegments>(null);
@@ -198,7 +200,7 @@ const BrainWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = (
     const wfGeo = new THREE.WireframeGeometry(srcGeo!);
     const positions = wfGeo.attributes.position.array;
     const colors: number[] = [];
-    const wireframeColor = theme === 'jarvis' ? new THREE.Color('#00FFFF') : new THREE.Color('#39FF14');
+    const wireframeColor = new THREE.Color(getThemeColor(theme));
     for (let i = 0; i < positions.length; i += 3) {
       colors.push(wireframeColor.r, wireframeColor.g, wireframeColor.b);
     }
@@ -239,14 +241,12 @@ const BrainWireframe: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = (
 };
 
 // ─── Inner brain scene (renders the 3D objects) ──────────────────────────────
-const BrainScene: React.FC<{ pct: number; isCurrentWeek?: boolean; theme?: 'matrix' | 'jarvis' }> = ({ pct, isCurrentWeek = false, theme = 'matrix' }) => {
+const BrainScene: React.FC<{ pct: number; isCurrentWeek?: boolean; theme?: 'matrix' | 'jarvis' | 'tactical' }> = ({ pct, isCurrentWeek = false, theme = 'matrix' }) => {
   const groupRef = useRef<THREE.Group>(null);
-  const initialRotation = [0, 0, 0]; // ADJUST THIS FOR ROTATION
 
   useFrame((state, delta) => {
     if (groupRef.current) {
-      // Apply animation on top of initial rotation
-      groupRef.current.rotation.y = initialRotation[1] + state.clock.elapsedTime * 0.5;
+      groupRef.current.rotation.y = state.clock.elapsedTime * 0.5;
       if (isCurrentWeek) {
         groupRef.current.rotation.y += delta * 0.2;
       }
@@ -264,17 +264,18 @@ const BrainScene: React.FC<{ pct: number; isCurrentWeek?: boolean; theme?: 'matr
 };
 
 // ─── Calculate week completion ──────────────────────────────────────────────
-function calculateWeekCompletion(
+function calculateMonthCompletion(
   habits: any[],
   completions: Record<string, string[]>,
-  weekStart: string
+  year: number,
+  month: number
 ): number {
   const activeHabits = habits.filter(h => h.isActive);
   const totalPossible = activeHabits.length || 1;
-  const weekDates = getWeekDates(weekStart);
+  const monthDates = getMonthDates(year, month);
 
   let totalCompleted = 0;
-  weekDates.forEach(date => {
+  monthDates.forEach(date => {
     const dayCompletions = completions[date] || [];
     dayCompletions.forEach(habitId => {
       if (activeHabits.find(h => h.id === habitId)) {
@@ -283,8 +284,8 @@ function calculateWeekCompletion(
     });
   });
 
-  const totalWeekPossible = totalPossible * 7;
-  return totalWeekPossible === 0 ? 0 : Math.round((totalCompleted / totalWeekPossible) * 100);
+  const totalMonthPossible = totalPossible * monthDates.length;
+  return totalMonthPossible === 0 ? 0 : Math.round((totalCompleted / totalMonthPossible) * 100);
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
@@ -292,7 +293,8 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
   {
     habits,
     completions,
-    selectedWeekStart,
+    year = new Date().getFullYear(),
+    month = new Date().getMonth(),
     completionPercent,
     isCurrentWeek = false,
     isStandalone = false,
@@ -303,7 +305,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
   let pct: number;
   if (isStandalone) {
     // In standalone mode, always calculate from actual data
-    const percent = calculateWeekCompletion(habits || [], completions || {}, selectedWeekStart || '');
+    const percent = calculateMonthCompletion(habits || [], completions || {}, year, month);
     pct = percent / 100;
   } else {
     pct = Math.max(0, Math.min(100, completionPercent || 0)) / 100;
@@ -336,7 +338,7 @@ const BrainHologramComponent: React.FC<BrainHologramProps> = (
             fontFamily: 'Courier New, monospace',
             fontSize: '11px',
             fontWeight: 'bold',
-            color: theme === 'jarvis' ? '#00FFFF' : '#39FF14',
+            color: getThemeColor(theme),
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             marginTop: '4px',

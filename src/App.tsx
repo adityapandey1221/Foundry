@@ -75,6 +75,8 @@ function App() {
             habits={store.habits}
             completions={store.completions}
             toggleHabitCompletion={store.toggleHabitCompletion}
+            updateHabit={store.updateHabit}
+            removeHabit={store.removeHabit}
             currentDate={currentDate}
           />
         )}

@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { formatLocalDate } from '../../utils/timezone';
+import { getThemeColor } from '../../utils/theme';
 
 interface AlertsPanelProps {
   habits: any[];
   completions: any;
   currentDate: any;
-  theme: 'matrix' | 'jarvis';
+  theme: 'matrix' | 'jarvis' | 'tactical';
 }
 
 interface HabitStatus {
@@ -20,7 +21,7 @@ export const AlertsPanel = ({
   currentDate,
   theme,
 }: AlertsPanelProps) => {
-  const accentColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+  const accentColor = getThemeColor(theme);
   const warningColor = '#FFD700';
   const criticalColor = '#FF4444';
 

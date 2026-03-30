@@ -1,4 +1,6 @@
-export const TabNav = ({ activeTab, onTabChange, theme = 'matrix' }) => {
+import { getThemeColor } from '../../utils/theme';
+
+export const TabNav = ({ activeTab, onTabChange, theme = 'matrix' }: { activeTab: string; onTabChange: (tab: string) => void; theme?: 'matrix' | 'jarvis' | 'tactical' }) => {
   const tabs = [
     { id: 'monthly', label: 'WEEKLY DASHBOARD' },
     { id: 'weekly', label: 'DETAILED WEEKLY' },
@@ -6,8 +8,8 @@ export const TabNav = ({ activeTab, onTabChange, theme = 'matrix' }) => {
     { id: 'settings', label: 'SETTINGS' },
   ];
 
-  const accentColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
-  const glowColor = theme === 'jarvis' ? 'rgba(0, 255, 255, 0.3)' : 'rgba(57, 255, 20, 0.3)';
+  const accentColor = getThemeColor(theme);
+  const glowColor = theme === 'jarvis' ? 'rgba(0, 255, 255, 0.3)' : theme === 'tactical' ? 'rgba(103, 223, 101, 0.3)' : 'rgba(57, 255, 20, 0.3)';
 
   return (
     <div className="bg-black border-b border-neutral-800 px-6 py-3 flex gap-6">

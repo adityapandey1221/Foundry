@@ -2,10 +2,12 @@ import { useMemo, memo } from 'react';
 import { useWeeklyPlan } from '../../hooks/useWeeklyPlan';
 import { getWeekStart, getWeekDates } from '../../utils/dates';
 import { parseLocalDate } from '../../utils/timezone';
+import { getThemeColor, getThemeDimColor } from '../../utils/theme';
+import { parseTimeToMinutes } from '../../utils/time';
 
 interface TodayEventsProps {
   currentDate: any;
-  theme?: 'matrix' | 'jarvis';
+  theme?: 'matrix' | 'jarvis' | 'tactical';
 }
 
 const TodayEventsComponent = ({ currentDate, theme = 'matrix' }: TodayEventsProps) => {
@@ -14,9 +16,9 @@ const TodayEventsComponent = ({ currentDate, theme = 'matrix' }: TodayEventsProp
   const { weekPlan } = useWeeklyPlan(weekStart);
 
   // Theme-aware colors
-  const accentColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
-  const mutedColor = theme === 'jarvis' ? '#0099CC' : '#22AA44';
-  const successColor = theme === 'jarvis' ? '#00FFFF' : '#43BF4D';
+  const accentColor = getThemeColor(theme);
+  const mutedColor = getThemeDimColor(theme);
+  const successColor = accentColor;
 
   const todayEvents = useMemo(() => {
     if (!weekPlan) return [];
@@ -25,26 +27,7 @@ const TodayEventsComponent = ({ currentDate, theme = 'matrix' }: TodayEventsProp
     const todayDay = weekPlan.days.find(d => d.date === today);
     if (!todayDay || !todayDay.events) return [];
 
-    // Parse time and sort events
-    const parseTime = (timeStr: string): number => {
-      const normalized = timeStr.trim().toLowerCase();
-      const match = normalized.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
-      if (!match) return 0;
-
-      let hours = parseInt(match[1], 10);
-      const minutes = match[2] ? parseInt(match[2], 10) : 0;
-      const meridiem = match[3];
-
-      if (meridiem === 'pm' && hours !== 12) {
-        hours += 12;
-      } else if (meridiem === 'am' && hours === 12) {
-        hours = 0;
-      }
-
-      return hours * 60 + minutes;
-    };
-
-    return [...todayDay.events].sort((a, b) => parseTime(a.time) - parseTime(b.time));
+    return [...todayDay.events].sort((a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
   }, [weekPlan, today]);
 
   const getCurrentTime = (): number => {
@@ -53,19 +36,7 @@ const TodayEventsComponent = ({ currentDate, theme = 'matrix' }: TodayEventsProp
   };
 
   const isEventUpcoming = (timeStr: string): boolean => {
-    const parseTime = (s: string): number => {
-      const normalized = s.trim().toLowerCase();
-      const match = normalized.match(/(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
-      if (!match) return 0;
-      let h = parseInt(match[1], 10);
-      const m = match[2] ? parseInt(match[2], 10) : 0;
-      const mer = match[3];
-      if (mer === 'pm' && h !== 12) h += 12;
-      if (mer === 'am' && h === 12) h = 0;
-      return h * 60 + m;
-    };
-
-    return parseTime(timeStr) > getCurrentTime();
+    return parseTimeToMinutes(timeStr) > getCurrentTime();
   };
 
   if (!weekPlan) {

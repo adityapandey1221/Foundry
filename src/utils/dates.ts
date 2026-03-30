@@ -138,17 +138,6 @@ export const getDayName = (dateStr) => {
 };
 
 /**
- * Get Monday of the week containing the given date
- */
-export const getMonday = (year, month, date) => {
-  const d = new Date(year, month, date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
-  return { year: d.getFullYear(), month: d.getMonth(), date: d.getDate() };
-};
-
-/**
  * Get ISO week number for a given date string
  */
 export const getISOWeekNumber = (dateStr) => {

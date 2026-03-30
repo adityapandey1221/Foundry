@@ -1,7 +1,6 @@
 import { useRef } from 'react';
 import { Panel } from '../shared/Panel';
 import { HabitManager } from './HabitManager';
-import { CalendarImportPanel } from './CalendarImportPanel';
 
 export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, theme, onThemeChange }) => {
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -72,24 +71,6 @@ export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, t
 
       <Panel title="VISUAL EFFECTS">
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <label className="text-body">MATRIX LETTERS</label>
-            <button
-              onClick={() => onToggleMatrixEffect(!showMatrixEffect)}
-              className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all ${
-                showMatrixEffect
-                  ? 'bg-accent-5 text-text-accent'
-                  : 'bg-border-subtle text-text-muted'
-              }`}
-            >
-              {showMatrixEffect ? 'ON' : 'OFF'}
-            </button>
-          </div>
-        </div>
-      </Panel>
-
-      <Panel title="VISUAL EFFECTS">
-        <div className="space-y-3">
           {/* Theme selector */}
           <div className="flex items-center justify-between">
             <label className="text-body">THEME</label>
@@ -114,11 +95,21 @@ export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, t
               >
                 JARVIS
               </button>
+              <button
+                onClick={() => onThemeChange('tactical')}
+                className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-wider transition-all ${
+                  theme === 'tactical'
+                    ? 'bg-accent-5 text-text-accent'
+                    : 'bg-border-subtle text-text-muted'
+                }`}
+              >
+                TACTICAL
+              </button>
             </div>
           </div>
 
-          {/* Matrix letters toggle (hidden in JARVIS mode) */}
-          {theme !== 'jarvis' && (
+          {/* Matrix letters toggle (hidden in JARVIS and TACTICAL modes) */}
+          {theme === 'matrix' && (
             <div className="flex items-center justify-between">
               <label className="text-body">MATRIX LETTERS</label>
               <button
@@ -165,8 +156,6 @@ export const SettingsPanel = ({ store, showMatrixEffect, onToggleMatrixEffect, t
           </button>
         </div>
       </Panel>
-
-      <CalendarImportPanel />
     </div>
   );
 };

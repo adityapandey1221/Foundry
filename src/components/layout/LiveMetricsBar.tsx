@@ -7,13 +7,14 @@ import {
 } from '../../utils/scoring';
 import { getWeekDates, getMonthDates } from '../../utils/dates';
 import { parseLocalDate, formatLocalDate } from '../../utils/timezone';
+import { getThemeColor } from '../../utils/theme';
 
 interface LiveMetricsBarProps {
   habits: any[];
   completions: any;
   currentDate: any;
   weekStart: string;
-  theme: 'matrix' | 'jarvis';
+  theme: 'matrix' | 'jarvis' | 'tactical';
 }
 
 export const LiveMetricsBar = ({
@@ -23,7 +24,7 @@ export const LiveMetricsBar = ({
   weekStart,
   theme,
 }: LiveMetricsBarProps) => {
-  const accentColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+  const accentColor = getThemeColor(theme);
   const warningColor = '#FFD700';
   const criticalColor = '#FF4444';
 

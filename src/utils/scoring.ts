@@ -53,67 +53,6 @@ export const calculateWeekSummary = (weekDates, habits, completions) => {
 };
 
 /**
- * Calculate month summary from habits and completions
- */
-export const calculateMonthSummary = (year, month, habits, completions, getMonthDates, getMonthWeeks, calculateWeekSummary) => {
-  const monthDates = getMonthDates(year, month);
-  const weekStarts = getMonthWeeks(year, month);
-
-  const summary = {
-    month,
-    year,
-    weeks: [],
-    perHabit: {},
-    perCategory: {},
-    overallCompleted: 0,
-    overallTotal: 0,
-    overallPercentage: 0,
-  };
-
-  // Calculate per-habit stats
-  const activeHabits = habits.filter(h => h.isActive);
-
-  activeHabits.forEach(habit => {
-    const completedDays = monthDates.filter(date => {
-      const dayCompletions = completions[date] || [];
-      return dayCompletions.includes(habit.id);
-    }).length;
-
-    summary.perHabit[habit.id] = {
-      completedDays,
-      totalDays: monthDates.length,
-      percentage: calculatePercentage(completedDays, monthDates.length),
-    };
-
-    summary.overallCompleted += completedDays;
-  });
-
-  summary.overallTotal = activeHabits.length * monthDates.length;
-
-  // Calculate per-category stats
-  const categoryMap = {};
-  activeHabits.forEach(habit => {
-    if (!categoryMap[habit.category]) {
-      categoryMap[habit.category] = { completed: 0, total: 0 };
-    }
-    categoryMap[habit.category].total += monthDates.length;
-    categoryMap[habit.category].completed += summary.perHabit[habit.id].completedDays;
-  });
-
-  Object.keys(categoryMap).forEach(cat => {
-    summary.perCategory[cat] = {
-      completed: categoryMap[cat].completed,
-      total: categoryMap[cat].total,
-      percentage: calculatePercentage(categoryMap[cat].completed, categoryMap[cat].total),
-    };
-  });
-
-  summary.overallPercentage = calculatePercentage(summary.overallCompleted, summary.overallTotal);
-
-  return summary;
-};
-
-/**
  * Calculate the best (longest) streak from all completion history
  */
 export const calculateBestStreak = (habits, completions) => {
@@ -137,32 +76,6 @@ export const calculateBestStreak = (habits, completions) => {
   }
 
   return bestStreak;
-};
-
-/**
- * Calculate habit score (0-100) based on week%, month%, and streak
- */
-export const calculateHabitScore = (weekPct, monthPct, streak, bestStreak) => {
-  const weekWeight = 0.4;
-  const monthWeight = 0.3;
-  const streakWeight = 0.3;
-
-  const streakScore = bestStreak > 0 ? Math.min(100, (streak / Math.max(bestStreak, 7)) * 100) : 0;
-
-  return Math.round(weekPct * weekWeight + monthPct * monthWeight + streakScore * streakWeight);
-};
-
-/**
- * Get letter grade and color from score (0-100)
- */
-export const getGradeFromScore = (score) => {
-  if (score >= 95) return { grade: 'S', color: '#39FF14' };
-  if (score >= 90) return { grade: 'A+', color: '#39FF14' };
-  if (score >= 80) return { grade: 'A', color: '#43BF4D' };
-  if (score >= 70) return { grade: 'B', color: '#F7C948' };
-  if (score >= 60) return { grade: 'C', color: '#E866A0' };
-  if (score >= 50) return { grade: 'D', color: '#FF9500' };
-  return { grade: 'F', color: '#CD4246' };
 };
 
 /**

@@ -158,16 +158,6 @@ textarea {
   }
 }
 
-/* Textarea pill-shaped input (for message input style) */
-textarea.textarea-pill {
-  @apply rounded-2xl !px-4 !py-3;
-}
-
-/* Message/Chat input style */
-input.input-chat,
-textarea.textarea-chat {
-  @apply bg-neutral-900 border border-neutral-700 rounded-2xl;
-}
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
@@ -205,32 +195,6 @@ tr:hover {
   background-color: rgba(57, 255, 20, 0.05);
 }
 
-/* Focus state */
-.add-focus {
-  outline: none;
-}
-
-.add-focus:focus-visible {
-  box-shadow: 0 0 12px rgba(57, 255, 20, 0.4);
-  border-color: var(--terminal-green);
-}
-
-.add-disable {
-  @apply disabled:cursor-not-allowed disabled:opacity-50;
-}
-
-/* Size variants */
-.add-size-sm {
-  @apply h-6 rounded px-2 text-sm;
-}
-
-.add-size-md {
-  @apply h-8 rounded px-2.5 text-base;
-}
-
-.add-size-base {
-  @apply h-9 rounded px-3 text-base;
-}
 
 /* Animations */
 @keyframes float {
@@ -288,9 +252,6 @@ tr:hover {
 }
 
 /* Grid and layout styling */
-.grid {
-  gap-width: 1rem;
-}
 
 /* Scrollbar styling - Terminal green theme */
 ::-webkit-scrollbar {
@@ -617,9 +578,6 @@ tr:hover {
 }
 
 [data-theme="tactical"] .alert-row:hover,
-[data-theme="stitch"] .alert-row:hover {
-  background-color: rgba(103, 223, 101, 0.08);
-}
 
 /* Override inline green colors throughout */
 [data-theme="jarvis"] label {
@@ -646,8 +604,7 @@ tr:hover {
 /* TACTICAL COMMAND CENTER THEME */
 /* ════════════════════════════════════════════════════════════════════════════ */
 
-[data-theme="tactical"],
-[data-theme="stitch"] {
+[data-theme="tactical"] {
   /* Core palette - tactical green */
   --terminal-green: #67df65;
   --terminal-green-bright: #79ff5b;
@@ -656,8 +613,7 @@ tr:hover {
 }
 
 /* Panel chrome in TACTICAL */
-[data-theme="tactical"] .panel,
-[data-theme="stitch"] .panel {
+[data-theme="tactical"] .panel {
   position: relative;
   background: rgba(20, 20, 20, 0.6);
   border: 1px solid rgba(103, 223, 101, 0.15);
@@ -665,8 +621,7 @@ tr:hover {
   box-shadow: 0 0 15px rgba(103, 223, 101, 0.1);
 }
 
-[data-theme="tactical"] .panel-header,
-[data-theme="stitch"] .panel-header {
+[data-theme="tactical"] .panel-header {
   position: relative;
   background: inherit;
   border-bottom-color: rgba(103, 223, 101, 0.1);
@@ -674,14 +629,12 @@ tr:hover {
   box-shadow: inset 0 1px 0 rgba(103, 223, 101, 0.1);
 }
 
-[data-theme="tactical"] .panel-header-title,
-[data-theme="stitch"] .panel-header-title {
+[data-theme="tactical"] .panel-header-title {
   color: #67df65;
   text-shadow: 0 0 8px rgba(103, 223, 101, 0.4);
 }
 
-[data-theme="tactical"] .panel-header-dot,
-[data-theme="stitch"] .panel-header-dot {
+[data-theme="tactical"] .panel-header-dot {
   background-color: #67df65;
   box-shadow: 0 0 5px rgba(103, 223, 101, 0.4);
   border-radius: 50%;
@@ -690,15 +643,12 @@ tr:hover {
 }
 
 [data-theme="tactical"] .panel-content,
-[data-theme="tactical"] .panel > div:last-child,
-[data-theme="stitch"] .panel-content,
-[data-theme="stitch"] .panel > div:last-child {
+[data-theme="tactical"] .panel > div:last-child {
   background: inherit;
 }
 
 /* Cards in TACTICAL */
-[data-theme="tactical"] .card,
-[data-theme="stitch"] .card {
+[data-theme="tactical"] .card {
   position: relative;
   background: rgba(20, 20, 20, 0.6);
   border-color: rgba(103, 223, 101, 0.15);
@@ -707,9 +657,7 @@ tr:hover {
 }
 
 [data-theme="tactical"] .card-lg,
-[data-theme="tactical"] .card-xl,
-[data-theme="stitch"] .card-lg,
-[data-theme="stitch"] .card-xl {
+[data-theme="tactical"] .card-xl {
   background: rgba(20, 20, 20, 0.6);
   border-color: rgba(103, 223, 101, 0.15);
   border-radius: 0px;
@@ -717,8 +665,7 @@ tr:hover {
 }
 
 /* Buttons in TACTICAL */
-[data-theme="tactical"] .btn,
-[data-theme="stitch"] .btn {
+[data-theme="tactical"] .btn {
   position: relative;
   border-color: rgba(103, 223, 101, 0.2);
   color: #67df65;
@@ -727,21 +674,18 @@ tr:hover {
   box-shadow: 0 0 8px rgba(103, 223, 101, 0.1);
 }
 
-[data-theme="tactical"] .btn-primary:not(:disabled):hover,
-[data-theme="stitch"] .btn-primary:not(:disabled):hover {
+[data-theme="tactical"] .btn-primary:not(:disabled):hover {
   background-color: rgba(103, 223, 101, 0.1);
   box-shadow: 0 0 12px rgba(103, 223, 101, 0.3);
   border-color: rgba(103, 223, 101, 0.4);
 }
 
-[data-theme="tactical"] .btn-secondary:not(:disabled):hover,
-[data-theme="stitch"] .btn-secondary:not(:disabled):hover {
+[data-theme="tactical"] .btn-secondary:not(:disabled):hover {
   background-color: rgba(103, 223, 101, 0.05);
   box-shadow: 0 0 10px rgba(103, 223, 101, 0.2);
 }
 
-[data-theme="tactical"] .btn-ghost:not(:disabled):hover,
-[data-theme="stitch"] .btn-ghost:not(:disabled):hover {
+[data-theme="tactical"] .btn-ghost:not(:disabled):hover {
   background-color: rgba(103, 223, 101, 0.05);
   border-color: rgba(103, 223, 101, 0.3);
 }
@@ -749,10 +693,7 @@ tr:hover {
 /* Inputs in TACTICAL */
 [data-theme="tactical"] input,
 [data-theme="tactical"] select,
-[data-theme="tactical"] textarea,
-[data-theme="stitch"] input,
-[data-theme="stitch"] select,
-[data-theme="stitch"] textarea {
+[data-theme="tactical"] textarea {
   position: relative;
   border-color: rgba(103, 223, 101, 0.15);
   color: #67df65;
@@ -763,10 +704,7 @@ tr:hover {
 
 [data-theme="tactical"] input:focus,
 [data-theme="tactical"] select:focus,
-[data-theme="tactical"] textarea:focus,
-[data-theme="stitch"] input:focus,
-[data-theme="stitch"] select:focus,
-[data-theme="stitch"] textarea:focus {
+[data-theme="tactical"] textarea:focus {
   border-color: rgba(103, 223, 101, 0.3);
   box-shadow: 0 0 12px rgba(103, 223, 101, 0.2);
 }
@@ -777,99 +715,77 @@ tr:hover {
 [data-theme="tactical"] h3,
 [data-theme="tactical"] h4,
 [data-theme="tactical"] h5,
-[data-theme="tactical"] h6,
-[data-theme="stitch"] h1,
-[data-theme="stitch"] h2,
-[data-theme="stitch"] h3,
-[data-theme="stitch"] h4,
-[data-theme="stitch"] h5,
-[data-theme="stitch"] h6 {
+[data-theme="tactical"] h6 {
   color: #67df65;
   text-shadow: 0 0 8px rgba(103, 223, 101, 0.3);
 }
 
 [data-theme="tactical"] html,
-[data-theme="tactical"] body,
-[data-theme="stitch"] html,
-[data-theme="stitch"] body {
+[data-theme="tactical"] body {
   color: #e5e2e1;
   background: #0a0a0a;
 }
 
 /* Tables in TACTICAL */
 [data-theme="tactical"] th,
-[data-theme="tactical"] td,
-[data-theme="stitch"] th,
-[data-theme="stitch"] td {
+[data-theme="tactical"] td {
   border-color: rgba(103, 223, 101, 0.1);
   color: #e5e2e1;
 }
 
-[data-theme="tactical"] th,
-[data-theme="stitch"] th {
+[data-theme="tactical"] th {
   background-color: rgba(103, 223, 101, 0.05);
   border-bottom-color: rgba(103, 223, 101, 0.15);
   border-bottom-width: 1px;
   text-shadow: none;
 }
 
-[data-theme="tactical"] tr:nth-child(even),
-[data-theme="stitch"] tr:nth-child(even) {
+[data-theme="tactical"] tr:nth-child(even) {
   background-color: rgba(103, 223, 101, 0.02);
 }
 
-[data-theme="tactical"] tr:hover,
-[data-theme="stitch"] tr:hover {
+[data-theme="tactical"] tr:hover {
   background-color: rgba(103, 223, 101, 0.05);
 }
 
 /* Scrollbars in TACTICAL */
-[data-theme="tactical"] ::-webkit-scrollbar-track,
-[data-theme="stitch"] ::-webkit-scrollbar-track {
+[data-theme="tactical"] ::-webkit-scrollbar-track {
   background-color: transparent;
 }
 
-[data-theme="tactical"] ::-webkit-scrollbar-thumb,
-[data-theme="stitch"] ::-webkit-scrollbar-thumb {
+[data-theme="tactical"] ::-webkit-scrollbar-thumb {
   background-color: rgba(103, 223, 101, 0.2);
   box-shadow: none;
 }
 
-[data-theme="tactical"] ::-webkit-scrollbar-thumb:hover,
-[data-theme="stitch"] ::-webkit-scrollbar-thumb:hover {
+[data-theme="tactical"] ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(103, 223, 101, 0.4);
   box-shadow: none;
 }
 
 /* Selection in TACTICAL */
-[data-theme="tactical"] ::selection,
-[data-theme="stitch"] ::selection {
+[data-theme="tactical"] ::selection {
   background-color: rgba(103, 223, 101, 0.2);
   color: #67df65;
 }
 
 /* Override inline green colors throughout */
-[data-theme="tactical"] label,
-[data-theme="stitch"] label {
+[data-theme="tactical"] label {
   color: #e5e2e1 !important;
 }
 
-[data-theme="tactical"] span,
-[data-theme="stitch"] span {
+[data-theme="tactical"] span {
   color: #e5e2e1 !important;
 }
 
-[data-theme="tactical"] div,
-[data-theme="stitch"] div {
+[data-theme="tactical"] div {
   color: inherit !important;
 }
 
-[data-theme="tactical"] .text-text-accent,
-[data-theme="stitch"] .text-text-accent {
+[data-theme="tactical"] .text-text-accent {
   color: #67df65 !important;
 }
 
-[data-theme="tactical"] .text-text-muted,
-[data-theme="stitch"] .text-text-muted {
+[data-theme="tactical"] .text-text-muted {
   color: #baccb0 !important;
 }

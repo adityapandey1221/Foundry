@@ -3,18 +3,20 @@ import { useFrame, useLoader, Canvas } from '@react-three/fiber';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { getWeekDates } from '../../utils/dates';
+import { getMonthDates } from '../../utils/dates';
+import { getThemeColor } from '../../utils/theme';
 
 interface BodyHologramProps {
   habits?: any[];
   completions?: Record<string, string[]>;
-  selectedWeekStart?: string;
+  year?: number;
+  month?: number;
   completionPercent?: number;
   position?: [number, number, number];
   isCurrentWeek?: boolean;
   index?: number;
   isStandalone?: boolean;
-  theme?: 'matrix' | 'jarvis';
+  theme?: 'matrix' | 'jarvis' | 'tactical';
 }
 
 // ─── Holographic shader material ─────────────────────────────────────────────
@@ -132,7 +134,7 @@ class HolographicBodyMaterial extends THREE.ShaderMaterial {
 }
 
 // ─── Inner body mesh rendering ──────────────────────────────────────────────
-const BodyMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct, theme = 'matrix' }) => {
+const BodyMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' | 'tactical' }> = ({ pct, theme = 'matrix' }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const obj = useLoader(OBJLoader, '/body.obj');
 
@@ -146,7 +148,7 @@ const BodyMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct,
     const scale = 1.9 / 65;
     const offsetY = -22 * scale;
     const mat = new HolographicBodyMaterial();
-    const hologramColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+    const hologramColor = getThemeColor(theme || 'matrix');
     mat.uniforms.hologramColor.value.set(hologramColor);
     return { geometry: geo!, scale, offsetY, material: mat };
   }, [obj, theme]);
@@ -156,7 +158,7 @@ const BodyMesh: React.FC<{ pct: number; theme?: 'matrix' | 'jarvis' }> = ({ pct,
       const mat = meshRef.current.material as HolographicBodyMaterial;
       mat.uniforms.time.value = state.clock.elapsedTime;
       mat.uniforms.completionPct.value = pct;
-      const hologramColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+      const hologramColor = getThemeColor(theme || 'matrix');
       mat.uniforms.hologramColor.value.set(hologramColor);
     }
   });
@@ -254,18 +256,19 @@ const BodyScene: React.FC<{ pct: number; isCurrentWeek?: boolean; theme?: 'matri
   );
 };
 
-// ─── Calculate week completion ──────────────────────────────────────────────
-function calculateWeekCompletion(
+// ─── Calculate month completion ─────────────────────────────────────────────
+function calculateMonthCompletion(
   habits: any[],
   completions: Record<string, string[]>,
-  weekStart: string
+  year: number,
+  month: number
 ): number {
   const activeHabits = habits.filter(h => h.isActive);
   const totalPossible = activeHabits.length || 1;
-  const weekDates = getWeekDates(weekStart);
+  const monthDates = getMonthDates(year, month);
 
   let totalCompleted = 0;
-  weekDates.forEach(date => {
+  monthDates.forEach(date => {
     const dayCompletions = completions[date] || [];
     dayCompletions.forEach(habitId => {
       if (activeHabits.find(h => h.id === habitId)) {
@@ -274,15 +277,16 @@ function calculateWeekCompletion(
     });
   });
 
-  const totalWeekPossible = totalPossible * 7;
-  return totalWeekPossible === 0 ? 0 : Math.round((totalCompleted / totalWeekPossible) * 100);
+  const totalMonthPossible = totalPossible * monthDates.length;
+  return totalMonthPossible === 0 ? 0 : Math.round((totalCompleted / totalMonthPossible) * 100);
 }
 
 // ─── Main component ────────────────────────────────────────────────────────
 const BodyHologramComponent: React.FC<BodyHologramProps> = ({
   habits,
   completions,
-  selectedWeekStart,
+  year = new Date().getFullYear(),
+  month = new Date().getMonth(),
   completionPercent,
   isCurrentWeek = false,
   isStandalone = false,
@@ -292,7 +296,7 @@ const BodyHologramComponent: React.FC<BodyHologramProps> = ({
   let pct: number;
   if (isStandalone) {
     // In standalone mode, always calculate from actual data
-    const percent = calculateWeekCompletion(habits || [], completions || {}, selectedWeekStart || '');
+    const percent = calculateMonthCompletion(habits || [], completions || {}, year, month);
     pct = percent / 100;
   } else {
     pct = Math.max(0, Math.min(100, completionPercent || 0)) / 100;
@@ -301,11 +305,11 @@ const BodyHologramComponent: React.FC<BodyHologramProps> = ({
   // For standalone mode (dashboard), provide Canvas wrapper
   if (isStandalone) {
     return (
-      <div style={{ width: '100%', height: '360px', background: 'transparent' }}>
+      <div style={{ width: '100%', background: 'transparent' }}>
         <Canvas
           camera={{ position: [0, 0, 3.5], fov: 40 }}
           gl={{ alpha: true, antialias: true }}
-          style={{ background: 'transparent', width: '100%', height: '100%' }}
+          style={{ background: 'transparent', width: '100%', height: '360px', display: 'block' }}
         >
           <Suspense fallback={null}>
             <BodyScene pct={pct} isCurrentWeek={true} theme={theme} />

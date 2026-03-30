@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useWeeklyPlan } from '../../hooks/useWeeklyPlan';
 import { getWeekDates } from '../../utils/dates';
-import { getMondayOfWeek, formatLocalDate, getTodayLocal, getUserTimezone, parseLocalDate } from '../../utils/timezone';
+import { getMondayOfWeek, formatLocalDate, parseLocalDate } from '../../utils/timezone';
 import { Sidebar } from './Sidebar';
 import { DayColumn } from './DayColumn';
 
@@ -13,14 +13,6 @@ export const WeeklyPlannerView = ({ currentDate }) => {
   const weekStartStr = formatLocalDate(monday);
 
   const [selectedWeekStart, setSelectedWeekStart] = useState(weekStartStr);
-  const [debugTime, setDebugTime] = useState(new Date().toLocaleString());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDebugTime(new Date().toLocaleString());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   const {
     weekPlan,
@@ -63,12 +55,6 @@ export const WeeklyPlannerView = ({ currentDate }) => {
 
   return (
     <div className="flex flex-col h-full bg-black overflow-hidden">
-      {/* Debug display */}
-      <div className="px-4 py-2 border-b border-neutral-800 text-xs" style={{ color: '#39FF14' }}>
-        <div>Current Time: {debugTime} | Timezone: {getUserTimezone()}</div>
-        <div>App thinks today is: {todayStr} | Week starts: {weekStartStr}</div>
-      </div>
-
       <div className="flex flex-1 gap-4 p-4 overflow-hidden">
       <Sidebar
         weekStart={selectedWeekStart}

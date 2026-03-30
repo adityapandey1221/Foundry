@@ -5,7 +5,7 @@ import { WeeklyCompletionBars } from './WeeklyCompletionBars';
 import { WeeklyStats } from './WeeklyStats';
 import { getWeekStart, getWeekDates, getYearWeeks, getISOWeekNumber } from '../../utils/dates';
 
-export const WeeklyTracker = ({ habits, completions, toggleHabitCompletion, currentDate }) => {
+export const WeeklyTracker = ({ habits, completions, toggleHabitCompletion, updateHabit, removeHabit, currentDate }) => {
   const [selectedWeekStart, setSelectedWeekStart] = useState(getWeekStart(currentDate.today));
 
   const yearWeeks = getYearWeeks(currentDate.year);
@@ -50,6 +50,8 @@ export const WeeklyTracker = ({ habits, completions, toggleHabitCompletion, curr
           completions={completions}
           weekDates={weekDates}
           toggleHabitCompletion={toggleHabitCompletion}
+          updateHabit={updateHabit}
+          removeHabit={removeHabit}
           currentDate={currentDate}
         />
       </Panel>

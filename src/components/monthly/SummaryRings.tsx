@@ -39,37 +39,13 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
     const totalPossible = activeHabits.length * weekDates.length;
     const overallValue = calculatePercentage(totalCompleted, totalPossible) / 100;
 
-    // Per-category completion
-    const categoryData: Record<string, CategoryData> = {};
-    Object.values(CATEGORIES).forEach(cat => {
-      const catHabits = activeHabits.filter(h => h.category === cat.key);
-      if (catHabits.length === 0) return;
-
-      const catCompleted = weekDates.reduce((sum, date) => {
-        const dayCompletes = completions[date] || [];
-        return sum + dayCompletes.filter((id: any) => catHabits.find((h: any) => h.id === id)).length;
-      }, 0);
-
-      const catPossible = catHabits.length * weekDates.length;
-      const catValue = calculatePercentage(catCompleted, catPossible) / 100;
-
-      categoryData[cat.key] = {
-        label: cat.label,
-        color: cat.hex,
-        value: catValue,
-        completed: catCompleted,
-        total: catPossible,
-      };
-    });
-
-    // Sort by habit count descending, take top 2 for concentric rings
-    const topCategories = Object.entries(categoryData)
-      .sort((a, b) => b[1].total - a[1].total)
-      .slice(0, 2)
-      .map(([key, data]) => ({ key, ...data }));
-
     // Build single activity ring for overall progress
-    const overallRingColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+    let overallRingColor = '#39FF14'; // default to matrix green
+    if (theme === 'jarvis') {
+      overallRingColor = '#00FFFF';
+    } else if (theme === 'tactical') {
+      overallRingColor = '#67df65';
+    }
     const rings: ActivityRing[] = [
       { filledPercentage: overallValue, color: overallRingColor, ringWidth: 12 },
     ];
@@ -78,8 +54,6 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
       rings,
       overallValue,
       overallPct: Math.round(overallValue * 100),
-      topCategories,
-      theme,
     };
   }, [habits, completions, weekDates, theme]);
 
@@ -92,10 +66,16 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
     backgroundOpacity: 0.3,
   };
 
-  const primaryColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
-  const glowColor = theme === 'jarvis'
-    ? 'rgba(0, 255, 255, 0.6)'
-    : 'rgba(57, 255, 20, 0.6)';
+  let primaryColor = '#39FF14';
+  let glowColor = 'rgba(57, 255, 20, 0.6)';
+
+  if (theme === 'jarvis') {
+    primaryColor = '#00FFFF';
+    glowColor = 'rgba(0, 255, 255, 0.6)';
+  } else if (theme === 'tactical') {
+    primaryColor = '#67df65';
+    glowColor = 'rgba(103, 223, 101, 0.6)';
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -118,10 +98,14 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
           borderRadius: '50%',
           background: theme === 'jarvis'
             ? 'radial-gradient(circle, rgba(0,255,255,0.05) 0%, rgba(0,30,50,0.1) 100%)'
+            : theme === 'tactical'
+            ? 'radial-gradient(circle, rgba(103,223,101,0.05) 0%, rgba(20,20,20,0.1) 100%)'
             : 'radial-gradient(circle, rgba(57,255,20,0.03) 0%, rgba(0,0,0,0.1) 100%)',
           // Scanline effect overlay
           backgroundImage: theme === 'jarvis'
             ? 'repeating-linear-gradient(0deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 1px, transparent 1px, transparent 2px)'
+            : theme === 'tactical'
+            ? 'repeating-linear-gradient(0deg, rgba(103,223,101,0.02) 0px, rgba(103,223,101,0.02) 1px, transparent 1px, transparent 2px)'
             : 'repeating-linear-gradient(0deg, rgba(57,255,20,0.02) 0px, rgba(57,255,20,0.02) 1px, transparent 1px, transparent 2px)',
         }}
       >
@@ -139,7 +123,7 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
           <div
             className="text-xs uppercase tracking-wider mt-1"
             style={{
-              color: theme === 'jarvis' ? '#0099CC' : '#22AA44',
+              color: theme === 'jarvis' ? '#0099CC' : theme === 'tactical' ? '#2ae500' : '#22AA44',
               textShadow: `0 0 6px ${glowColor.replace('0.6', '0.3').replace('0.5', '0.2')}`,
             }}
           >
