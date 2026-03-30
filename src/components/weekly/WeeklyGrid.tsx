@@ -4,7 +4,7 @@ import { CATEGORIES } from '../../utils/constants';
 import { parseLocalDate } from '../../utils/timezone';
 import { HabitEditModal } from '../shared/HabitEditModal';
 
-const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate, updateHabit, removeHabit }) => {
+const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompletion, currentDate, updateHabit, removeHabit, dailyPercentages = [], getPercentageColor = () => '#39FF14' }) => {
   const activeHabits = habits.filter((h: any) => h.isActive);
   const today = parseLocalDate(currentDate.today);
   const [lastBurst, setLastBurst] = useState<string | null>(null);
@@ -52,6 +52,28 @@ const WeeklyGridContent = ({ habits, completions, weekDates, toggleHabitCompleti
               );
             })}
           </tr>
+          {dailyPercentages.length > 0 && (
+            <tr className="border-b border-border-subtle">
+              <th className="text-left py-2 px-2 sticky left-0 bg-surface w-32"></th>
+              {dailyPercentages.map(({ date, percentage }) => {
+                const percentColor = getPercentageColor(percentage);
+                const isToday = date === currentDate.today;
+                return (
+                  <th
+                    key={`pct-${date}`}
+                    className="text-center py-2 px-2 text-xs min-w-12 font-bold font-mono transition"
+                    style={{
+                      backgroundColor: isToday ? `${percentColor}15` : `${percentColor}08`,
+                      color: percentColor,
+                      borderBottom: isToday ? `2px solid ${percentColor}` : `1px solid ${percentColor}40`,
+                    }}
+                  >
+                    {percentage}%
+                  </th>
+                );
+              })}
+            </tr>
+          )}
         </thead>
         <tbody>
           {activeHabits.map((habit: any) => {

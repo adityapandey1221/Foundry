@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState, memo, useMemo } from 'react';
 import { Panel } from '../shared/Panel';
 import { SummaryRings } from './SummaryRings';
 import { DailyHabitHeatmap } from './DailyHabitHeatmap';
@@ -15,6 +15,27 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
   const [selectedWeekStart, setSelectedWeekStart] = useState(getWeekStart(currentDate.today));
   const monthWeeks = getMonthWeeks(currentDate.year, currentDate.month);
   const weekDates = getWeekDates(selectedWeekStart);
+
+  const accentColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+
+  // Calculate per-day completion percentages
+  const dailyPercentages = useMemo(() => {
+    const activeHabits = habits.filter(h => h.isActive);
+    if (activeHabits.length === 0) return [];
+
+    return weekDates.map(date => {
+      const dayCompletions = completions[date] || [];
+      const completed = activeHabits.filter(h => dayCompletions.includes(h.id)).length;
+      const percentage = Math.round((completed / activeHabits.length) * 100);
+      return { date, percentage };
+    });
+  }, [habits, completions, weekDates]);
+
+  const getPercentageColor = (percentage: number) => {
+    if (percentage >= 80) return accentColor;
+    if (percentage >= 50) return '#FFD700';
+    return '#FF4444';
+  };
 
   return (
     <div className="space-y-1.5 p-3">
@@ -108,6 +129,9 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
                 updateHabit={updateHabit}
                 removeHabit={removeHabit}
                 currentDate={currentDate}
+                theme={theme}
+                dailyPercentages={dailyPercentages}
+                getPercentageColor={getPercentageColor}
               />
             </div>
           </Panel>

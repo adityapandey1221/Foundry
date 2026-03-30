@@ -1,6 +1,7 @@
 import { useState, useMemo, Suspense, lazy } from 'react';
 import { StatusBar } from './components/layout/StatusBar';
 import { TabNav } from './components/layout/TabNav';
+import { LiveMetricsBar } from './components/layout/LiveMetricsBar';
 import { MonthlyDashboard } from './components/monthly/MonthlyDashboard';
 import { WeeklyTracker } from './components/weekly/WeeklyTracker';
 import { WeeklyPlannerView } from './components/weekly-planner/WeeklyPlannerView';
@@ -8,13 +9,14 @@ import { SettingsPanel } from './components/settings/SettingsPanel';
 import { AtmosphericGlow } from './components/effects/AtmosphericGlow';
 import { useHabitStore } from './hooks/useHabitStore';
 import { useCurrentDate } from './hooks/useCurrentDate';
+import { getWeekStart } from './utils/dates';
 
 const AmbientParticles = lazy(() => import('./components/effects/AmbientParticles').then(m => ({ default: m.AmbientParticles })));
 
 function App() {
   const [activeTab, setActiveTab] = useState('monthly');
   const [showMatrixEffect, setShowMatrixEffect] = useState(true);
-  const [theme, setTheme] = useState<'matrix' | 'jarvis'>('matrix');
+  const [theme, setTheme] = useState<'matrix' | 'jarvis' | 'tactical'>('matrix');
   const store = useHabitStore();
   const currentDate = useCurrentDate();
 
@@ -33,11 +35,11 @@ function App() {
   return (
     <div
       className="min-h-screen bg-void flex flex-col relative"
-      data-theme={theme === 'jarvis' ? 'jarvis' : undefined}
+      data-theme={theme !== 'matrix' ? theme : undefined}
     >
       {/* Atmospheric effects layer behind content */}
-      {theme !== 'jarvis' && <AtmosphericGlow completionPercent={todayPct} />}
-      {theme !== 'jarvis' && showMatrixEffect && (
+      {theme === 'matrix' && <AtmosphericGlow completionPercent={todayPct} />}
+      {theme === 'matrix' && showMatrixEffect && (
         <Suspense fallback={null}>
           <AmbientParticles completionPercent={todayPct} />
         </Suspense>
@@ -47,6 +49,13 @@ function App() {
       <div style={{ position: 'relative', zIndex: 10 }} className="flex flex-col h-screen">
         <StatusBar date={currentDate} habits={store.habits} completions={store.completions} theme={theme} />
         <TabNav activeTab={activeTab} onTabChange={setActiveTab} theme={theme} />
+        <LiveMetricsBar
+          habits={store.habits}
+          completions={store.completions}
+          currentDate={currentDate}
+          weekStart={getWeekStart(currentDate.today)}
+          theme={theme}
+        />
 
         <div className="flex-1 overflow-auto">
         {activeTab === 'monthly' && (

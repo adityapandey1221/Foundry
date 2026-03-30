@@ -564,6 +564,62 @@ tr:hover {
   animation: holographic-pulse-jarvis 3s ease-in-out infinite;
 }
 
+/* ────────────────────────────────────────────────────────────────────────── */
+/* Live Metrics Bar - Command Center Style */
+/* ────────────────────────────────────────────────────────────────────────── */
+
+/* Metric dot pulse animation for warning/critical states */
+@keyframes metric-pulse-warning {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 4px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+  }
+}
+
+@keyframes metric-pulse-critical {
+  0%, 100% {
+    opacity: 0.4;
+    box-shadow: 0 0 4px rgba(255, 68, 68, 0.5);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(255, 68, 68, 0.8);
+  }
+}
+
+.metric-pulse-warning {
+  animation: metric-pulse-warning 1.5s ease-in-out infinite;
+}
+
+.metric-pulse-critical {
+  animation: metric-pulse-critical 1.5s ease-in-out infinite;
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* Alerts Panel - Status Indicators */
+/* ────────────────────────────────────────────────────────────────────────── */
+
+.alert-row {
+  transition: background-color 150ms ease;
+  border-radius: 4px;
+}
+
+.alert-row:hover {
+  background-color: rgba(57, 255, 20, 0.08);
+}
+
+[data-theme="jarvis"] .alert-row:hover {
+  background-color: rgba(0, 255, 255, 0.08);
+}
+
+[data-theme="tactical"] .alert-row:hover,
+[data-theme="stitch"] .alert-row:hover {
+  background-color: rgba(103, 223, 101, 0.08);
+}
 
 /* Override inline green colors throughout */
 [data-theme="jarvis"] label {
@@ -584,4 +640,236 @@ tr:hover {
 
 [data-theme="jarvis"] .text-text-muted {
   color: #B0B0B0 !important;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════ */
+/* TACTICAL COMMAND CENTER THEME */
+/* ════════════════════════════════════════════════════════════════════════════ */
+
+[data-theme="tactical"],
+[data-theme="stitch"] {
+  /* Core palette - tactical green */
+  --terminal-green: #67df65;
+  --terminal-green-bright: #79ff5b;
+  --terminal-green-dim: #2ae500;
+  --terminal-bg: #0a0a0a;
+}
+
+/* Panel chrome in TACTICAL */
+[data-theme="tactical"] .panel,
+[data-theme="stitch"] .panel {
+  position: relative;
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid rgba(103, 223, 101, 0.15);
+  border-radius: 0px;
+  box-shadow: 0 0 15px rgba(103, 223, 101, 0.1);
+}
+
+[data-theme="tactical"] .panel-header,
+[data-theme="stitch"] .panel-header {
+  position: relative;
+  background: inherit;
+  border-bottom-color: rgba(103, 223, 101, 0.1);
+  border-radius: 0px;
+  box-shadow: inset 0 1px 0 rgba(103, 223, 101, 0.1);
+}
+
+[data-theme="tactical"] .panel-header-title,
+[data-theme="stitch"] .panel-header-title {
+  color: #67df65;
+  text-shadow: 0 0 8px rgba(103, 223, 101, 0.4);
+}
+
+[data-theme="tactical"] .panel-header-dot,
+[data-theme="stitch"] .panel-header-dot {
+  background-color: #67df65;
+  box-shadow: 0 0 5px rgba(103, 223, 101, 0.4);
+  border-radius: 50%;
+  width: 6px;
+  height: 6px;
+}
+
+[data-theme="tactical"] .panel-content,
+[data-theme="tactical"] .panel > div:last-child,
+[data-theme="stitch"] .panel-content,
+[data-theme="stitch"] .panel > div:last-child {
+  background: inherit;
+}
+
+/* Cards in TACTICAL */
+[data-theme="tactical"] .card,
+[data-theme="stitch"] .card {
+  position: relative;
+  background: rgba(20, 20, 20, 0.6);
+  border-color: rgba(103, 223, 101, 0.15);
+  border-radius: 0px;
+  box-shadow: 0 0 15px rgba(103, 223, 101, 0.1);
+}
+
+[data-theme="tactical"] .card-lg,
+[data-theme="tactical"] .card-xl,
+[data-theme="stitch"] .card-lg,
+[data-theme="stitch"] .card-xl {
+  background: rgba(20, 20, 20, 0.6);
+  border-color: rgba(103, 223, 101, 0.15);
+  border-radius: 0px;
+  box-shadow: 0 0 15px rgba(103, 223, 101, 0.1);
+}
+
+/* Buttons in TACTICAL */
+[data-theme="tactical"] .btn,
+[data-theme="stitch"] .btn {
+  position: relative;
+  border-color: rgba(103, 223, 101, 0.2);
+  color: #67df65;
+  background: rgba(20, 20, 20, 0.5);
+  border-radius: 0px;
+  box-shadow: 0 0 8px rgba(103, 223, 101, 0.1);
+}
+
+[data-theme="tactical"] .btn-primary:not(:disabled):hover,
+[data-theme="stitch"] .btn-primary:not(:disabled):hover {
+  background-color: rgba(103, 223, 101, 0.1);
+  box-shadow: 0 0 12px rgba(103, 223, 101, 0.3);
+  border-color: rgba(103, 223, 101, 0.4);
+}
+
+[data-theme="tactical"] .btn-secondary:not(:disabled):hover,
+[data-theme="stitch"] .btn-secondary:not(:disabled):hover {
+  background-color: rgba(103, 223, 101, 0.05);
+  box-shadow: 0 0 10px rgba(103, 223, 101, 0.2);
+}
+
+[data-theme="tactical"] .btn-ghost:not(:disabled):hover,
+[data-theme="stitch"] .btn-ghost:not(:disabled):hover {
+  background-color: rgba(103, 223, 101, 0.05);
+  border-color: rgba(103, 223, 101, 0.3);
+}
+
+/* Inputs in TACTICAL */
+[data-theme="tactical"] input,
+[data-theme="tactical"] select,
+[data-theme="tactical"] textarea,
+[data-theme="stitch"] input,
+[data-theme="stitch"] select,
+[data-theme="stitch"] textarea {
+  position: relative;
+  border-color: rgba(103, 223, 101, 0.15);
+  color: #67df65;
+  background: rgba(20, 20, 20, 0.5);
+  border-radius: 0px;
+  box-shadow: 0 0 8px rgba(103, 223, 101, 0.05);
+}
+
+[data-theme="tactical"] input:focus,
+[data-theme="tactical"] select:focus,
+[data-theme="tactical"] textarea:focus,
+[data-theme="stitch"] input:focus,
+[data-theme="stitch"] select:focus,
+[data-theme="stitch"] textarea:focus {
+  border-color: rgba(103, 223, 101, 0.3);
+  box-shadow: 0 0 12px rgba(103, 223, 101, 0.2);
+}
+
+/* Typography in TACTICAL */
+[data-theme="tactical"] h1,
+[data-theme="tactical"] h2,
+[data-theme="tactical"] h3,
+[data-theme="tactical"] h4,
+[data-theme="tactical"] h5,
+[data-theme="tactical"] h6,
+[data-theme="stitch"] h1,
+[data-theme="stitch"] h2,
+[data-theme="stitch"] h3,
+[data-theme="stitch"] h4,
+[data-theme="stitch"] h5,
+[data-theme="stitch"] h6 {
+  color: #67df65;
+  text-shadow: 0 0 8px rgba(103, 223, 101, 0.3);
+}
+
+[data-theme="tactical"] html,
+[data-theme="tactical"] body,
+[data-theme="stitch"] html,
+[data-theme="stitch"] body {
+  color: #e5e2e1;
+  background: #0a0a0a;
+}
+
+/* Tables in TACTICAL */
+[data-theme="tactical"] th,
+[data-theme="tactical"] td,
+[data-theme="stitch"] th,
+[data-theme="stitch"] td {
+  border-color: rgba(103, 223, 101, 0.1);
+  color: #e5e2e1;
+}
+
+[data-theme="tactical"] th,
+[data-theme="stitch"] th {
+  background-color: rgba(103, 223, 101, 0.05);
+  border-bottom-color: rgba(103, 223, 101, 0.15);
+  border-bottom-width: 1px;
+  text-shadow: none;
+}
+
+[data-theme="tactical"] tr:nth-child(even),
+[data-theme="stitch"] tr:nth-child(even) {
+  background-color: rgba(103, 223, 101, 0.02);
+}
+
+[data-theme="tactical"] tr:hover,
+[data-theme="stitch"] tr:hover {
+  background-color: rgba(103, 223, 101, 0.05);
+}
+
+/* Scrollbars in TACTICAL */
+[data-theme="tactical"] ::-webkit-scrollbar-track,
+[data-theme="stitch"] ::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+[data-theme="tactical"] ::-webkit-scrollbar-thumb,
+[data-theme="stitch"] ::-webkit-scrollbar-thumb {
+  background-color: rgba(103, 223, 101, 0.2);
+  box-shadow: none;
+}
+
+[data-theme="tactical"] ::-webkit-scrollbar-thumb:hover,
+[data-theme="stitch"] ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(103, 223, 101, 0.4);
+  box-shadow: none;
+}
+
+/* Selection in TACTICAL */
+[data-theme="tactical"] ::selection,
+[data-theme="stitch"] ::selection {
+  background-color: rgba(103, 223, 101, 0.2);
+  color: #67df65;
+}
+
+/* Override inline green colors throughout */
+[data-theme="tactical"] label,
+[data-theme="stitch"] label {
+  color: #e5e2e1 !important;
+}
+
+[data-theme="tactical"] span,
+[data-theme="stitch"] span {
+  color: #e5e2e1 !important;
+}
+
+[data-theme="tactical"] div,
+[data-theme="stitch"] div {
+  color: inherit !important;
+}
+
+[data-theme="tactical"] .text-text-accent,
+[data-theme="stitch"] .text-text-accent {
+  color: #67df65 !important;
+}
+
+[data-theme="tactical"] .text-text-muted,
+[data-theme="stitch"] .text-text-muted {
+  color: #baccb0 !important;
 }
