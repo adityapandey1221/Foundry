@@ -166,3 +166,9 @@
   height: 100%;
   min-height: 0;
 }
+
+.video-exact-radar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

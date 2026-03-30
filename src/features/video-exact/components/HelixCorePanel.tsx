@@ -1,320 +1,416 @@
+import { useMemo, useRef } from 'react';
+import { Canvas, type ThreeElements, useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 import { HudPanel } from './HudPanel';
-import { useSyntheticTelemetry } from '../hooks/useSyntheticTelemetry';
-import { clamp } from '../utils/motion';
 
 export type HelixCorePanelProps = {
   seed?: string;
   className?: string;
 };
 
-type Point = {
-  x: number;
-  y: number;
-};
+const TERRAIN_ROWS = 14;
+const TERRAIN_COLUMNS = 34;
+const TERRAIN_WIDTH = 132;
+const TERRAIN_DEPTH = 84;
+const TERRAIN_HALF_WIDTH = TERRAIN_WIDTH / 2;
+const TERRAIN_HALF_DEPTH = TERRAIN_DEPTH / 2;
+const HELIX_HEIGHT = 90;
+const HELIX_SEGMENTS = 160;
+const RUNG_COUNT = 20;
+const PARTICLE_COUNT = 120;
+const HELIX_CENTER_Y = 2;
+const GRID_COLOR = new THREE.Color('#5f5f5f');
+const LINE_COLOR = new THREE.Color('#cfcfcf');
+const CORE_COLOR = new THREE.Color('#f5f5f5');
 
-const WIDTH = 1000;
-const HEIGHT = 560;
-const LEFT = 68;
-const RIGHT = WIDTH - 68;
-const TOP = 54;
-const BOTTOM = HEIGHT - 52;
-const CENTER_X = WIDTH / 2;
-const CENTER_Y = HEIGHT / 2 + 6;
-const POINT_COUNT = 112;
-
-const buildTerrainPath = (clockSeconds: number, rowIndex: number): string => {
-  const points: Point[] = [];
-  const count = 84;
-  const step = (RIGHT - LEFT) / (count - 1);
-  const rowOffset = (rowIndex - 6) * 11;
-  const ripple = 0.55 + rowIndex * 0.065;
-
-  for (let index = 0; index < count; index += 1) {
-    const t = index / (count - 1);
-    const x = LEFT + step * index;
-    const crest = Math.sin(t * Math.PI * 1.02 + clockSeconds * 0.24 + rowIndex * 0.12) * (138 - rowIndex * 6);
-    const undulation = Math.cos(t * Math.PI * 2.8 - clockSeconds * 0.18 + rowIndex * 0.2) * (18 + rowIndex * 1.3);
-    const wave = Math.sin((t * 10.5) + clockSeconds * ripple + rowIndex * 0.35) * (8 + rowIndex * 0.55);
-    const valley = Math.pow(Math.abs(t - 0.5), 1.15) * 84;
-    const y = CENTER_Y + rowOffset - crest - undulation + wave + valley * 0.15 + Math.sin(t * 4.5 + rowIndex) * 4;
-    points.push({ x, y });
+const setPositionArray = (target: Float32Array, points: THREE.Vector3[]) => {
+  for (let index = 0; index < points.length; index += 1) {
+    const point = points[index];
+    const offset = index * 3;
+    target[offset] = point.x;
+    target[offset + 1] = point.y;
+    target[offset + 2] = point.z;
   }
-
-  return points
-    .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
-    .join(' ');
 };
 
-const buildHelixPath = (clockSeconds: number, phaseOffset: number): string => {
-  const points: Point[] = [];
-  const count = POINT_COUNT;
-  const heightSpan = BOTTOM - TOP;
+const buildTerrainPoint = (column: number, row: number, time: number) => {
+  const u = column / (TERRAIN_COLUMNS - 1);
+  const v = row / (TERRAIN_ROWS - 1);
+  const x = -TERRAIN_HALF_WIDTH + (u * TERRAIN_WIDTH);
+  const z = -TERRAIN_HALF_DEPTH + (v * TERRAIN_DEPTH);
+  const mountain = Math.exp(-Math.pow((u - 0.5) * 3.2, 2)) * 22;
+  const shoulder = Math.exp(-Math.pow((u - 0.18) * 5.2, 2)) * 9;
+  const shoulderRight = Math.exp(-Math.pow((u - 0.82) * 5.2, 2)) * 9;
+  const rowFalloff = 1 - Math.pow(Math.abs(v - 0.5) * 1.6, 1.4);
+  const rolling =
+    Math.sin((u * 7.6) + (time * 0.55) + (row * 0.28)) * 2.8 +
+    Math.cos((u * 3.4) - (time * 0.24) + (row * 0.17)) * 1.9;
 
-  for (let index = 0; index < count; index += 1) {
-    const t = index / (count - 1);
-    const y = TOP + heightSpan * t;
-    const wobble = Math.sin(t * Math.PI * 16 + clockSeconds * 1.1 + phaseOffset) * (18 - Math.abs(t - 0.5) * 14);
-    const squeeze = 1 - Math.pow(Math.abs(t - 0.5), 1.7) * 0.42;
-    const x = CENTER_X + wobble * squeeze;
-    points.push({ x, y });
-  }
+  const y = ((mountain + shoulder + shoulderRight) * rowFalloff) + rolling + ((v - 0.5) * 2.4);
 
-  return points
-    .map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`)
-    .join(' ');
+  return new THREE.Vector3(x, y, z);
 };
 
-const buildCoilRings = (clockSeconds: number, phaseOffset: number) => {
-  const rings: { cx: number; cy: number; rx: number; ry: number; opacity: number }[] = [];
-  const count = 18;
+const buildHelixPoint = (t: number, time: number, phaseOffset: number) => {
+  const centered = (t - 0.5) * HELIX_HEIGHT;
+  const envelope = 9 + (1 - Math.pow(Math.abs(t - 0.5) * 2, 1.4)) * 5;
+  const angle = (t * Math.PI * 18) + (time * 1.05) + phaseOffset;
+  const x = Math.cos(angle) * envelope;
+  const z = Math.sin(angle) * (envelope * 0.56);
+  const y = centered + HELIX_CENTER_Y;
 
-  for (let index = 0; index < count; index += 1) {
-    const t = index / (count - 1);
-    const y = TOP + (BOTTOM - TOP) * t;
-    const radiusX = 25 + Math.sin(clockSeconds * 0.6 + index * 0.18 + phaseOffset) * 5;
-    const radiusY = 12 + Math.cos(clockSeconds * 0.42 + index * 0.12 + phaseOffset) * 2;
-    const opacity = clamp(0.2 + Math.sin(t * Math.PI) * 0.55, 0.18, 0.84);
-
-    rings.push({
-      cx: CENTER_X + Math.sin(clockSeconds * 0.8 + t * 8 + phaseOffset) * 2.5,
-      cy: y,
-      rx: radiusX,
-      ry: radiusY,
-      opacity,
-    });
-  }
-
-  return rings;
+  return new THREE.Vector3(x, y, z);
 };
 
-const buildNoisePoints = (clockSeconds: number) => {
-  const points: { x: number; y: number; size: number; opacity: number }[] = [];
+function TerrainLines() {
+  const rowRefs = useRef<THREE.Line[]>([]);
+  const columnRefs = useRef<THREE.Line[]>([]);
 
-  for (let index = 0; index < 28; index += 1) {
-    const t = index / 28;
-    const x = LEFT + (RIGHT - LEFT) * ((index * 37) % 28) / 28;
-    const yBase = TOP + (BOTTOM - TOP) * ((index * 11) % 28) / 28;
-    const y = yBase + Math.sin(clockSeconds * 0.38 + index * 0.7) * 12;
-    points.push({
-      x,
-      y,
-      size: 1.1 + (index % 5) * 0.6,
-      opacity: clamp(0.08 + Math.cos(clockSeconds * 0.2 + t * 4) * 0.15 + (index % 3) * 0.03, 0.08, 0.38),
-    });
-  }
+  const rowArrays = useMemo(
+    () => Array.from({ length: TERRAIN_ROWS }, () => new Float32Array(TERRAIN_COLUMNS * 3)),
+    []
+  );
+  const columnArrays = useMemo(
+    () => Array.from({ length: TERRAIN_COLUMNS }, () => new Float32Array(TERRAIN_ROWS * 3)),
+    []
+  );
 
-  return points;
-};
+  useFrame(({ clock }) => {
+    const time = clock.elapsedTime;
 
-function WireframeTerrain({ clockSeconds }: { clockSeconds: number }) {
-  const paths = Array.from({ length: 12 }, (_, rowIndex) => buildTerrainPath(clockSeconds, rowIndex));
+    for (let row = 0; row < TERRAIN_ROWS; row += 1) {
+      const rowPoints = Array.from({ length: TERRAIN_COLUMNS }, (_, column) =>
+        buildTerrainPoint(column, row, time)
+      );
+      const rowArray = rowArrays[row];
+      setPositionArray(rowArray, rowPoints);
+
+      const rowGeometry = rowRefs.current[row]?.geometry as THREE.BufferGeometry | undefined;
+      const rowAttribute = rowGeometry?.attributes.position as THREE.BufferAttribute | undefined;
+      if (rowAttribute) {
+        rowAttribute.needsUpdate = true;
+      }
+    }
+
+    for (let column = 0; column < TERRAIN_COLUMNS; column += 1) {
+      const columnPoints = Array.from({ length: TERRAIN_ROWS }, (_, row) =>
+        buildTerrainPoint(column, row, time)
+      );
+      const columnArray = columnArrays[column];
+      setPositionArray(columnArray, columnPoints);
+
+      const columnGeometry = columnRefs.current[column]?.geometry as THREE.BufferGeometry | undefined;
+      const columnAttribute = columnGeometry?.attributes.position as THREE.BufferAttribute | undefined;
+      if (columnAttribute) {
+        columnAttribute.needsUpdate = true;
+      }
+    }
+  });
 
   return (
-    <g aria-hidden="true">
-      <g opacity="0.95">
-        {paths.map((path, index) => (
-          <path
-            key={`terrain-row-${index}`}
-            d={path}
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.18)"
-            strokeWidth={index < 2 ? 1.1 : 0.72}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+    <group position={[0, -12, 0]} rotation-x={-0.66}>
+      {rowArrays.map((array, index) => (
+        <line
+          key={`terrain-row-${index}`}
+          ref={(node) => {
+            if (node) rowRefs.current[index] = node;
+          }}
+        >
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[array, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={LINE_COLOR}
+            transparent
+            opacity={index < 3 ? 0.34 : 0.2}
           />
-        ))}
-      </g>
+        </line>
+      ))}
 
-      <g opacity="0.45">
-        {Array.from({ length: 28 }, (_, index) => {
-          const t = index / 27;
-          const x = LEFT + (RIGHT - LEFT) * t;
-          const yTop = TOP + Math.sin(t * Math.PI * 2 + clockSeconds * 0.2) * 3;
-          const yBottom = BOTTOM + Math.cos(t * Math.PI * 2 + clockSeconds * 0.14) * 5;
-          return (
-            <line
-              key={`terrain-column-${index}`}
-              x1={x}
-              y1={yTop}
-              x2={x}
-              y2={yBottom}
-              stroke="rgba(255, 255, 255, 0.08)"
-              strokeWidth="0.6"
-            />
-          );
-        })}
-      </g>
-    </g>
+      {columnArrays.map((array, index) => (
+        <line
+          key={`terrain-column-${index}`}
+          ref={(node) => {
+            if (node) columnRefs.current[index] = node;
+          }}
+        >
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[array, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={GRID_COLOR}
+            transparent
+            opacity={index % 4 === 0 ? 0.24 : 0.12}
+          />
+        </line>
+      ))}
+    </group>
   );
 }
 
-export function HelixCorePanel({ seed = 'video-exact-hud', className }: HelixCorePanelProps) {
-  const telemetry = useSyntheticTelemetry(seed);
-  const { clockSeconds } = telemetry;
-  const helixPrimary = buildHelixPath(clockSeconds, 0);
-  const helixSecondary = buildHelixPath(clockSeconds, Math.PI / 1.8);
-  const coilRings = buildCoilRings(clockSeconds, 0.4);
-  const noisePoints = buildNoisePoints(clockSeconds);
+function HelixStructure() {
+  const strandARef = useRef<THREE.Line>(null);
+  const strandBRef = useRef<THREE.Line>(null);
+  const glowRef = useRef<THREE.Line>(null);
+  const thicknessRefA = useRef<THREE.Line>(null);
+  const thicknessRefB = useRef<THREE.Line>(null);
+  const rungRefs = useRef<THREE.Line[]>([]);
 
+  const strandA = useMemo(() => new Float32Array(HELIX_SEGMENTS * 3), []);
+  const strandB = useMemo(() => new Float32Array(HELIX_SEGMENTS * 3), []);
+  const glow = useMemo(() => new Float32Array(HELIX_SEGMENTS * 3), []);
+  const thicknessA = useMemo(() => new Float32Array(HELIX_SEGMENTS * 3), []);
+  const thicknessB = useMemo(() => new Float32Array(HELIX_SEGMENTS * 3), []);
+  const rungArrays = useMemo(
+    () => Array.from({ length: RUNG_COUNT }, () => new Float32Array(2 * 3)),
+    []
+  );
+
+  useFrame(({ clock }) => {
+    const time = clock.elapsedTime;
+    const aPoints = Array.from({ length: HELIX_SEGMENTS }, (_, index) =>
+      buildHelixPoint(index / (HELIX_SEGMENTS - 1), time, 0)
+    );
+    const bPoints = Array.from({ length: HELIX_SEGMENTS }, (_, index) =>
+      buildHelixPoint(index / (HELIX_SEGMENTS - 1), time, Math.PI)
+    );
+
+    setPositionArray(strandA, aPoints);
+    setPositionArray(strandB, bPoints);
+    setPositionArray(glow, aPoints);
+    setPositionArray(
+      thicknessA,
+      aPoints.map((point) => new THREE.Vector3(point.x + 0.85, point.y, point.z + 0.35))
+    );
+    setPositionArray(
+      thicknessB,
+      bPoints.map((point) => new THREE.Vector3(point.x - 0.85, point.y, point.z - 0.35))
+    );
+
+    const strandAAttribute = strandARef.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
+    const strandBAttribute = strandBRef.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
+    const glowAttribute = glowRef.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
+    const thicknessAAttribute = thicknessRefA.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
+    const thicknessBAttribute = thicknessRefB.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
+
+    if (strandAAttribute) strandAAttribute.needsUpdate = true;
+    if (strandBAttribute) strandBAttribute.needsUpdate = true;
+    if (glowAttribute) glowAttribute.needsUpdate = true;
+    if (thicknessAAttribute) thicknessAAttribute.needsUpdate = true;
+    if (thicknessBAttribute) thicknessBAttribute.needsUpdate = true;
+
+    for (let index = 0; index < RUNG_COUNT; index += 1) {
+      const t = index / (RUNG_COUNT - 1);
+      const rungPoints = [
+        buildHelixPoint(t, time, 0),
+        buildHelixPoint(t, time, Math.PI),
+      ];
+
+      setPositionArray(rungArrays[index], rungPoints);
+      const rungAttribute = rungRefs.current[index]?.geometry.attributes.position as THREE.BufferAttribute | undefined;
+      if (rungAttribute) {
+        rungAttribute.needsUpdate = true;
+      }
+    }
+  });
+
+  return (
+    <group position={[0, 2, 0]}>
+      <line ref={glowRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[glow, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color={CORE_COLOR} transparent opacity={1} />
+      </line>
+
+      <line ref={thicknessRefA}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[thicknessA, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color={CORE_COLOR} transparent opacity={0.42} />
+      </line>
+
+      <line ref={thicknessRefB}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[thicknessB, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color={CORE_COLOR} transparent opacity={0.38} />
+      </line>
+
+      <line ref={strandARef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[strandA, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color={CORE_COLOR} transparent opacity={1} />
+      </line>
+
+      <line ref={strandBRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[strandB, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color={CORE_COLOR} transparent opacity={1} />
+      </line>
+
+      {rungArrays.map((array, index) => (
+        <line
+          key={`helix-rung-${index}`}
+          ref={(node) => {
+            if (node) rungRefs.current[index] = node;
+          }}
+        >
+          <bufferGeometry>
+            <bufferAttribute attach="attributes-position" args={[array, 3]} />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color={CORE_COLOR}
+            transparent
+            opacity={0.93 + ((1 - Math.abs((index / (RUNG_COUNT - 1)) - 0.5) * 2) * 0.07)}
+          />
+        </line>
+      ))}
+    </group>
+  );
+}
+
+function ParticleField() {
+  const positions = useMemo(() => {
+    const array = new Float32Array(PARTICLE_COUNT * 3);
+
+    for (let index = 0; index < PARTICLE_COUNT; index += 1) {
+      const offset = index * 3;
+      const spread = index % 2 === 0 ? 68 : 54;
+      array[offset] = ((index * 17.17) % 1) * spread * 2 - spread;
+      array[offset + 1] = (((index * 13.31) % 1) * 76) - 34;
+      array[offset + 2] = (((index * 29.71) % 1) * 72) - 36;
+    }
+
+    return array;
+  }, []);
+
+  const materialRef = useRef<THREE.PointsMaterial>(null);
+
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      materialRef.current.opacity = 0.18 + (Math.sin(clock.elapsedTime * 0.35) * 0.04);
+    }
+  });
+
+  return (
+    <points position={[0, 8, 0]}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        ref={materialRef}
+        color={CORE_COLOR}
+        size={0.78}
+        sizeAttenuation={false}
+        transparent
+        opacity={0.26}
+      />
+    </points>
+  );
+}
+
+function FrameOverlay(props: ThreeElements['group']) {
+  return (
+    <group {...props}>
+      <lineLoop position={[0, 8, -48]}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[
+              new Float32Array([
+                -73, 53, 0,
+                73, 53, 0,
+                73, -45, 0,
+                -73, -45, 0,
+              ]),
+              3,
+            ]}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color={LINE_COLOR} transparent opacity={0.16} />
+      </lineLoop>
+    </group>
+  );
+}
+
+function HelixScene() {
+  return (
+    <Canvas
+      orthographic
+      dpr={[1, 1.75]}
+      camera={{ position: [0, 0, 120], zoom: 4.8, near: 0.1, far: 500 }}
+      gl={{ antialias: true, alpha: true }}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <color attach="background" args={['#090909']} />
+      <fog attach="fog" args={['#090909', 88, 170]} />
+      <group>
+        <TerrainLines />
+        <HelixStructure />
+        <ParticleField />
+        <FrameOverlay position={[0, 0, 0]} />
+      </group>
+    </Canvas>
+  );
+}
+
+export function HelixCorePanel({ className }: HelixCorePanelProps) {
   return (
     <HudPanel
       title="HELIX CORE ENGINE"
       meta="DNA / ATTRACTOR"
       compact
       className={className}
-      bodyClassName="video-exact-helix-panel"
+      bodyClassName="video-exact-fill"
     >
       <div
         style={{
           position: 'relative',
+          height: '100%',
           minHeight: 0,
           aspectRatio: '1.85 / 1',
           overflow: 'hidden',
+          background:
+            'radial-gradient(circle at 50% 42%, rgba(255,255,255,0.405), rgba(255,255,255,0.158) 18%, rgba(255,255,255,0.05) 34%, rgba(0,0,0,0) 60%)',
         }}
       >
-        <svg
-          aria-label="Helix core engine visualization"
-          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-          preserveAspectRatio="xMidYMid meet"
+        <HelixScene />
+        <div
+          aria-hidden="true"
           style={{
-            display: 'block',
-            width: '100%',
-            height: '100%',
-            overflow: 'visible',
+            pointerEvents: 'none',
+            position: 'absolute',
+            inset: 0,
+            background:
+              'radial-gradient(circle at 50% 44%, rgba(255,255,255,0.34), rgba(255,255,255,0.115) 16%, rgba(255,255,255,0) 36%)',
+            mixBlendMode: 'screen',
+            opacity: 1,
           }}
-        >
-          <defs>
-            <radialGradient id="video-exact-helix-glow" cx="50%" cy="45%" r="55%">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.22)" />
-              <stop offset="42%" stopColor="rgba(255,255,255,0.08)" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-            </radialGradient>
-            <linearGradient id="video-exact-helix-core" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="rgba(255,255,255,0.96)" />
-              <stop offset="50%" stopColor="rgba(255,255,255,0.88)" />
-              <stop offset="100%" stopColor="rgba(255,255,255,0.72)" />
-            </linearGradient>
-            <filter id="video-exact-helix-soft-glow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="3.1" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <clipPath id="video-exact-helix-clip">
-              <rect x={LEFT - 10} y={TOP - 16} width={RIGHT - LEFT + 20} height={BOTTOM - TOP + 32} rx="10" />
-            </clipPath>
-          </defs>
-
-          <rect x="0" y="0" width={WIDTH} height={HEIGHT} fill="rgba(255, 255, 255, 0.012)" />
-          <circle cx={CENTER_X} cy={CENTER_Y} r="210" fill="url(#video-exact-helix-glow)" opacity="0.9" />
-
-          <g clipPath="url(#video-exact-helix-clip)">
-            <WireframeTerrain clockSeconds={clockSeconds} />
-
-            <g opacity="0.7">
-              {noisePoints.map((point, index) => (
-                <circle
-                  key={`noise-${index}`}
-                  cx={point.x}
-                  cy={point.y}
-                  r={point.size}
-                  fill="rgba(255, 255, 255, 0.8)"
-                  opacity={point.opacity}
-                />
-              ))}
-            </g>
-
-            <g opacity="0.82">
-              {coilRings.map((ring, index) => (
-                <ellipse
-                  key={`coil-ring-${index}`}
-                  cx={ring.cx}
-                  cy={ring.cy}
-                  rx={ring.rx}
-                  ry={ring.ry}
-                  fill="none"
-                  stroke="rgba(255, 255, 255, 0.72)"
-                  strokeWidth="1.18"
-                  opacity={ring.opacity}
-                />
-              ))}
-            </g>
-
-            <g filter="url(#video-exact-helix-soft-glow)">
-              <path
-                d={helixSecondary}
-                fill="none"
-                stroke="rgba(255, 255, 255, 0.28)"
-                strokeWidth="5.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity="0.45"
-              />
-              <path
-                d={helixPrimary}
-                fill="none"
-                stroke="url(#video-exact-helix-core)"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </g>
-
-            <path
-              d={helixPrimary}
-              fill="none"
-              stroke="rgba(255, 255, 255, 0.94)"
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-
-            <g opacity="0.24">
-              {Array.from({ length: 13 }, (_, index) => {
-                const y = TOP + ((BOTTOM - TOP) / 12) * index;
-                return (
-                  <line
-                    key={`scan-${index}`}
-                    x1={LEFT}
-                    x2={RIGHT}
-                    y1={y}
-                    y2={y}
-                    stroke="rgba(255, 255, 255, 0.08)"
-                    strokeWidth="0.8"
-                  />
-                );
-              })}
-            </g>
-          </g>
-
-          <g opacity="0.38">
-            {Array.from({ length: 8 }, (_, index) => {
-              const x = LEFT + ((RIGHT - LEFT) / 7) * index;
-              return (
-                <line
-                  key={`edge-grid-${index}`}
-                  x1={x}
-                  x2={x}
-                  y1={TOP}
-                  y2={BOTTOM}
-                  stroke="rgba(255, 255, 255, 0.08)"
-                  strokeWidth="0.65"
-                />
-              );
-            })}
-          </g>
-
-          <rect
-            x={LEFT - 6}
-            y={TOP - 8}
-            width={RIGHT - LEFT + 12}
-            height={BOTTOM - TOP + 16}
-            fill="none"
-            stroke="rgba(255, 255, 255, 0.16)"
-            strokeWidth="1"
-          />
-        </svg>
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            pointerEvents: 'none',
+            position: 'absolute',
+            inset: 0,
+            background:
+              'repeating-linear-gradient(180deg, rgba(255,255,255,0.026) 0, rgba(255,255,255,0.026) 1px, transparent 1px, transparent 3px)',
+            opacity: 0.16,
+            mixBlendMode: 'screen',
+          }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            pointerEvents: 'none',
+            position: 'absolute',
+            inset: 0,
+            boxShadow: 'inset 0 0 56px rgba(0,0,0,0.38)',
+          }}
+        />
       </div>
     </HudPanel>
   );
