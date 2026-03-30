@@ -944,67 +944,74 @@
     // ============================================
     function initRingGauges() {
       const gauges = [
-        { id: 'gauge-cpu', label: 'CPU', value: 0.65 },
-        { id: 'gauge-mem', label: 'MEM', value: 0.43 },
-        { id: 'gauge-io', label: 'IO', value: 0.58 }
+        { id: 'gauge-cpu', label: 'CPU', baseValue: 0.65 },
+        { id: 'gauge-mem', label: 'MEM', baseValue: 0.43 },
+        { id: 'gauge-io', label: 'IO', baseValue: 0.58 }
       ];
 
-      gauges.forEach(gauge => {
-        const canvas = document.getElementById(gauge.id);
+      gauges.forEach(gaugeConfig => {
+        const canvas = document.getElementById(gaugeConfig.id);
+        if (!canvas) return;
+
         const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
 
         function resizeCanvas() {
-          canvas.width = canvas.clientWidth;
-          canvas.height = canvas.clientHeight;
+          const rect = canvas.getBoundingClientRect();
+          canvas.width = rect.width * dpr;
+          canvas.height = rect.height * dpr;
+          ctx.scale(dpr, dpr);
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        function animate() {
-          animationFrameId = requestAnimationFrame(animate);
-          const t = getTime();
-          const centerX = canvas.width / 2;
-          const centerY = canvas.height / 2;
-          const radius = Math.min(canvas.width, canvas.height) / 3;
+        function drawGauge(value) {
+          const width = canvas.width / dpr;
+          const height = canvas.height / dpr;
+          const centerX = width / 2;
+          const centerY = height / 2;
+          const radius = Math.min(width, height) / 2.5;
 
+          // Clear
           ctx.fillStyle = '#0d0d0d';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillRect(0, 0, width, height);
 
-          // Draw gauge background
+          // Background arc
           ctx.strokeStyle = '#2a2a2a';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
           ctx.stroke();
 
-          // Animated value
-          const animatedValue = 0.5 + Math.sin(t * 0.3) * 0.3 + gauge.value * 0.2;
-          const angle = Math.PI + animatedValue * Math.PI;
-
-          // Draw needle
-          const needleX = centerX + Math.cos(angle) * radius * 0.8;
-          const needleY = centerY + Math.sin(angle) * radius * 0.8;
-
-          ctx.strokeStyle = '#e6e6e6';
-          ctx.lineWidth = 2;
+          // Foreground arc
+          const clampedValue = Math.max(0, Math.min(1, value));
+          ctx.strokeStyle = '#a0a0a0';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
           ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
-          ctx.lineTo(needleX, needleY);
+          ctx.arc(centerX, centerY, radius, Math.PI, Math.PI + clampedValue * Math.PI, false);
           ctx.stroke();
 
-          // Draw center circle
+          // Value text
           ctx.fillStyle = '#e6e6e6';
-          ctx.beginPath();
-          ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Draw label
-          ctx.fillStyle = '#8a8a8a';
-          ctx.font = '10px JetBrains Mono';
+          ctx.font = 'bold 14px JetBrains Mono';
           ctx.textAlign = 'center';
-          ctx.fillText(gauge.label, centerX, centerY + radius + 15);
+          ctx.textBaseline = 'middle';
+          ctx.fillText(Math.round(clampedValue * 100) + '%', centerX, centerY - 8);
+
+          // Label text
+          ctx.fillStyle = '#8a8a8a';
+          ctx.font = '9px JetBrains Mono';
+          ctx.letterSpacing = '0.5px';
+          ctx.fillText(gaugeConfig.label, centerX, centerY + radius + 12);
         }
 
+        function animate() {
+          animationFrameId = requestAnimationFrame(animate);
+          const t = getTime();
+          const value = 0.5 + Math.sin(t * 0.3) * 0.3 + gaugeConfig.baseValue * 0.2;
+          drawGauge(value);
+        }
         animate();
       });
     }
