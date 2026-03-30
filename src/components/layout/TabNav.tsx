@@ -2,7 +2,7 @@ import { getThemeColor } from '../../utils/theme';
 
 export const TabNav = ({ activeTab, onTabChange, theme = 'matrix' }: { activeTab: string; onTabChange: (tab: string) => void; theme?: 'matrix' | 'jarvis' | 'tactical' }) => {
   const tabs = [
-    { id: 'monthly', label: 'WEEKLY DASHBOARD' },
+    { id: 'monthly', label: 'MONTHLY DASHBOARD' },
     { id: 'weekly', label: 'DETAILED WEEKLY' },
     { id: 'planner', label: 'WEEKLY PLANNER' },
     { id: 'settings', label: 'SETTINGS' },

@@ -74,14 +74,21 @@ export const getYearWeeks = (year) => {
   current.setDate(current.getDate() - (current.getDay() === 0 ? 6 : current.getDay() - 1));
 
   // Continue until we've covered all of this year
+  const seenWeeks = new Set<number>();
   while (current.getFullYear() <= year) {
-    // Stop if we've gone into next year and passed the first week of next year
-    if (current.getFullYear() > year && getISOWeekNumber(`${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`) > 1) {
+    const weekStart = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+    const weekNum = getISOWeekNumber(weekStart);
+
+    // Only add if this is from current year, or from next year but week 1
+    if (current.getFullYear() === year || (current.getFullYear() > year && weekNum === 1)) {
+      if (!seenWeeks.has(weekNum)) {
+        weeks.push(weekStart);
+        seenWeeks.add(weekNum);
+      }
+    } else if (current.getFullYear() > year && weekNum > 1) {
       break;
     }
 
-    const weekStart = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
-    weeks.push(weekStart);
     current.setDate(current.getDate() + 7);
   }
 
