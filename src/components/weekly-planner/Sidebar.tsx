@@ -48,7 +48,7 @@ export const Sidebar = ({
   };
 
   return (
-    <div className="w-64 flex flex-col gap-4 overflow-y-auto pr-2 flex-shrink-0">
+    <div className="w-48 flex flex-col gap-4 overflow-y-auto pr-2 flex-shrink-0">
       {/* Week Navigation */}
       <div className="panel p-4">
         <div className="flex items-center justify-between mb-2">
