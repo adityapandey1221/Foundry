@@ -5,7 +5,6 @@ import { DailyHabitHeatmap } from './DailyHabitHeatmap';
 import { WeeklyTasksList } from './WeeklyTasksList';
 import { MonthlyHabitGrid } from './MonthlyHabitGrid';
 import { ProgressBars } from './ProgressBars';
-import { KpiStrip } from './KpiStrip';
 import { TodayEvents } from './TodayEvents';
 import { BodyHologram } from '../weekly/BodyHologram';
 import { BrainHologram } from '../weekly/BrainHologram';
@@ -19,16 +18,6 @@ const MonthlyDashboardComponent = ({ habits, completions, toggleHabitCompletion,
 
   return (
     <div className="space-y-1.5 p-3">
-{/* KPI Stats Strip */}
-      <Panel compact>
-        <div className="panel-header">
-          <h3 className="panel-header-title">KPI DASHBOARD</h3>
-        </div>
-        <div className="p-2">
-          <KpiStrip habits={habits} completions={completions} currentDate={currentDate} selectedWeekStart={selectedWeekStart} />
-        </div>
-      </Panel>
-
 {/* Header with summary, body hologram, and today events */}
       <div className="grid grid-cols-3 gap-1.5 jarvis-panel-grid">
         <div className="col-span-1">

@@ -68,17 +68,10 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
       .slice(0, 2)
       .map(([key, data]) => ({ key, ...data }));
 
-    // Build activity rings: overall + top 2 categories
-    // Colors match the cyberpunk terminal theme (or cyan for JARVIS)
-    const overallColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
-    const ringColors = [overallColor, '#5B8FF9', '#E866A0']; // Overall, Sleep Blue, Productivity Pink
+    // Build single activity ring for overall progress
+    const overallRingColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
     const rings: ActivityRing[] = [
-      { filledPercentage: overallValue, color: ringColors[0], ringWidth: 12 },
-      ...topCategories.slice(0, 2).map((cat, idx) => ({
-        filledPercentage: cat.value,
-        color: ringColors[idx + 1],
-        ringWidth: 12,
-      })),
+      { filledPercentage: overallValue, color: overallRingColor, ringWidth: 12 },
     ];
 
     return {
@@ -86,8 +79,9 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
       overallValue,
       overallPct: Math.round(overallValue * 100),
       topCategories,
+      theme,
     };
-  }, [habits, completions, weekDates]);
+  }, [habits, completions, weekDates, theme]);
 
   const options: ActivityRingContainerOptions = {
     containerHeight: '240px',
@@ -98,40 +92,61 @@ export const SummaryRings = ({ habits, completions, weekDates, theme = 'matrix' 
     backgroundOpacity: 0.3,
   };
 
+  const primaryColor = theme === 'jarvis' ? '#00FFFF' : '#39FF14';
+  const glowColor = theme === 'jarvis'
+    ? 'rgba(0, 255, 255, 0.6)'
+    : 'rgba(57, 255, 20, 0.6)';
+
   return (
     <div className="flex flex-col items-center justify-center gap-4">
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '240px', height: '240px' }}>
-        <ActivityRings rings={data.rings} options={options} />
-      </div>
-
-      <div className="text-center">
-        <div
-          className="text-3xl font-bold"
-          style={{ color: theme === 'jarvis' ? '#00FFFF' : '#39FF14', fontFamily: 'monospace' }}
-        >
-          {data.overallPct}%
-        </div>
-        <div
-          className="text-xs uppercase tracking-wider mt-1"
-          style={{ color: theme === 'jarvis' ? '#0099CC' : '#22AA44' }}
-        >
-          Completion
-        </div>
-      </div>
-
-      {/* Legend for top categories */}
-      <div className="flex flex-col gap-1 text-center">
-        {data.topCategories.map(cat => (
-          <div key={cat.key} className="flex items-center justify-center gap-2">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: cat.color, boxShadow: `0 0 6px ${cat.color}80` }}
-            />
-            <span className="text-xs uppercase" style={{ color: cat.color }}>
-              {cat.label} {Math.round(cat.value * 100)}%
-            </span>
+      {/* Holographic rings container with glow effect */}
+      <div
+        className="holographic-rings"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          width: '240px',
+          height: '240px',
+          position: 'relative',
+          // Holographic glow effect
+          boxShadow: `
+            0 0 20px ${glowColor},
+            0 0 40px ${glowColor},
+            inset 0 0 20px ${glowColor.replace('0.6', '0.1').replace('0.5', '0.1')}
+          `,
+          borderRadius: '50%',
+          background: theme === 'jarvis'
+            ? 'radial-gradient(circle, rgba(0,255,255,0.05) 0%, rgba(0,30,50,0.1) 100%)'
+            : 'radial-gradient(circle, rgba(57,255,20,0.03) 0%, rgba(0,0,0,0.1) 100%)',
+          // Scanline effect overlay
+          backgroundImage: theme === 'jarvis'
+            ? 'repeating-linear-gradient(0deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 1px, transparent 1px, transparent 2px)'
+            : 'repeating-linear-gradient(0deg, rgba(57,255,20,0.02) 0px, rgba(57,255,20,0.02) 1px, transparent 1px, transparent 2px)',
+        }}
+      >
+        <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+          <div
+            className="text-3xl font-bold"
+            style={{
+              color: primaryColor,
+              fontFamily: 'monospace',
+              textShadow: `0 0 12px ${glowColor}`,
+            }}
+          >
+            {data.overallPct}%
           </div>
-        ))}
+          <div
+            className="text-xs uppercase tracking-wider mt-1"
+            style={{
+              color: theme === 'jarvis' ? '#0099CC' : '#22AA44',
+              textShadow: `0 0 6px ${glowColor.replace('0.6', '0.3').replace('0.5', '0.2')}`,
+            }}
+          >
+            Completion
+          </div>
+        </div>
+        <ActivityRings rings={data.rings} options={options} />
       </div>
     </div>
   );
