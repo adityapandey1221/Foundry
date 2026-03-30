@@ -64,6 +64,31 @@ export const getMonthWeeks = (year, month) => {
 };
 
 /**
+ * Get all weeks in a given year
+ */
+export const getYearWeeks = (year) => {
+  const weeks: string[] = [];
+  let current = new Date(year, 0, 1);
+
+  // Back to Monday of week 1
+  current.setDate(current.getDate() - (current.getDay() === 0 ? 6 : current.getDay() - 1));
+
+  // Continue until we've covered all of this year
+  while (current.getFullYear() <= year) {
+    // Stop if we've gone into next year and passed the first week of next year
+    if (current.getFullYear() > year && getISOWeekNumber(`${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`) > 1) {
+      break;
+    }
+
+    const weekStart = `${current.getFullYear()}-${String(current.getMonth() + 1).padStart(2, '0')}-${String(current.getDate()).padStart(2, '0')}`;
+    weeks.push(weekStart);
+    current.setDate(current.getDate() + 7);
+  }
+
+  return weeks;
+};
+
+/**
  * Get all dates in a month
  */
 export const getMonthDates = (year, month) => {
@@ -121,6 +146,30 @@ export const getMonday = (year, month, date) => {
   const diff = d.getDate() - day + (day === 0 ? -6 : 1);
   d.setDate(diff);
   return { year: d.getFullYear(), month: d.getMonth(), date: d.getDate() };
+};
+
+/**
+ * Get ISO week number for a given date string
+ */
+export const getISOWeekNumber = (dateStr) => {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const d = new Date(year, month - 1, day);
+
+  // Copy date so we don't modify the original
+  const date = new Date(d);
+
+  // ISO week date system: week 1 is the week with Jan 4 in it
+  // Set to nearest Thursday
+  date.setDate(date.getDate() + (4 - date.getDay()));
+
+  // Get Jan 1
+  const jan1 = new Date(date.getFullYear(), 0, 1);
+
+  // Calculate diff in ms and convert to days
+  const daysDiff = (date.getTime() - jan1.getTime()) / (24 * 60 * 60 * 1000);
+
+  // Week number (starting from 0, so add 1)
+  return Math.floor(daysDiff / 7) + 1;
 };
 
 /**
