@@ -1,43 +1,1040 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Habit Tracker" />
-    <meta name="theme-color" content="#000000" />
-    <title>Habit Tracker</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Terminal - Helix Core</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <script>
-      document.documentElement.classList.toggle(
-        "dark",
-        localStorage.theme === "dark" ||
-          (!("theme" in localStorage) &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches)
-      );
-    </script>
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #0a0a0a;
+      color: #e6e6e6;
+      overflow: hidden;
+      height: 100vh;
+    }
 
-    <!-- Favicon support -->
-    <link rel="icon" href="/favicon.ico" />
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 36px;
+      background-color: #0a0a0a;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 100;
+      color: #8a8a8a;
+    }
 
-    <!-- Preload fonts if any -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    .header-left {
+      display: flex;
+      gap: 24px;
+    }
 
-    <!-- Prevent flash of unstyled content -->
-    <style>
-      html {
-        background: #000;
-      }
-      @media (prefers-color-scheme: dark) {
-        html {
-          background: #000;
+    .header-right {
+      display: flex;
+      gap: 24px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 2.2fr 1fr;
+      gap: 12px;
+      padding: 48px 12px 12px 12px;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .panel {
+      background-color: #111111;
+      border: 1px solid #2a2a2a;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8a8a8a;
+    }
+
+    .panel-content {
+      flex: 1;
+      padding: 12px 14px;
+      overflow: auto;
+      position: relative;
+    }
+
+    /* LEFT COLUMN */
+    .markets-table {
+      flex: 0 0 auto;
+    }
+
+    .markets-table .panel-content {
+      padding: 0;
+      overflow-y: auto;
+      max-height: 250px;
+    }
+
+    .market-row {
+      display: grid;
+      grid-template-columns: 1fr 0.6fr 0.6fr 0.8fr 0.8fr;
+      gap: 8px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 11px;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .market-row:hover {
+      background-color: #1a1a1a;
+    }
+
+    .market-name {
+      color: #e6e6e6;
+      font-weight: 500;
+    }
+
+    .market-value {
+      color: #8a8a8a;
+      text-align: right;
+    }
+
+    .sparkline {
+      width: 40px;
+      height: 20px;
+    }
+
+    .flow-ladder {
+      flex: 0 0 auto;
+    }
+
+    .ladder-item {
+      display: grid;
+      grid-template-columns: 0.6fr 1fr 0.8fr;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 11px;
+      align-items: center;
+    }
+
+    .ladder-bar {
+      background-color: #2a2a2a;
+      height: 3px;
+      border-radius: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ladder-bar-fill {
+      background-color: #e6e6e6;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .ladder-value {
+      color: #8a8a8a;
+      text-align: right;
+      font-size: 10px;
+    }
+
+    .market-logs {
+      flex: 1;
+      min-height: 150px;
+    }
+
+    .log-entry {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1a1a1a;
+      font-size: 10px;
+      color: #8a8a8a;
+      line-height: 1.4;
+    }
+
+    .log-entry time {
+      color: #6a6a6a;
+      margin-right: 6px;
+    }
+
+    /* CENTER COLUMN */
+    .helix-core {
+      flex: 1.8;
+      min-height: 300px;
+    }
+
+    .helix-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .signal-waveform {
+      flex: 0.8;
+      min-height: 160px;
+    }
+
+    .waveform-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      background-color: #0d0d0d;
+    }
+
+    .frequency-spectrum {
+      flex: 0.8;
+      min-height: 160px;
+    }
+
+    .spectrum-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #0d0d0d;
+      display: flex;
+      align-items: flex-end;
+      padding: 8px 12px;
+    }
+
+    .spectrum-bars {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      gap: 1px;
+      background: linear-gradient(to bottom, #0d0d0d, #111111);
+    }
+
+    .spectrum-bar {
+      flex: 1;
+      background-color: #e6e6e6;
+      min-width: 1px;
+    }
+
+    .spectrum-control {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9px;
+      color: #6a6a6a;
+    }
+
+    .spectrum-button {
+      width: 20px;
+      height: 20px;
+      background-color: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      color: #8a8a8a;
+      cursor: pointer;
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spectrum-slider {
+      width: 60px;
+      height: 2px;
+      background-color: #2a2a2a;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .spectrum-slider-thumb {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: #e6e6e6;
+      border-radius: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      left: 30%;
+    }
+
+    .spectrum-time {
+      font-size: 9px;
+      color: #6a6a6a;
+    }
+
+    /* RIGHT COLUMN */
+    .radar-sweep {
+      flex: 1;
+      min-height: 220px;
+    }
+
+    .radar-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .numeric-lattice {
+      flex: 0.8;
+      min-height: 180px;
+    }
+
+    .lattice-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 3px;
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+      background-color: #0d0d0d;
+    }
+
+    .lattice-cell {
+      background-color: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: #8a8a8a;
+      aspect-ratio: 1;
+    }
+
+    .ring-gauges {
+      flex: 0.8;
+      min-height: 180px;
+    }
+
+    .gauges-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      height: 100%;
+      padding: 8px;
+    }
+
+    .gauge-canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #2a2a2a;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3a3a3a;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <div>🔴 TURBOQUANT: GOOGLE'S FREE MEMORY KILLER.</div>
+    </div>
+    <div class="header-right">
+      <div id="utc-time">UTC 00:00:00</div>
+      <div>LATENCY 23MS</div>
+      <div>PACKETS 6358</div>
+      <div>MODE ATTRACTOR</div>
+    </div>
+  </div>
+
+  <div class="dashboard">
+    <!-- LEFT COLUMN -->
+    <div class="column">
+      <div class="panel markets-table">
+        <div class="panel-header">
+          <span>LIVE BASKET</span>
+        </div>
+        <div class="panel-content" id="markets-container">
+          <!-- Markets will be inserted here -->
+        </div>
+      </div>
+
+      <div class="panel flow-ladder">
+        <div class="panel-header">
+          <span>FLOW LADDER</span>
+          <span>MICRO DEPTH</span>
+        </div>
+        <div class="panel-content" id="ladder-container">
+          <!-- Ladder items will be inserted here -->
+        </div>
+      </div>
+
+      <div class="panel market-logs">
+        <div class="panel-header">
+          <span>MARKET LOGS</span>
+          <span>DAY DIRECTION</span>
+        </div>
+        <div class="panel-content" id="logs-container">
+          <!-- Logs will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- CENTER COLUMN -->
+    <div class="column">
+      <div class="panel helix-core">
+        <div class="panel-header">
+          <span>HELIX CORE ENGINE</span>
+          <span>DNA / ATTRACTOR</span>
+        </div>
+        <div class="panel-content">
+          <canvas id="helix-canvas" class="helix-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="panel signal-waveform">
+        <div class="panel-header">
+          <span>SIGNAL WAVEFORM</span>
+          <span>MULTI-LAYER</span>
+        </div>
+        <div class="panel-content">
+          <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="panel frequency-spectrum">
+        <div class="panel-header">
+          <span>FREQUENCY SPECTRUM</span>
+          <span>64 BANDS</span>
+        </div>
+        <div class="panel-content">
+          <div class="spectrum-container">
+            <div class="spectrum-bars" id="spectrum-bars"></div>
+            <div class="spectrum-control">
+              <button class="spectrum-button">⏮</button>
+              <button class="spectrum-button">◀</button>
+              <button class="spectrum-button">▶</button>
+              <button class="spectrum-button">⏭</button>
+              <div class="spectrum-slider">
+                <div class="spectrum-slider-thumb"></div>
+              </div>
+              <div class="spectrum-time">00:18</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="column">
+      <div class="panel radar-sweep">
+        <div class="panel-header">
+          <span>RADAR SWEEP</span>
+          <span>RINGS +∞</span>
+        </div>
+        <div class="panel-content">
+          <canvas id="radar-canvas" class="radar-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="panel numeric-lattice">
+        <div class="panel-header">
+          <span>NUMERIC LATTICE</span>
+          <span>GRAY</span>
+        </div>
+        <div class="panel-content">
+          <div class="lattice-grid" id="lattice-grid"></div>
+        </div>
+      </div>
+
+      <div class="panel ring-gauges">
+        <div class="panel-header">
+          <span>RING GAUGES</span>
+          <span>CPU / MEM / IO</span>
+        </div>
+        <div class="panel-content">
+          <div class="gauges-container">
+            <canvas id="gauge-cpu" class="gauge-canvas"></canvas>
+            <canvas id="gauge-mem" class="gauge-canvas"></canvas>
+            <canvas id="gauge-io" class="gauge-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Global animation state
+    let animationFrameId;
+
+    function getTime() {
+      return performance.now() * 0.001;
+    }
+
+    // ============================================
+    // LEFT COLUMN: Markets Table
+    // ============================================
+    function initMarketsTable() {
+      const markets = [
+        { name: 'YES', yes: 19.0, no: 81.0, vol: '$72.0M', trend: [3, 2, 4, 3, 5, 4, 6] },
+        { name: 'NO', yes: 78.0, no: 26.0, vol: '$122.6M', trend: [4, 5, 4, 3, 2, 4, 3] },
+        { name: 'MAYBE', yes: 44.4, no: 55.6, vol: '$201.8M', trend: [2, 3, 2, 4, 3, 2, 3] },
+        { name: 'ASK', yes: 45.3, no: 54.7, vol: '$169.4M', trend: [5, 4, 3, 4, 5, 4, 3] },
+        { name: 'BID', yes: 46.4, no: 53.6, vol: '$164.9M', trend: [3, 2, 1, 2, 3, 2, 1] },
+        { name: 'SPREAD', yes: 51.6, no: 48.4, vol: '$75.5M', trend: [1, 2, 3, 2, 1, 2, 3] }
+      ];
+
+      const container = document.getElementById('markets-container');
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.setAttribute('viewBox', '0 0 250 180');
+      svg.style.position = 'absolute';
+      svg.style.top = '0';
+      svg.style.left = '0';
+      svg.style.pointerEvents = 'none';
+
+      markets.forEach((market, idx) => {
+        const row = document.createElement('div');
+        row.className = 'market-row';
+
+        const sparklineData = market.trend;
+        const sparklineHtml = `
+          <svg viewBox="0 0 40 20" class="sparkline" preserveAspectRatio="none">
+            ${sparklineData.map((v, i) => {
+              const x = (i / (sparklineData.length - 1)) * 40;
+              const y = 20 - (v / 5) * 18;
+              return `<circle cx="${x}" cy="${y}" r="1" fill="#8a8a8a"/>`;
+            }).join('')}
+            ${sparklineData.map((v, i) => {
+              const x1 = (i / (sparklineData.length - 1)) * 40;
+              const y1 = 20 - (v / 5) * 18;
+              if (i === sparklineData.length - 1) return '';
+              const nextV = sparklineData[i + 1];
+              const x2 = ((i + 1) / (sparklineData.length - 1)) * 40;
+              const y2 = 20 - (nextV / 5) * 18;
+              return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8a8a8a" stroke-width="0.5"/>`;
+            }).join('')}
+          </svg>
+        `;
+
+        row.innerHTML = `
+          <div class="market-name">${market.name}</div>
+          <div class="market-value">${market.yes.toFixed(1)}%</div>
+          <div class="market-value">${market.no.toFixed(1)}%</div>
+          <div class="market-value">${market.vol}</div>
+          <div>${sparklineHtml}</div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // ============================================
+    // LEFT COLUMN: Flow Ladder
+    // ============================================
+    function initFlowLadder() {
+      const ladderData = [
+        { value: 371, max: 422 },
+        { value: 333, max: 503 },
+        { value: 363, max: 390 },
+        { value: 231, max: 666 },
+        { value: 208, max: 174 },
+        { value: 626, max: 641 },
+        { value: 602, max: 358 },
+        { value: 478, max: 529 },
+        { value: 435, max: 112 },
+        { value: 536, max: 525 },
+        { value: 341, max: 382 }
+      ];
+
+      const container = document.getElementById('ladder-container');
+      ladderData.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'ladder-item';
+        const percent = (item.value / item.max) * 100;
+        div.innerHTML = `
+          <div style="color: #8a8a8a; font-size: 10px;">${item.value}</div>
+          <div class="ladder-bar">
+            <div class="ladder-bar-fill" style="width: ${percent}%;"></div>
+          </div>
+          <div class="ladder-value">${item.value} / ${item.max}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // ============================================
+    // LEFT COLUMN: Market Logs
+    // ============================================
+    function initMarketLogs() {
+      const logs = [
+        { time: '08:21', msg: 'BTC RANGE :: 15M UP 1.85% :: DAY CLOSE - 19.8 :: CONF 78% :: FUNDING' },
+        { time: '07:19', msg: 'AAPL TREND :: 15M UP 2.54% :: DAY CLOSE - 45.9 :: CONF 78% :: WHALE' },
+        { time: '06:47', msg: 'ETH VOL :: 15M DOWN -2.69% :: DAY CLOSE - 91.7 :: CONF 81% :: LIQUIDITY' },
+        { time: '05:36', msg: 'SPX BREAK :: 15M DOWN -1.77% :: DAY CLOSE - 47.5 :: CONF 70% :: MEAN' },
+        { time: '04:15', msg: 'GME PUMP :: 15M UP 3.21% :: DAY CLOSE - 123.4 :: CONF 65% :: SWING' }
+      ];
+
+      const container = document.getElementById('logs-container');
+      logs.forEach((log, idx) => {
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `<time>${log.time}</time>${log.msg}`;
+        container.appendChild(entry);
+      });
+    }
+
+    // ============================================
+    // CENTER COLUMN: Helix Core Engine (Three.js)
+    // ============================================
+    function initHelixCore() {
+      const canvas = document.getElementById('helix-canvas');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setClearColor(0x0d0d0d, 1);
+      camera.position.set(0, 0, 20);
+
+      // Create wave surface
+      const geometry = new THREE.BufferGeometry();
+      const gridSize = 32;
+      const vertices = [];
+      const indices = [];
+
+      for (let i = 0; i <= gridSize; i++) {
+        for (let j = 0; j <= gridSize; j++) {
+          const x = (i / gridSize - 0.5) * 30;
+          const z = (j / gridSize - 0.5) * 30;
+          vertices.push(x, 0, z);
         }
       }
-    </style>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+      for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+          const a = i * (gridSize + 1) + j;
+          const b = a + gridSize + 1;
+          indices.push(a, b, a + 1);
+          indices.push(b, b + 1, a + 1);
+        }
+      }
+
+      geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+      geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(indices), 1));
+
+      const material = new THREE.LineBasicMaterial({ color: 0x5a5a5a, linewidth: 1 });
+      const wireframe = new THREE.LineSegments(geometry, material);
+      scene.add(wireframe);
+
+      // Create animated helix
+      const helixGeometry = new THREE.TubeGeometry(
+        new THREE.LineCurve3(
+          new THREE.Vector3(0, -15, 0),
+          new THREE.Vector3(0, 15, 0)
+        ),
+        20, 4, 8, false
+      );
+      const helixMaterial = new THREE.LineBasicMaterial({ color: 0xe6e6e6 });
+
+      // Custom helix curve
+      class HelixCurve extends THREE.Curve {
+        getPoint(t) {
+          const y = (t - 0.5) * 30;
+          const theta = t * Math.PI * 4;
+          const x = Math.cos(theta) * 6;
+          const z = Math.sin(theta) * 6;
+          return new THREE.Vector3(x, y, z);
+        }
+      }
+
+      const helixCurve = new HelixCurve();
+      const points = helixCurve.getPoints(100);
+      const helixGeometry2 = new THREE.BufferGeometry().setFromPoints(points);
+      const helix = new THREE.Line(helixGeometry2, helixMaterial);
+      scene.add(helix);
+
+      // Handle window resize
+      function onWindowResize() {
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+      }
+      window.addEventListener('resize', onWindowResize);
+
+      // Animation loop
+      function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        const t = getTime();
+
+        // Update wave surface
+        const positions = geometry.attributes.position.array;
+        for (let i = 0; i <= gridSize; i++) {
+          for (let j = 0; j <= gridSize; j++) {
+            const idx = (i * (gridSize + 1) + j) * 3;
+            const x = (i / gridSize - 0.5) * 30;
+            const z = (j / gridSize - 0.5) * 30;
+            const y = Math.sin(x * 0.1 + t) * Math.cos(z * 0.1 + t) * 3 + Math.sin((x + z) * 0.05 + t * 0.5) * 2;
+            positions[idx + 1] = y;
+          }
+        }
+        geometry.attributes.position.needsUpdate = true;
+
+        // Rotate scene
+        wireframe.rotation.y = t * 0.1;
+        helix.rotation.y = t * 0.1;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    }
+
+    // ============================================
+    // CENTER COLUMN: Signal Waveform
+    // ============================================
+    function initSignalWaveform() {
+      const canvas = document.getElementById('waveform-canvas');
+      const ctx = canvas.getContext('2d');
+
+      function resizeCanvas() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        const t = getTime();
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerY = height / 2;
+
+        ctx.fillStyle = '#0d0d0d';
+        ctx.fillRect(0, 0, width, height);
+
+        // Grid
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 10; i++) {
+          const x = (width / 10) * i;
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+
+        // Draw multiple waveforms
+        const waveforms = [
+          { phase: 0, amp: 0.3, color: '#e6e6e6' },
+          { phase: Math.PI / 3, amp: 0.25, color: '#a0a0a0' },
+          { phase: Math.PI * 2 / 3, amp: 0.2, color: '#7a7a7a' }
+        ];
+
+        waveforms.forEach(wave => {
+          ctx.strokeStyle = wave.color;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+
+          for (let x = 0; x < width; x += 2) {
+            const normalizedX = x / width;
+            const y = centerY + Math.sin(normalizedX * Math.PI * 2 + t + wave.phase) * (height * wave.amp);
+            if (x === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          }
+          ctx.stroke();
+        });
+      }
+
+      animate();
+    }
+
+    // ============================================
+    // CENTER COLUMN: Frequency Spectrum
+    // ============================================
+    function initFrequencySpectrum() {
+      const container = document.getElementById('spectrum-bars');
+      const barCount = 64;
+
+      for (let i = 0; i < barCount; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'spectrum-bar';
+        bar.setAttribute('data-index', i);
+        container.appendChild(bar);
+      }
+
+      function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        const t = getTime();
+        const bars = container.querySelectorAll('.spectrum-bar');
+
+        bars.forEach((bar, idx) => {
+          const normalizedIdx = idx / barCount;
+          const baseHeight = Math.sin(normalizedIdx * Math.PI) * 50 + 30;
+          const oscillation = Math.sin(t * 2 + normalizedIdx * Math.PI * 2) * 20;
+          const jitter = (Math.random() - 0.5) * 10;
+          const height = Math.max(10, baseHeight + oscillation + jitter);
+          bar.style.height = height + '%';
+        });
+      }
+
+      animate();
+    }
+
+    // ============================================
+    // RIGHT COLUMN: Radar Sweep
+    // ============================================
+    function initRadarSweep() {
+      const canvas = document.getElementById('radar-canvas');
+      const ctx = canvas.getContext('2d');
+
+      function resizeCanvas() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+      }
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      const blips = [];
+      for (let i = 0; i < 12; i++) {
+        blips.push({
+          angle: Math.random() * Math.PI * 2,
+          distance: Math.random() * 0.7 + 0.2,
+          opacity: Math.random() * 0.7 + 0.3,
+          fadeSpeed: Math.random() * 0.5 + 0.2
+        });
+      }
+
+      function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        const t = getTime();
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = Math.min(canvas.width, canvas.height) / 2 - 20;
+
+        ctx.fillStyle = '#0d0d0d';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw concentric circles
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 1;
+        for (let i = 1; i <= 4; i++) {
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, (radius / 4) * i, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Draw crosshairs
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(centerX - radius - 10, centerY);
+        ctx.lineTo(centerX + radius + 10, centerY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - radius - 10);
+        ctx.lineTo(centerX, centerY + radius + 10);
+        ctx.stroke();
+
+        // Draw radar sweep
+        ctx.strokeStyle = '#5a5a5a';
+        ctx.globalAlpha = 0.3;
+        const sweepAngle = (t * 0.5) % (Math.PI * 2);
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, sweepAngle - 0.3, sweepAngle + 0.3);
+        ctx.closePath();
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        // Draw blips
+        blips.forEach((blip, idx) => {
+          blip.opacity -= blip.fadeSpeed * 0.01;
+          if (blip.opacity < 0.1) {
+            blip.opacity = Math.random() * 0.7 + 0.3;
+            blip.angle = Math.random() * Math.PI * 2;
+            blip.distance = Math.random() * 0.7 + 0.2;
+          }
+
+          const x = centerX + Math.cos(blip.angle) * radius * blip.distance;
+          const y = centerY + Math.sin(blip.angle) * radius * blip.distance;
+
+          ctx.fillStyle = `rgba(230, 230, 230, ${blip.opacity})`;
+          ctx.fillRect(x - 3, y - 3, 6, 6);
+        });
+      }
+
+      animate();
+    }
+
+    // ============================================
+    // RIGHT COLUMN: Numeric Lattice
+    // ============================================
+    function initNumericLattice() {
+      const grid = document.getElementById('lattice-grid');
+      const cellCount = 12 * 10;
+
+      for (let i = 0; i < cellCount; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'lattice-cell';
+        cell.setAttribute('data-index', i);
+        cell.textContent = Math.floor(Math.random() * 10);
+        grid.appendChild(cell);
+      }
+
+      function animate() {
+        animationFrameId = requestAnimationFrame(animate);
+        const t = getTime();
+        const cells = grid.querySelectorAll('.lattice-cell');
+
+        cells.forEach((cell, idx) => {
+          const row = Math.floor(idx / 12);
+          const col = idx % 12;
+          const distance = Math.sqrt(row * row + col * col);
+          const flicker = Math.sin(t * 3 + distance * 0.3) * 0.5 + 0.5;
+          const opacity = 0.3 + flicker * 0.7;
+          cell.style.opacity = opacity;
+          cell.textContent = Math.floor(Math.random() * 10);
+        });
+      }
+
+      animate();
+    }
+
+    // ============================================
+    // RIGHT COLUMN: Ring Gauges
+    // ============================================
+    function initRingGauges() {
+      const gauges = [
+        { id: 'gauge-cpu', label: 'CPU', value: 0.65 },
+        { id: 'gauge-mem', label: 'MEM', value: 0.43 },
+        { id: 'gauge-io', label: 'IO', value: 0.58 }
+      ];
+
+      gauges.forEach(gauge => {
+        const canvas = document.getElementById(gauge.id);
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+          canvas.width = canvas.clientWidth;
+          canvas.height = canvas.clientHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        function animate() {
+          animationFrameId = requestAnimationFrame(animate);
+          const t = getTime();
+          const centerX = canvas.width / 2;
+          const centerY = canvas.height / 2;
+          const radius = Math.min(canvas.width, canvas.height) / 3;
+
+          ctx.fillStyle = '#0d0d0d';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Draw gauge background
+          ctx.strokeStyle = '#2a2a2a';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, radius, Math.PI, 0, false);
+          ctx.stroke();
+
+          // Animated value
+          const animatedValue = 0.5 + Math.sin(t * 0.3) * 0.3 + gauge.value * 0.2;
+          const angle = Math.PI + animatedValue * Math.PI;
+
+          // Draw needle
+          const needleX = centerX + Math.cos(angle) * radius * 0.8;
+          const needleY = centerY + Math.sin(angle) * radius * 0.8;
+
+          ctx.strokeStyle = '#e6e6e6';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(needleX, needleY);
+          ctx.stroke();
+
+          // Draw center circle
+          ctx.fillStyle = '#e6e6e6';
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Draw label
+          ctx.fillStyle = '#8a8a8a';
+          ctx.font = '10px JetBrains Mono';
+          ctx.textAlign = 'center';
+          ctx.fillText(gauge.label, centerX, centerY + radius + 15);
+        }
+
+        animate();
+      });
+    }
+
+    // ============================================
+    // Update UTC time in header
+    // ============================================
+    function updateHeader() {
+      const now = new Date();
+      const hours = String(now.getUTCHours()).padStart(2, '0');
+      const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+      const seconds = String(now.getUTCSeconds()).padStart(2, '0');
+      document.getElementById('utc-time').textContent = `UTC ${hours}:${minutes}:${seconds}`;
+      setTimeout(updateHeader, 1000);
+    }
+
+    // ============================================
+    // Initialize everything
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      initMarketsTable();
+      initFlowLadder();
+      initMarketLogs();
+      initHelixCore();
+      initSignalWaveform();
+      initFrequencySpectrum();
+      initRadarSweep();
+      initNumericLattice();
+      initRingGauges();
+      updateHeader();
+    });
+  </script>
+</body>
 </html>
