@@ -10,6 +10,14 @@ export type FrequencySpectrumPanelProps = {
   className?: string;
 };
 
+const getPercentageColor = (pct: number): string => {
+  if (pct >= 90) return 'rgba(57, 255, 20, 0.9)'; // bright green
+  if (pct >= 70) return 'rgba(144, 238, 144, 0.9)'; // light green
+  if (pct >= 50) return 'rgba(255, 215, 0, 0.9)'; // gold
+  if (pct >= 25) return 'rgba(255, 165, 0, 0.9)'; // orange
+  return 'rgba(255, 100, 100, 0.9)'; // red
+};
+
 export function FrequencySpectrumPanel({
   monthlyChecklistDays,
   monthlyChecklistRows,
@@ -152,9 +160,10 @@ export function FrequencySpectrumPanel({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'rgba(255,255,255,0.42)',
+                    color: getPercentageColor(day.completionPct),
                     fontSize: '6px',
                     letterSpacing: '0.08em',
+                    fontWeight: '500',
                   }}
                 >
                   {day.completionPct > 0 ? `${day.completionPct}%` : '0%'}

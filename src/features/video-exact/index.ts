@@ -1,5 +1,6 @@
 export { ConfigPage } from './pages/ConfigPage';
 export { VideoExactWeeklyPlanner } from './pages/VideoExactWeeklyPlanner';
+export { BrainHologramPanel } from './components/BrainHologramPanel';
 export { FlowLadderPanel } from './components/FlowLadderPanel';
 export { FrequencySpectrumPanel } from './components/FrequencySpectrumPanel';
 export { HabitManagementPanel } from './components/HabitManagementPanel';

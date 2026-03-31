@@ -131,7 +131,7 @@ export function VideoExactDashboard({
             )}
           </RailShell>
 
-          <RailShell title="Right Rail" rows="46fr 31fr 23fr">
+          <RailShell title="Right Rail" rows="38fr 31fr 31fr">
             {rightRail ?? (
               <>
                 <RadarSweepPanel />

@@ -20,7 +20,7 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
   }, []);
 
   return (
-    <div style={{ display: 'flex', gap: '0', padding: '0', height: '36px', alignItems: 'center', backgroundColor: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ display: 'flex', gap: '0', padding: '0', height: '36px', alignItems: 'center', backgroundColor: '#0a0a0a', borderBottom: '1px solid rgba(255,255,255,0.06)', position: 'relative' }}>
       {/* Left - Navigation tabs */}
       <div style={{ display: 'flex', gap: '1px', padding: '4px' }}>
         <button
@@ -71,7 +71,7 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
       </div>
 
       {/* Center - Title */}
-      <div style={{ flex: 1, textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '12px', letterSpacing: '0.08em', fontWeight: 500 }}>
+      <div style={{ position: 'absolute', left: 'calc(44% + 35px)', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.9)', fontSize: '18px', letterSpacing: '0.12em', fontWeight: 600, textShadow: '0 0 12px rgba(255,255,255,0.4), 0 0 24px rgba(100,200,255,0.2)' }}>
         FOUNDRY
       </div>
 

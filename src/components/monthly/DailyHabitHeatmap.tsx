@@ -123,7 +123,7 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
           {[0, 20, 40, 60, 80, 100].map((percentage, i) => (
             <div
               key={i}
-              className="w-3 h-3 rounded-sm border border-neutral-700"
+              className="w-3 h-3 rounded border border-neutral-700"
               style={{
                 backgroundColor: getHeatmapColor(percentage)
               }}
