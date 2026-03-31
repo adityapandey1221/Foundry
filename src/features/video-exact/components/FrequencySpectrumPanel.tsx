@@ -1,163 +1,199 @@
+import { useMemo } from 'react';
 import { HudPanel } from './HudPanel';
-import { useSyntheticTelemetry } from '../hooks/useSyntheticTelemetry';
+import { useHabitHudData } from '../hooks/useHabitHudData';
+import type { HabitHudMonthlyChecklistDay, HabitHudMonthlyChecklistRow } from '../utils/habitHudData';
 
 export type FrequencySpectrumPanelProps = {
-  seed?: string;
+  monthlyChecklistDays?: HabitHudMonthlyChecklistDay[];
+  monthlyChecklistRows?: HabitHudMonthlyChecklistRow[];
+  onToggleHabit?: (habitId: string, date: string) => void;
   className?: string;
 };
 
-type SpectrumBarProps = {
-  x: number;
-  width: number;
-  value: number;
-  height: number;
-  baselineY: number;
-};
-
-function SpectrumBar({ x, width, value, height, baselineY }: SpectrumBarProps) {
-  const magnitude = Math.max(0.14, Math.min(1, value));
-  const barHeight = Math.max(3, height * magnitude);
-  const top = baselineY - barHeight;
-  const glowOpacity = 0.08 + magnitude * 0.18;
-  const coreOpacity = 0.58 + magnitude * 0.36;
-  const accentOpacity = 0.1 + magnitude * 0.16;
-
-  return (
-    <g transform={`translate(${x}, 0)`} aria-hidden="true">
-      <rect
-        x={0}
-        y={top}
-        width={width}
-        height={barHeight}
-        fill="rgba(255, 255, 255, 0.18)"
-        opacity={glowOpacity}
-      />
-      <rect
-        x={0}
-        y={top + 1}
-        width={width}
-        height={Math.max(2, barHeight - 1)}
-        fill="rgba(255, 255, 255, 0.86)"
-        opacity={coreOpacity}
-      />
-      <rect
-        x={0}
-        y={top + 1}
-        width={width}
-        height={Math.max(2, barHeight - 2)}
-        fill="rgba(255, 255, 255, 0.94)"
-        opacity={accentOpacity}
-      />
-    </g>
-  );
-}
-
-export function FrequencySpectrumPanel({ seed = 'video-exact-spectrum', className }: FrequencySpectrumPanelProps) {
-  const telemetry = useSyntheticTelemetry(seed);
-  const bands = telemetry.spectrumBands;
-
-  const width = 640;
-  const height = 132;
-  const topPad = 10;
-  const bottomPad = 14;
-  const baselineY = height - bottomPad;
-  const bandCount = bands.length;
-  const barGap = 1;
-  const barWidth = (width - (bandCount - 1) * barGap) / bandCount;
+export function FrequencySpectrumPanel({
+  monthlyChecklistDays,
+  monthlyChecklistRows,
+  onToggleHabit,
+  className,
+}: FrequencySpectrumPanelProps) {
+  const fallback = useHabitHudData();
+  const resolvedDays = monthlyChecklistDays?.length ? monthlyChecklistDays : fallback.monthlyChecklistDays;
+  const resolvedRows = monthlyChecklistRows?.length ? monthlyChecklistRows : fallback.monthlyChecklistRows;
 
   return (
     <HudPanel
-      title="FREQUENCY SPECTRUM"
-      meta="64 BANDS"
-      compact
+      title="MONTHLY CHECKLIST"
+      meta="HABIT COMPLETION"
       className={className}
-      bodyClassName="video-exact-spectrum-panel"
+      bodyClassName="video-exact-fill"
+      compact
     >
-      <svg
-        viewBox={`0 0 ${width} ${height}`}
-        width="100%"
-        height="132"
-        preserveAspectRatio="none"
-        role="img"
-        aria-label="Frequency spectrum bars"
+      <div
         style={{
-          display: 'block',
-          overflow: 'visible',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          height: '100%',
+          minHeight: 0,
         }}
       >
-        <defs>
-          <linearGradient id="video-exact-spectrum-fade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgba(255, 255, 255, 0.95)" />
-            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.28)" />
-          </linearGradient>
-        </defs>
+        {/* Scrollable grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '80px minmax(0, 1fr)',
+            gap: '4px',
+            minHeight: 0,
+            overflow: 'auto',
+          }}
+        >
+          {/* Left column: habit labels */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+            }}
+          >
+            {/* Header: "HABIT" */}
+            <div
+              style={{
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                color: 'rgba(255,255,255,0.64)',
+                fontSize: '7px',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                fontWeight: '500',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              HABIT
+            </div>
 
-        <rect x={0} y={0} width={width} height={height} fill="rgba(255, 255, 255, 0.01)" />
+            {/* Percentage row */}
+            <div
+              style={{
+                height: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                fontSize: '7px',
+              }}
+            />
 
-        <g opacity={0.18}>
-          {Array.from({ length: 5 }, (_, index) => {
-            const y = topPad + index * 24;
-            return (
-              <line
-                key={`guide-${index}`}
-                x1={0}
-                x2={width}
-                y1={y}
-                y2={y}
-                stroke="rgba(255, 255, 255, 0.18)"
-                strokeWidth="1"
-              />
-            );
-          })}
-        </g>
+            {/* Habit rows */}
+            {resolvedRows.map((row) => (
+              <div
+                key={row.habitId}
+                style={{
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  fontSize: '7px',
+                  color: 'rgba(255,255,255,0.72)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  paddingRight: '4px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                {row.name}
+              </div>
+            ))}
+          </div>
 
-        <g opacity={0.14}>
-          {Array.from({ length: 8 }, (_, index) => {
-            const x = index * (width / 7);
-            return (
-              <line
-                key={`grid-${index}`}
-                x1={x}
-                x2={x}
-                y1={topPad}
-                y2={baselineY}
-                stroke="rgba(255, 255, 255, 0.11)"
-                strokeWidth="1"
-              />
-            );
-          })}
-        </g>
+          {/* Right column: days grid */}
+          <div
+            style={{
+              display: 'flex',
+              gap: '2px',
+              overflow: 'auto',
+              paddingBottom: '2px',
+            }}
+          >
+            {resolvedDays.map((day) => (
+              <div
+                key={day.date}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  minWidth: 'max-content',
+                }}
+              >
+                {/* Day header */}
+                <div
+                  style={{
+                    height: '20px',
+                    width: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: day.isToday ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.64)',
+                    fontSize: '6.5px',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    fontWeight: '500',
+                    borderBottom: day.isToday ? '1px solid rgba(255,255,255,0.24)' : '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  {day.day}
+                </div>
 
-        <g opacity={0.9}>
-          {bands.map((band, index) => {
-            const x = index * (barWidth + barGap);
-            const jitter = Math.sin(telemetry.clockSeconds * 1.3 + index * 0.55) * 0.035;
-            const shimmer = Math.cos(telemetry.clockSeconds * 0.85 + index * 0.23) * 0.02;
-            const value = Math.max(0.08, Math.min(1, band.value + jitter + shimmer));
+                {/* Percentage */}
+                <div
+                  style={{
+                    height: '20px',
+                    width: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'rgba(255,255,255,0.42)',
+                    fontSize: '6px',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  {day.completionPct > 0 ? `${day.completionPct}%` : '0%'}
+                </div>
 
-            return (
-              <SpectrumBar
-                key={band.id}
-                x={x}
-                width={Math.max(4, barWidth)}
-                value={value}
-                height={baselineY - topPad}
-                baselineY={baselineY}
-              />
-            );
-          })}
-        </g>
+                {/* Habit cells */}
+                {resolvedRows.map((row) => {
+                  const isCompleted = row.completions[day.date] ?? false;
 
-        <line
-          x1={0}
-          x2={width}
-          y1={baselineY}
-          y2={baselineY}
-          stroke="url(#video-exact-spectrum-fade)"
-          strokeWidth="1"
-          opacity={0.42}
-        />
-      </svg>
+                  return (
+                    <button
+                      key={`${row.habitId}-${day.date}`}
+                      type="button"
+                      onClick={() => onToggleHabit?.(row.habitId, day.date)}
+                      style={{
+                        width: '16px',
+                        height: '16px',
+                        padding: 0,
+                        border: day.isToday
+                          ? '1px solid rgba(255,255,255,0.42)'
+                          : `1px solid ${isCompleted ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.06)'}`,
+                        borderRadius: '1px',
+                        background: isCompleted
+                          ? 'rgba(255,255,255,0.24)'
+                          : 'rgba(255,255,255,0.03)',
+                        cursor: 'pointer',
+                        boxShadow: isCompleted
+                          ? 'inset 0 0 4px rgba(255,255,255,0.08)'
+                          : 'none',
+                        transition: 'all 100ms ease-out',
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </HudPanel>
   );
 }

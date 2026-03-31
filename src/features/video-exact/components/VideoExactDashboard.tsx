@@ -9,6 +9,7 @@ import { RadarSweepPanel } from './RadarSweepPanel';
 import { RingGaugesPanel } from './RingGaugesPanel';
 import { SignalWaveformPanel } from './SignalWaveformPanel';
 import { TelemetryStrip, type TelemetryItem } from './TelemetryStrip';
+import { useHabitHudData } from '../hooks/useHabitHudData';
 
 type VideoExactDashboardProps = {
   className?: string;
@@ -55,6 +56,8 @@ export function VideoExactDashboard({
   centerRail,
   rightRail,
 }: VideoExactDashboardProps) {
+  const habitHudData = useHabitHudData();
+
   return (
     <main
       className={className}
@@ -108,12 +111,20 @@ export function VideoExactDashboard({
             )}
           </RailShell>
 
-          <RailShell title="Center Rail" rows="60fr 20fr 20fr">
+          <RailShell title="Center Rail" rows="40fr 30fr 30fr">
             {centerRail ?? (
               <>
                 <HelixCorePanel />
-                <SignalWaveformPanel />
-                <FrequencySpectrumPanel />
+                <SignalWaveformPanel
+                  series={habitHudData.monthlyProgressSeries}
+                />
+                <FrequencySpectrumPanel
+                  monthlyChecklistDays={habitHudData.monthlyChecklistDays}
+                  monthlyChecklistRows={habitHudData.monthlyChecklistRows}
+                  onToggleHabit={(habitId, date) => {
+                    habitHudData.toggleHabitCompletion(habitId, date);
+                  }}
+                />
               </>
             )}
           </RailShell>
@@ -122,7 +133,10 @@ export function VideoExactDashboard({
             {rightRail ?? (
               <>
                 <RadarSweepPanel />
-                <NumericLatticePanel />
+                <NumericLatticePanel
+                  heatmapWeeks={habitHudData.heatmapWeeks}
+                  todaySummary={habitHudData.todaySummary}
+                />
                 <RingGaugesPanel />
               </>
             )}

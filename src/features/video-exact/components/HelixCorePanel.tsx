@@ -369,9 +369,9 @@ export function HelixCorePanel({ className }: HelixCorePanelProps) {
       <div
         style={{
           position: 'relative',
+          width: '100%',
           height: '100%',
           minHeight: 0,
-          aspectRatio: '1.85 / 1',
           overflow: 'hidden',
           background:
             'radial-gradient(circle at 50% 42%, rgba(255,255,255,0.405), rgba(255,255,255,0.158) 18%, rgba(255,255,255,0.05) 34%, rgba(0,0,0,0) 60%)',
