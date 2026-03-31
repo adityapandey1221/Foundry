@@ -33,6 +33,9 @@ const setPositionArray = (target: Float32Array, points: THREE.Vector3[]) => {
   }
 };
 
+// Reusable Vector3 for in-place calculations
+const tempVector = new THREE.Vector3();
+
 const buildTerrainPoint = (column: number, row: number, time: number) => {
   const u = column / (TERRAIN_COLUMNS - 1);
   const v = row / (TERRAIN_ROWS - 1);
@@ -78,12 +81,16 @@ function TerrainLines() {
   useFrame(({ clock }) => {
     const time = clock.elapsedTime;
 
+    // Update row geometries - write directly to arrays without intermediate Vector3[]
     for (let row = 0; row < TERRAIN_ROWS; row += 1) {
-      const rowPoints = Array.from({ length: TERRAIN_COLUMNS }, (_, column) =>
-        buildTerrainPoint(column, row, time)
-      );
       const rowArray = rowArrays[row];
-      setPositionArray(rowArray, rowPoints);
+      for (let column = 0; column < TERRAIN_COLUMNS; column += 1) {
+        const point = buildTerrainPoint(column, row, time);
+        const offset = column * 3;
+        rowArray[offset] = point.x;
+        rowArray[offset + 1] = point.y;
+        rowArray[offset + 2] = point.z;
+      }
 
       const rowGeometry = rowRefs.current[row]?.geometry as THREE.BufferGeometry | undefined;
       const rowAttribute = rowGeometry?.attributes.position as THREE.BufferAttribute | undefined;
@@ -92,12 +99,16 @@ function TerrainLines() {
       }
     }
 
+    // Update column geometries - write directly to arrays without intermediate Vector3[]
     for (let column = 0; column < TERRAIN_COLUMNS; column += 1) {
-      const columnPoints = Array.from({ length: TERRAIN_ROWS }, (_, row) =>
-        buildTerrainPoint(column, row, time)
-      );
       const columnArray = columnArrays[column];
-      setPositionArray(columnArray, columnPoints);
+      for (let row = 0; row < TERRAIN_ROWS; row += 1) {
+        const point = buildTerrainPoint(column, row, time);
+        const offset = row * 3;
+        columnArray[offset] = point.x;
+        columnArray[offset + 1] = point.y;
+        columnArray[offset + 2] = point.z;
+      }
 
       const columnGeometry = columnRefs.current[column]?.geometry as THREE.BufferGeometry | undefined;
       const columnAttribute = columnGeometry?.attributes.position as THREE.BufferAttribute | undefined;
@@ -168,25 +179,41 @@ function HelixStructure() {
 
   useFrame(({ clock }) => {
     const time = clock.elapsedTime;
-    const aPoints = Array.from({ length: HELIX_SEGMENTS }, (_, index) =>
-      buildHelixPoint(index / (HELIX_SEGMENTS - 1), time, 0)
-    );
-    const bPoints = Array.from({ length: HELIX_SEGMENTS }, (_, index) =>
-      buildHelixPoint(index / (HELIX_SEGMENTS - 1), time, Math.PI)
-    );
 
-    setPositionArray(strandA, aPoints);
-    setPositionArray(strandB, bPoints);
-    setPositionArray(glow, aPoints);
-    setPositionArray(
-      thicknessA,
-      aPoints.map((point) => new THREE.Vector3(point.x + 0.85, point.y, point.z + 0.35))
-    );
-    setPositionArray(
-      thicknessB,
-      bPoints.map((point) => new THREE.Vector3(point.x - 0.85, point.y, point.z - 0.35))
-    );
+    // Build helix strands and thickness directly into arrays
+    for (let index = 0; index < HELIX_SEGMENTS; index += 1) {
+      const t = index / (HELIX_SEGMENTS - 1);
+      const offset = index * 3;
 
+      // Strand A
+      const pointA = buildHelixPoint(t, time, 0);
+      strandA[offset] = pointA.x;
+      strandA[offset + 1] = pointA.y;
+      strandA[offset + 2] = pointA.z;
+
+      // Glow (same as strand A)
+      glow[offset] = pointA.x;
+      glow[offset + 1] = pointA.y;
+      glow[offset + 2] = pointA.z;
+
+      // Thickness A (offset from strand A)
+      thicknessA[offset] = pointA.x + 0.85;
+      thicknessA[offset + 1] = pointA.y;
+      thicknessA[offset + 2] = pointA.z + 0.35;
+
+      // Strand B
+      const pointB = buildHelixPoint(t, time, Math.PI);
+      strandB[offset] = pointB.x;
+      strandB[offset + 1] = pointB.y;
+      strandB[offset + 2] = pointB.z;
+
+      // Thickness B (offset from strand B)
+      thicknessB[offset] = pointB.x - 0.85;
+      thicknessB[offset + 1] = pointB.y;
+      thicknessB[offset + 2] = pointB.z - 0.35;
+    }
+
+    // Mark attributes as needing update
     const strandAAttribute = strandARef.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
     const strandBAttribute = strandBRef.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
     const glowAttribute = glowRef.current?.geometry.attributes.position as THREE.BufferAttribute | undefined;
@@ -199,14 +226,20 @@ function HelixStructure() {
     if (thicknessAAttribute) thicknessAAttribute.needsUpdate = true;
     if (thicknessBAttribute) thicknessBAttribute.needsUpdate = true;
 
+    // Update rungs
     for (let index = 0; index < RUNG_COUNT; index += 1) {
       const t = index / (RUNG_COUNT - 1);
-      const rungPoints = [
-        buildHelixPoint(t, time, 0),
-        buildHelixPoint(t, time, Math.PI),
-      ];
+      const pointA = buildHelixPoint(t, time, 0);
+      const pointB = buildHelixPoint(t, time, Math.PI);
 
-      setPositionArray(rungArrays[index], rungPoints);
+      const rungArray = rungArrays[index];
+      rungArray[0] = pointA.x;
+      rungArray[1] = pointA.y;
+      rungArray[2] = pointA.z;
+      rungArray[3] = pointB.x;
+      rungArray[4] = pointB.y;
+      rungArray[5] = pointB.z;
+
       const rungAttribute = rungRefs.current[index]?.geometry.attributes.position as THREE.BufferAttribute | undefined;
       if (rungAttribute) {
         rungAttribute.needsUpdate = true;
