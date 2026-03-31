@@ -72,7 +72,7 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
 
       {/* Center - Title */}
       <div style={{ flex: 1, textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '12px', letterSpacing: '0.08em', fontWeight: 500 }}>
-        HABIT TRACKER
+        FOUNDRY
       </div>
 
       {/* Right - Timer */}
