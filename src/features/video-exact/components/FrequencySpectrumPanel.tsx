@@ -64,7 +64,7 @@ export function FrequencySpectrumPanel({
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '0px',
+              gap: '2px',
             }}
           >
             {/* Header: "HABIT" */}
@@ -119,7 +119,7 @@ export function FrequencySpectrumPanel({
           <div
             style={{
               display: 'flex',
-              gap: '3px',
+              gap: '7px',
               overflow: 'auto',
               paddingBottom: '2px',
             }}
@@ -130,7 +130,7 @@ export function FrequencySpectrumPanel({
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0px',
+                  gap: '2px',
                   minWidth: 'max-content',
                 }}
               >
@@ -184,13 +184,13 @@ export function FrequencySpectrumPanel({
                       type="button"
                       onClick={() => onToggleHabit?.(row.habitId, day.date)}
                       style={{
-                        width: '40px',
-                        height: '28px',
+                        width: '36px',
+                        height: '36px',
                         padding: 0,
                         border: day.isToday
                           ? '1px solid rgba(255,255,255,0.42)'
                           : '1px solid rgba(255,255,255,0.06)',
-                        borderRadius: '1px',
+                        borderRadius: '4px',
                         background: isCompleted ? 'rgba(255,255,255,0.12)' : 'transparent',
                         cursor: 'pointer',
                         display: 'flex',
