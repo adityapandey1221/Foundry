@@ -197,7 +197,7 @@ export function VideoExactDashboard({
                   heatmapWeeks={habitHudData.heatmapWeeks}
                   todaySummary={habitHudData.todaySummary}
                 />
-                <RingGaugesPanel />
+                <RingGaugesPanel weeklyCompletionPct={weeklyCompletionPct} />
               </>
             )}
           </RailShell>

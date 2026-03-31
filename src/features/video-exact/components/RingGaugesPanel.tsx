@@ -628,17 +628,14 @@ const BodyScene: React.FC<{ pct: number }> = ({ pct }) => {
 };
 
 // Compact brain gauge
-function BrainGauge() {
-  const habitHudData = useHabitHudData();
-  const currentDate = useCurrentDate();
-  const weekStart = getWeekStart(currentDate.today);
-  const pct = calculateWeekCompletion(habitHudData.habits, habitHudData.completions, weekStart) / 100;
+function BrainGauge({ weeklyCompletionPct }: { weeklyCompletionPct: number }) {
+  const pct = weeklyCompletionPct;
 
   return (
     <div style={{ display: 'grid', gap: '6px', justifyItems: 'center', height: '100%', width: '100%', alignItems: 'end' }}>
       <Canvas
         camera={{ position: [0, 0, 3], fov: 30 }}
-        gl={{ alpha: true, antialias: true }}
+        gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true, premultipliedAlpha: false }}
         style={{ background: 'transparent', width: '100%', maxWidth: '135px', height: '105px' }}
       >
         <Suspense fallback={null}>
@@ -656,17 +653,14 @@ function BrainGauge() {
 }
 
 // Compact body gauge
-function BodyGauge() {
-  const habitHudData = useHabitHudData();
-  const currentDate = useCurrentDate();
-  const weekStart = getWeekStart(currentDate.today);
-  const pct = calculateWeekCompletion(habitHudData.habits, habitHudData.completions, weekStart) / 100;
+function BodyGauge({ weeklyCompletionPct }: { weeklyCompletionPct: number }) {
+  const pct = weeklyCompletionPct;
 
   return (
     <div style={{ display: 'grid', gap: '6px', justifyItems: 'center', height: '100%', width: '100%', alignItems: 'end' }}>
       <Canvas
         camera={{ position: [0, 0, 5.5], fov: 30 }}
-        gl={{ alpha: true, antialias: true }}
+        gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true, premultipliedAlpha: false }}
         style={{ background: 'transparent', width: '100%', maxWidth: '135px', height: '150px' }}
       >
         <Suspense fallback={null}>
@@ -683,7 +677,7 @@ function BodyGauge() {
   );
 }
 
-export function RingGaugesPanel() {
+export function RingGaugesPanel({ weeklyCompletionPct = 0 }: { weeklyCompletionPct?: number }) {
   const { gauges } = useSyntheticTelemetry();
   const netGauge = gauges[1]; // Get gauge 2 (NET)
 
@@ -698,9 +692,9 @@ export function RingGaugesPanel() {
           alignItems: 'end',
         }}
       >
-        <BrainGauge />
+        <BrainGauge weeklyCompletionPct={weeklyCompletionPct} />
         {netGauge && <Gauge key={netGauge.id} label={netGauge.label} value={netGauge.value} />}
-        <BodyGauge />
+        <BodyGauge weeklyCompletionPct={weeklyCompletionPct} />
       </div>
     </HudPanel>
   );
