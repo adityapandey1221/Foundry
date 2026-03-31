@@ -40,11 +40,11 @@ export function FrequencySpectrumPanel({
         style={{
           display: 'grid',
           gridTemplateColumns: '140px repeat(7, 1fr)',
-          gridTemplateRows: `auto auto repeat(${resolvedRows.length}, minmax(0, 1fr))`,
+          gridTemplateRows: `auto auto repeat(${resolvedRows.length}, 32px)`,
           gap: '0 4px',
           height: '100%',
           minHeight: 0,
-          overflow: 'hidden',
+          overflowY: 'auto',
           padding: '4px 10px',
         }}
       >
@@ -114,6 +114,7 @@ export function FrequencySpectrumPanel({
               style={{
                 display: 'flex',
                 alignItems: 'center',
+                height: '32px',
                 fontSize: '9px',
                 color: 'rgba(255,255,255,0.68)',
                 textTransform: 'uppercase',
@@ -123,7 +124,6 @@ export function FrequencySpectrumPanel({
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                minHeight: 0,
               }}
             >
               {row.name}
@@ -136,6 +136,7 @@ export function FrequencySpectrumPanel({
                   type="button"
                   onClick={() => onToggleHabit?.(row.habitId, day.date)}
                   style={{
+                    height: '32px',
                     padding: '2px',
                     border: 'none',
                     borderBottom: '1px solid rgba(255,255,255,0.04)',
@@ -144,7 +145,6 @@ export function FrequencySpectrumPanel({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    minHeight: 0,
                   }}
                 >
                   <div
