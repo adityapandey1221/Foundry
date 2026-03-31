@@ -66,6 +66,33 @@ export function VideoExactDashboard({
   const currentDate = useCurrentDate();
   const weekStart = getWeekStart(currentDate.today);
 
+  // Calculate weekly completion percentage
+  const weeklyCompletionPct = useMemo(() => {
+    const activeHabits = habitHudData.habits.filter((h) => h.isActive);
+    const totalPossible = activeHabits.length || 1;
+
+    if (totalPossible === 0) return 0;
+
+    const weekStartDate = parseLocalDate(weekStart);
+    let totalCompleted = 0;
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStartDate);
+      date.setDate(date.getDate() + i);
+      const dateKey = date.toISOString().split('T')[0];
+      const dayCompletions = habitHudData.completions[dateKey] || [];
+
+      dayCompletions.forEach((habitId) => {
+        if (activeHabits.find((h) => h.id === habitId)) {
+          totalCompleted++;
+        }
+      });
+    }
+
+    const totalWeekPossible = totalPossible * 7;
+    return totalWeekPossible === 0 ? 0 : totalCompleted / totalWeekPossible;
+  }, [habitHudData.habits, habitHudData.completions, weekStart]);
+
   const weeklyChecklistDays = useMemo(() => {
     const days = [];
     const today = currentDate.today;
@@ -148,7 +175,7 @@ export function VideoExactDashboard({
           <RailShell title="Center Rail" rows="35fr 20fr 45fr">
             {centerRail ?? (
               <>
-                <HelixCorePanel />
+                <HelixCorePanel weeklyCompletionPct={weeklyCompletionPct} />
                 <SignalWaveformPanel weeklySeries={habitHudData.weeklyProgressSeries} />
                 <FrequencySpectrumPanel
                   monthlyChecklistDays={weeklyChecklistDays}

@@ -7,7 +7,9 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { HudPanel } from './HudPanel';
 import { useSyntheticTelemetry } from '../hooks/useSyntheticTelemetry';
 import { useHabitHudData } from '../hooks/useHabitHudData';
-import { getMonthDates } from '../../../utils/dates';
+import { getMonthDates, getWeekStart } from '../../../utils/dates';
+import { parseLocalDate } from '../../../utils/timezone';
+import { useCurrentDate } from '../../../hooks/useCurrentDate';
 import { getThemeColor } from '../../../utils/theme';
 
 const describeArc = (cx: number, cy: number, radius: number, startAngle: number, endAngle: number) => {
@@ -365,6 +367,37 @@ function calculateDayCompletion(
   return totalPossible === 0 ? 0 : Math.round((totalCompleted / totalPossible) * 100);
 }
 
+// Calculate week completion
+function calculateWeekCompletion(
+  habits: any[],
+  completions: Record<string, string[]>,
+  weekStart: string
+): number {
+  const activeHabits = habits.filter((h) => h.isActive);
+  const totalPossible = activeHabits.length || 1;
+
+  if (totalPossible === 0) return 0;
+
+  const weekStartDate = parseLocalDate(weekStart);
+  let totalCompleted = 0;
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(weekStartDate);
+    date.setDate(date.getDate() + i);
+    const dateKey = date.toISOString().split('T')[0];
+    const dayCompletions = completions[dateKey] || [];
+
+    dayCompletions.forEach((habitId) => {
+      if (activeHabits.find((h) => h.id === habitId)) {
+        totalCompleted++;
+      }
+    });
+  }
+
+  const totalWeekPossible = totalPossible * 7;
+  return totalWeekPossible === 0 ? 0 : Math.round((totalCompleted / totalWeekPossible) * 100);
+}
+
 // Holographic shader material for body
 class HolographicBodyMaterial extends THREE.ShaderMaterial {
   constructor() {
@@ -597,7 +630,9 @@ const BodyScene: React.FC<{ pct: number }> = ({ pct }) => {
 // Compact brain gauge
 function BrainGauge() {
   const habitHudData = useHabitHudData();
-  const pct = calculateMonthCompletion(habitHudData.habits, habitHudData.completions) / 100;
+  const currentDate = useCurrentDate();
+  const weekStart = getWeekStart(currentDate.today);
+  const pct = calculateWeekCompletion(habitHudData.habits, habitHudData.completions, weekStart) / 100;
 
   return (
     <div style={{ display: 'grid', gap: '6px', justifyItems: 'center', height: '100%', width: '100%', alignItems: 'end' }}>
@@ -609,7 +644,7 @@ function BrainGauge() {
         <Suspense fallback={null}>
           <BrainScene pct={pct} />
           <EffectComposer>
-            <Bloom intensity={pct * 0.1} luminanceThreshold={0.2} luminanceSmoothing={0.9} radius={0.3} />
+            <Bloom intensity={pct * 0.8} luminanceThreshold={0.2} luminanceSmoothing={0.9} radius={0.3} />
           </EffectComposer>
         </Suspense>
       </Canvas>
@@ -623,7 +658,9 @@ function BrainGauge() {
 // Compact body gauge
 function BodyGauge() {
   const habitHudData = useHabitHudData();
-  const pct = calculateDayCompletion(habitHudData.habits, habitHudData.completions) / 100;
+  const currentDate = useCurrentDate();
+  const weekStart = getWeekStart(currentDate.today);
+  const pct = calculateWeekCompletion(habitHudData.habits, habitHudData.completions, weekStart) / 100;
 
   return (
     <div style={{ display: 'grid', gap: '6px', justifyItems: 'center', height: '100%', width: '100%', alignItems: 'end' }}>
@@ -635,7 +672,7 @@ function BodyGauge() {
         <Suspense fallback={null}>
           <BodyScene pct={pct} />
           <EffectComposer>
-            <Bloom intensity={pct * 1.2} luminanceThreshold={0.2} luminanceSmoothing={0.9} radius={0.8} />
+            <Bloom intensity={pct * 0.8} luminanceThreshold={0.2} luminanceSmoothing={0.9} radius={0.8} />
           </EffectComposer>
         </Suspense>
       </Canvas>

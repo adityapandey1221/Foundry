@@ -1,11 +1,13 @@
 import { useMemo, useRef } from 'react';
 import { Canvas, type ThreeElements, useFrame } from '@react-three/fiber';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import { HudPanel } from './HudPanel';
 
 export type HelixCorePanelProps = {
   seed?: string;
   className?: string;
+  weeklyCompletionPct?: number;
 };
 
 const TERRAIN_ROWS = 14;
@@ -369,7 +371,7 @@ function FrameOverlay(props: ThreeElements['group']) {
   );
 }
 
-function HelixScene() {
+function HelixScene({ weeklyCompletionPct = 0 }: { weeklyCompletionPct?: number }) {
   return (
     <Canvas
       orthographic
@@ -386,11 +388,14 @@ function HelixScene() {
         <ParticleField />
         <FrameOverlay position={[0, 0, 0]} />
       </group>
+      <EffectComposer>
+        <Bloom intensity={weeklyCompletionPct * 0.6} luminanceThreshold={0.2} luminanceSmoothing={0.9} radius={0.4} />
+      </EffectComposer>
     </Canvas>
   );
 }
 
-export function HelixCorePanel({ className }: HelixCorePanelProps) {
+export function HelixCorePanel({ className, weeklyCompletionPct = 0 }: HelixCorePanelProps) {
   return (
     <HudPanel
       title="HELIX CORE ENGINE"
@@ -410,7 +415,7 @@ export function HelixCorePanel({ className }: HelixCorePanelProps) {
             'radial-gradient(circle at 50% 42%, rgba(255,255,255,0.405), rgba(255,255,255,0.158) 18%, rgba(255,255,255,0.05) 34%, rgba(0,0,0,0) 60%)',
         }}
       >
-        <HelixScene />
+        <HelixScene weeklyCompletionPct={weeklyCompletionPct} />
         <div
           aria-hidden="true"
           style={{
