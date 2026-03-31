@@ -33,8 +33,8 @@ function Gauge({ label, value }: { label: string; value: number }) {
   const needleY = 48 + 24 * Math.sin(radians);
 
   return (
-    <div style={{ display: 'grid', gap: '6px', justifyItems: 'center' }}>
-      <svg viewBox="0 0 96 64" style={{ width: '100%', maxWidth: '135px', overflow: 'visible' }}>
+    <div style={{ display: 'grid', gap: '6px', justifyItems: 'center', height: '100%', alignItems: 'end' }}>
+      <svg viewBox="0 0 96 64" style={{ width: '100%', maxWidth: '135px', height: '70px', overflow: 'visible' }}>
         <path
           d={describeArc(48, 48, 33, start, end)}
           fill="none"
@@ -349,7 +349,7 @@ function BrainGauge() {
       <Canvas
         camera={{ position: [0, 0, 3], fov: 30 }}
         gl={{ alpha: true, antialias: true }}
-        style={{ background: 'transparent', width: '100%', maxWidth: '135px', height: '100px' }}
+        style={{ background: 'transparent', width: '100%', maxWidth: '135px', height: '105px' }}
       >
         <Suspense fallback={null}>
           <BrainScene pct={pct} />
