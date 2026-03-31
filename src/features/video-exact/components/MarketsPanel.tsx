@@ -209,7 +209,7 @@ export function MarketsPanel() {
                       verticalAlign: 'middle',
                     }}
                   >
-                    <Sparkline points={makeTrend(hashCombine('weekly-tasks', row.rowIndex), clockSeconds)} />
+                    {!row.isCompleted && <Sparkline points={makeTrend(hashCombine('weekly-tasks', row.rowIndex), clockSeconds)} />}
                   </td>
                 </tr>
               );
