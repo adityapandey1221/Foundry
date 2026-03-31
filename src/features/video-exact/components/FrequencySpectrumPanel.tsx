@@ -38,178 +38,141 @@ export function FrequencySpectrumPanel({
     >
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '2px',
+          display: 'grid',
+          gridTemplateColumns: '140px repeat(7, 1fr)',
+          gridTemplateRows: `auto auto repeat(${resolvedRows.length}, minmax(0, 1fr))`,
+          gap: '0 4px',
           height: '100%',
           minHeight: 0,
-          paddingLeft: '12px',
-          paddingRight: '12px',
-          paddingTop: '8px',
-          paddingBottom: '8px',
+          overflow: 'hidden',
+          padding: '4px 10px',
         }}
       >
-        {/* Scrollable grid */}
+        {/* ── Header row ── */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: '200px minmax(0, 1fr)',
-            gap: '6px',
-            minHeight: 0,
-            overflow: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: '9px',
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            fontWeight: '500',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            padding: '4px 0',
           }}
         >
-          {/* Left column: habit labels */}
+          HABIT
+        </div>
+        {resolvedDays.map((day) => (
           <div
+            key={`hdr-${day.date}`}
             style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              color: day.isToday ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.5)',
+              fontSize: '9px',
+              fontWeight: '600',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              borderBottom: day.isToday ? '1px solid rgba(255,255,255,0.24)' : '1px solid rgba(255,255,255,0.06)',
+              padding: '4px 0',
             }}
           >
-            {/* Header: "HABIT" */}
+            <span>{day.day}</span>
+            <span style={{ opacity: 0.6 }}>{new Date(day.date).getDate()}</span>
+          </div>
+        ))}
+
+        {/* ── Percentage row ── */}
+        <div style={{ padding: '2px 0' }} />
+        {resolvedDays.map((day) => (
+          <div
+            key={`pct-${day.date}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: getPercentageColor(day.completionPct),
+              fontSize: '9px',
+              letterSpacing: '0.06em',
+              fontWeight: '500',
+              padding: '2px 0',
+            }}
+          >
+            {day.completionPct}%
+          </div>
+        ))}
+
+        {/* ── Habit rows (each row stretches to fill 1fr) ── */}
+        {resolvedRows.map((row) => (
+          <>
             <div
+              key={`lbl-${row.habitId}`}
               style={{
-                height: '36px',
                 display: 'flex',
                 alignItems: 'center',
-                color: 'rgba(255,255,255,0.64)',
-                fontSize: '11px',
-                letterSpacing: '0.12em',
+                fontSize: '9px',
+                color: 'rgba(255,255,255,0.68)',
                 textTransform: 'uppercase',
-                fontWeight: '500',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                letterSpacing: '0.06em',
+                paddingRight: '6px',
+                borderBottom: '1px solid rgba(255,255,255,0.04)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                minHeight: 0,
               }}
             >
-              HABIT
+              {row.name}
             </div>
-
-            {/* Percentage row */}
-            <div
-              style={{
-                height: '36px',
-                display: 'flex',
-                alignItems: 'center',
-                fontSize: '11px',
-              }}
-            />
-
-            {/* Habit rows */}
-            {resolvedRows.map((row) => (
-              <div
-                key={row.habitId}
-                style={{
-                  height: '36px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  fontSize: '10px',
-                  color: 'rgba(255,255,255,0.72)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  paddingRight: '8px',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                }}
-              >
-                {row.name}
-              </div>
-            ))}
-          </div>
-
-          {/* Right column: days grid */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '7px',
-              overflow: 'auto',
-              paddingBottom: '2px',
-            }}
-          >
-            {resolvedDays.map((day) => (
-              <div
-                key={day.date}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '2px',
-                  minWidth: 'max-content',
-                }}
-              >
-                {/* Day header */}
-                <div
+            {resolvedDays.map((day) => {
+              const isCompleted = row.completions[day.date] ?? false;
+              return (
+                <button
+                  key={`cell-${row.habitId}-${day.date}`}
+                  type="button"
+                  onClick={() => onToggleHabit?.(row.habitId, day.date)}
                   style={{
-                    height: '36px',
-                    width: '48px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '1px',
-                    color: day.isToday ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.64)',
-                    fontSize: '10px',
-                    borderBottom: day.isToday ? '1px solid rgba(255,255,255,0.24)' : '1px solid rgba(255,255,255,0.06)',
-                  }}
-                >
-                  <div style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: '600' }}>
-                    {day.day}
-                  </div>
-                  <div style={{ fontSize: '12px', fontWeight: '500' }}>
-                    {new Date(day.date).getDate()}
-                  </div>
-                </div>
-
-                {/* Percentage */}
-                <div
-                  style={{
-                    height: '36px',
-                    width: '48px',
+                    padding: '2px',
+                    border: 'none',
+                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    background: 'transparent',
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: getPercentageColor(day.completionPct),
-                    fontSize: '10px',
-                    letterSpacing: '0.08em',
-                    fontWeight: '500',
+                    minHeight: 0,
                   }}
                 >
-                  {day.completionPct > 0 ? `${day.completionPct}%` : '0%'}
-                </div>
-
-                {/* Habit cells */}
-                {resolvedRows.map((row) => {
-                  const isCompleted = row.completions[day.date] ?? false;
-
-                  return (
-                    <button
-                      key={`${row.habitId}-${day.date}`}
-                      type="button"
-                      onClick={() => onToggleHabit?.(row.habitId, day.date)}
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        padding: 0,
-                        border: day.isToday
-                          ? '1px solid rgba(255,255,255,0.42)'
-                          : '1px solid rgba(255,255,255,0.06)',
-                        borderRadius: '4px',
-                        background: isCompleted ? 'rgba(255,255,255,0.12)' : 'transparent',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        color: isCompleted ? 'rgba(255,255,255,0.72)' : 'transparent',
-                        fontWeight: 'bold',
-                        transition: 'all 100ms ease-out',
-                      }}
-                    >
-                      {isCompleted ? '✓' : ''}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
+                  <div
+                    style={{
+                      width: '100%',
+                      maxWidth: '28px',
+                      aspectRatio: '1',
+                      borderRadius: '5px',
+                      border: day.isToday
+                        ? '1px solid rgba(255,255,255,0.36)'
+                        : '1px solid rgba(255,255,255,0.08)',
+                      background: isCompleted ? 'rgba(255,255,255,0.13)' : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: isCompleted ? 'rgba(255,255,255,0.76)' : 'transparent',
+                      fontWeight: 'bold',
+                      transition: 'all 80ms ease-out',
+                    }}
+                  >
+                    {isCompleted ? '✓' : ''}
+                  </div>
+                </button>
+              );
+            })}
+          </>
+        ))}
       </div>
     </HudPanel>
   );
