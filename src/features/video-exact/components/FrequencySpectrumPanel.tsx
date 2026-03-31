@@ -177,7 +177,7 @@ export function FrequencySpectrumPanel({
                           ? '1px solid rgba(255,255,255,0.42)'
                           : '1px solid rgba(255,255,255,0.06)',
                         borderRadius: '1px',
-                        background: 'transparent',
+                        background: isCompleted ? 'rgba(255,255,255,0.12)' : 'transparent',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
