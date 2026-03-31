@@ -1,4 +1,5 @@
 import React, { memo, useMemo } from 'react';
+import { line as d3Line, curveCatmullRom } from 'd3-shape';
 import { getMonthDates } from '../../utils/dates';
 
 interface MonthlyCompletionLineGraphProps {
@@ -7,6 +8,12 @@ interface MonthlyCompletionLineGraphProps {
   year: number;
   month: number;
   accentColor?: string;
+}
+
+interface Point {
+  x: number;
+  y: number;
+  val: number;
 }
 
 const MonthlyCompletionLineGraphComponent: React.FC<MonthlyCompletionLineGraphProps> = ({
@@ -36,27 +43,40 @@ const MonthlyCompletionLineGraphComponent: React.FC<MonthlyCompletionLineGraphPr
 
   // SVG dimensions
   const width = 1200;
-  const height = 180;
-  const padding = 25;
+  const height = 200;
+  const padding = 30;
   const graphWidth = width - padding * 2;
   const graphHeight = height - padding * 2;
 
   // Calculate points
-  const points = dailyCompletions.map((val, i) => {
+  const points: Point[] = dailyCompletions.map((val, i) => {
     const x = padding + (i / (monthDates.length - 1 || 1)) * graphWidth;
     const y = padding + graphHeight - (val / 100) * graphHeight;
-    return { x, y, val, i };
+    return { x, y, val };
   });
 
-  // Build path
-  const pathData = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-  const fillPath = `${pathData} L ${points[points.length - 1].x} ${padding + graphHeight} L ${padding} ${padding + graphHeight} Z`;
+  // Build smooth curve path using D3
+  const pathGenerator = d3Line<Point>()
+    .x((p) => p.x)
+    .y((p) => p.y)
+    .curve(curveCatmullRom.alpha(0.5));
+
+  const smoothPath = pathGenerator(points) || '';
+
+  // Build area fill path
+  const areaPath = `${smoothPath} L ${points[points.length - 1].x} ${padding + graphHeight} L ${padding} ${padding + graphHeight} Z`;
 
   // Grid lines
   const gridLines = [0, 25, 50, 75, 100].map((val) => {
     const y = padding + graphHeight - (val / 100) * graphHeight;
     return { y, val };
   });
+
+  // Calculate gradient color (brighten for glow effect)
+  const accentColorRGB = parseInt(accentColor.slice(1), 16);
+  const r = (accentColorRGB >> 16) & 255;
+  const g = (accentColorRGB >> 8) & 255;
+  const b = accentColorRGB & 255;
 
   return (
     <div className="w-full">
@@ -66,7 +86,18 @@ const MonthlyCompletionLineGraphComponent: React.FC<MonthlyCompletionLineGraphPr
           height={height}
           viewBox={`0 0 ${width} ${height}`}
           className="min-w-full"
+          style={{ display: 'block' }}
         >
+          <defs>
+            <linearGradient id="monthly-fill-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor={accentColor} stopOpacity="0.18" />
+              <stop offset="100%" stopColor={accentColor} stopOpacity="0.02" />
+            </linearGradient>
+            <filter id="monthly-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+            </filter>
+          </defs>
+
           {/* Grid lines */}
           {gridLines.map((line, i) => (
             <g key={`grid-${i}`}>
@@ -76,54 +107,98 @@ const MonthlyCompletionLineGraphComponent: React.FC<MonthlyCompletionLineGraphPr
                 x2={width - padding}
                 y2={line.y}
                 stroke={accentColor}
-                strokeWidth="0.5"
-                opacity="0.1"
+                strokeWidth="0.8"
+                opacity="0.12"
               />
               <text
-                x={padding - 8}
-                y={line.y + 4}
-                fontSize="10"
+                x={padding - 12}
+                y={line.y + 5}
+                fontSize="11"
                 fill={accentColor}
-                opacity="0.5"
+                opacity="0.45"
                 textAnchor="end"
+                fontWeight="500"
               >
                 {line.val}%
               </text>
             </g>
           ))}
 
-          {/* Fill */}
+          {/* Fill area with gradient */}
           <path
-            d={fillPath}
-            fill={accentColor}
-            opacity="0.1"
+            d={areaPath}
+            fill="url(#monthly-fill-gradient)"
+            opacity="1"
           />
 
-          {/* Line */}
-          <polyline
-            points={points.map(p => `${p.x},${p.y}`).join(' ')}
+          {/* Glow stroke (wider, softer) */}
+          <path
+            d={smoothPath}
             fill="none"
             stroke={accentColor}
-            strokeWidth="2.5"
+            strokeWidth="4"
+            opacity="0.12"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#monthly-glow)"
+          />
+
+          {/* Main line */}
+          <path
+            d={smoothPath}
+            fill="none"
+            stroke={accentColor}
+            strokeWidth="4"
+            opacity="1"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
 
-          {/* Points */}
+          {/* Points with halos */}
           {points.map((p, i) => (
-            <circle
-              key={`point-${i}`}
-              cx={p.x}
-              cy={p.y}
-              r="3"
-              fill={accentColor}
-              opacity="0.7"
-            />
+            <g key={`point-${i}`}>
+              {/* Halo */}
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r="6"
+                fill="none"
+                stroke={accentColor}
+                strokeWidth="1"
+                opacity="0.15"
+              />
+              {/* Main point */}
+              <circle
+                cx={p.x}
+                cy={p.y}
+                r="3.5"
+                fill={accentColor}
+                opacity="0.9"
+              />
+            </g>
           ))}
 
-          {/* Axes */}
-          <line x1={padding} y1={padding} x2={padding} y2={padding + graphHeight} stroke={accentColor} strokeWidth="1" opacity="0.3" />
-          <line x1={padding} y1={padding + graphHeight} x2={width - padding} y2={padding + graphHeight} stroke={accentColor} strokeWidth="1" opacity="0.3" />
+          {/* Baseline */}
+          <line
+            x1={padding}
+            x2={width - padding}
+            y1={padding + graphHeight}
+            y2={padding + graphHeight}
+            stroke={accentColor}
+            strokeWidth="1"
+            opacity="0.25"
+          />
+
+          {/* Left axis */}
+          <line
+            x1={padding}
+            y1={padding}
+            x2={padding}
+            y2={padding + graphHeight}
+            stroke={accentColor}
+            strokeWidth="1"
+            opacity="0.25"
+          />
         </svg>
       </div>
     </div>

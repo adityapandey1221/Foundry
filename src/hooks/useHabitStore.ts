@@ -89,6 +89,36 @@ export const useHabitStore = () => {
     }
   }, [setState]);
 
+  const reorderHabits = useCallback((fromIndex, toIndex) => {
+    setState((prev) => {
+      const habits = [...prev.habits];
+      const [moved] = habits.splice(fromIndex, 1);
+      habits.splice(toIndex, 0, moved);
+      return {
+        ...prev,
+        habits: habits.map((h, i) => ({ ...h, sortOrder: i })),
+      };
+    });
+  }, [setState]);
+
+  const deactivateHabit = useCallback((habitId) => {
+    setState((prev) => ({
+      ...prev,
+      habits: prev.habits.map(h =>
+        h.id === habitId ? { ...h, isActive: false } : h
+      ),
+    }));
+  }, [setState]);
+
+  const reactivateHabit = useCallback((habitId) => {
+    setState((prev) => ({
+      ...prev,
+      habits: prev.habits.map(h =>
+        h.id === habitId ? { ...h, isActive: true } : h
+      ),
+    }));
+  }, [setState]);
+
   return {
     // State
     habits: state.habits,
@@ -100,6 +130,9 @@ export const useHabitStore = () => {
     removeHabit,
     toggleHabitCompletion,
     updateHabit,
+    reorderHabits,
+    deactivateHabit,
+    reactivateHabit,
     clearAllData,
     importData,
   };

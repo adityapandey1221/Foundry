@@ -2,13 +2,13 @@ import type { CSSProperties, ReactNode } from 'react';
 import { FlowLadderPanel } from './FlowLadderPanel';
 import { FrequencySpectrumPanel } from './FrequencySpectrumPanel';
 import { HelixCorePanel } from './HelixCorePanel';
-import { MarketLogsPanel } from './MarketLogsPanel';
 import { MarketsPanel } from './MarketsPanel';
 import { NumericLatticePanel } from './NumericLatticePanel';
 import { RadarSweepPanel } from './RadarSweepPanel';
 import { RingGaugesPanel } from './RingGaugesPanel';
 import { SignalWaveformPanel } from './SignalWaveformPanel';
 import { TelemetryStrip, type TelemetryItem } from './TelemetryStrip';
+import { TodayEventsPanel } from './TodayEventsPanel';
 import { useHabitHudData } from '../hooks/useHabitHudData';
 
 type VideoExactDashboardProps = {
@@ -19,6 +19,7 @@ type VideoExactDashboardProps = {
   leftRail?: ReactNode;
   centerRail?: ReactNode;
   rightRail?: ReactNode;
+  navTabs?: ReactNode;
 };
 
 function RailShell({
@@ -55,6 +56,7 @@ export function VideoExactDashboard({
   leftRail,
   centerRail,
   rightRail,
+  navTabs,
 }: VideoExactDashboardProps) {
   const habitHudData = useHabitHudData();
 
@@ -90,7 +92,7 @@ export function VideoExactDashboard({
           width: 'min(calc(100vw - 16px), calc((100vh - 16px) * 16 / 9))',
         }}
       >
-        <TelemetryStrip banner={banner} items={telemetryItems} />
+        {navTabs || <TelemetryStrip banner={banner} items={telemetryItems} />}
 
         <div
           style={{
@@ -106,7 +108,7 @@ export function VideoExactDashboard({
               <>
                 <MarketsPanel />
                 <FlowLadderPanel />
-                <MarketLogsPanel />
+                <TodayEventsPanel />
               </>
             )}
           </RailShell>
