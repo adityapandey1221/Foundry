@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { line as d3Line, curveCatmullRom } from 'd3-shape';
 import { HudPanel } from './HudPanel';
-import type { HabitHudMonthlyPoint } from '../utils/habitHudData';
+import type { HabitHudMonthlyPoint, HabitHudWeeklyPoint } from '../utils/habitHudData';
 
 export type SignalWaveformPanelProps = {
   series?: HabitHudMonthlyPoint[];
+  weeklySeries?: HabitHudWeeklyPoint[];
   className?: string;
 };
 
@@ -30,13 +31,15 @@ const buildFallbackSeries = (): HabitHudMonthlyPoint[] => {
   }));
 };
 
+type DataPoint = HabitHudMonthlyPoint | HabitHudWeeklyPoint;
+
 type ChartPoint = {
   x: number;
   y: number;
-  point: HabitHudMonthlyPoint;
+  point: DataPoint;
 };
 
-const toChartPoints = (series: HabitHudMonthlyPoint[], innerWidth: number, innerHeight: number): ChartPoint[] => {
+const toChartPoints = (series: DataPoint[], innerWidth: number, innerHeight: number): ChartPoint[] => {
   const count = Math.max(series.length - 1, 1);
 
   return series.map((point, index) => {
@@ -210,12 +213,15 @@ function WaveformChart({
 
 export function SignalWaveformPanel({
   series,
+  weeklySeries,
   className,
 }: SignalWaveformPanelProps) {
   const fallbackSeries = useMemo(() => buildFallbackSeries(), []);
-  const resolvedSeries = series?.length ? series : fallbackSeries;
+  const isWeekly = !!weeklySeries?.length;
+  const resolvedSeries = (isWeekly ? weeklySeries : series) ?? [];
+  const finalSeries = resolvedSeries.length ? resolvedSeries : fallbackSeries;
 
-  const summary = resolvedSeries.reduce(
+  const summary = finalSeries.reduce(
     (acc, point) => {
       acc.completed += point.completedCount;
       acc.active += point.activeCount;
@@ -224,10 +230,11 @@ export function SignalWaveformPanel({
     { completed: 0, active: 0 }
   );
 
-  const monthlyPct = summary.active > 0 ? Math.round((summary.completed / summary.active) * 100) : 0;
+  const pct = summary.active > 0 ? Math.round((summary.completed / summary.active) * 100) : 0;
+  const timeframeText = isWeekly ? 'week' : 'month';
 
   return (
-    <HudPanel title="SIGNAL WAVEFORM" meta="DAILY PROGRESS" compact className={className}>
+    <HudPanel title={isWeekly ? 'WEEKLY PROGRESS' : 'SIGNAL WAVEFORM'} meta="DAILY PROGRESS" compact className={className}>
       <div
         style={{
           display: 'grid',
@@ -252,7 +259,7 @@ export function SignalWaveformPanel({
           <span>
             {summary.completed}/{summary.active} done
           </span>
-          <span>{formatPct(monthlyPct)} month</span>
+          <span>{formatPct(pct)} {timeframeText}</span>
         </div>
 
         <div

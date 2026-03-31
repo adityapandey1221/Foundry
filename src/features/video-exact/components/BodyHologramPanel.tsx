@@ -1,0 +1,317 @@
+import React, { useRef, useMemo, Suspense, memo } from 'react';
+import { useFrame, useLoader, Canvas } from '@react-three/fiber';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import * as THREE from 'three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { HudPanel } from './HudPanel';
+import { useHabitHudData } from '../hooks/useHabitHudData';
+import { getThemeColor } from '../../../utils/theme';
+
+// ─── Holographic shader material ─────────────────────────────────────────────
+class HolographicBodyMaterial extends THREE.ShaderMaterial {
+  constructor() {
+    super({
+      uniforms: {
+        time: { value: 0 },
+        fresnelOpacity: { value: 0.85 },
+        fresnelAmount: { value: 0.5 },
+        scanlineSize: { value: 8.0 },
+        hologramBrightness: { value: 1.4 },
+        signalSpeed: { value: 0.45 },
+        hologramColor: { value: new THREE.Color('#39FF14') },
+        hologramOpacity: { value: 1.0 },
+        completionPct: { value: 0.75 },
+      },
+      vertexShader: `
+        #define STANDARD
+        varying vec3 vViewPosition;
+        varying vec2 vUv;
+        varying vec4 vPos;
+        varying vec3 vNormalW;
+        varying vec3 vPositionW;
+
+        #include <common>
+        #include <uv_pars_vertex>
+        #include <color_pars_vertex>
+        #include <fog_pars_vertex>
+        #include <morphtarget_pars_vertex>
+        #include <skinning_pars_vertex>
+        #include <logdepthbuf_pars_vertex>
+        #include <clipping_planes_pars_vertex>
+
+        void main() {
+          #include <uv_vertex>
+          #include <color_vertex>
+          #include <morphcolor_vertex>
+          #include <begin_vertex>
+          #include <morphtarget_vertex>
+          #include <skinning_vertex>
+          #include <project_vertex>
+          #include <logdepthbuf_vertex>
+          #include <clipping_planes_vertex>
+          #include <worldpos_vertex>
+          #include <fog_vertex>
+
+          mat4 modelViewProjectionMatrix = projectionMatrix * modelViewMatrix;
+          vUv = uv;
+          vPos = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+          vPositionW = vec3(vec4(transformed, 1.0) * modelMatrix);
+          vNormalW = normalize(vec3(vec4(normal, 0.0) * modelMatrix));
+          gl_Position = modelViewProjectionMatrix * vec4(transformed, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec2 vUv;
+        varying vec3 vPositionW;
+        varying vec4 vPos;
+        varying vec3 vNormalW;
+
+        uniform float time;
+        uniform float fresnelOpacity;
+        uniform float scanlineSize;
+        uniform float fresnelAmount;
+        uniform float signalSpeed;
+        uniform float hologramBrightness;
+        uniform float hologramOpacity;
+        uniform vec3 hologramColor;
+        uniform float completionPct;
+
+        float flicker(float amt, float t) {
+          return clamp(fract(cos(t) * 43758.5453123), amt, 1.0);
+        }
+        float random(in float a, in float b) {
+          return fract(cos(dot(vec2(a, b), vec2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        void main() {
+          vec2 vCoords = vPos.xy / vPos.w * 0.5 + 0.5;
+          vec2 myUV = fract(vCoords);
+
+          float brightness = mix(0.0, hologramBrightness * 0.6, completionPct);
+          vec4 hColor = vec4(hologramColor, mix(brightness, vUv.y, 0.3));
+
+          float scanlines = 10.0;
+          scanlines += 20.0 * sin(time * signalSpeed * 20.8 - myUV.y * 60.0 * scanlineSize);
+          scanlines *= smoothstep(1.3 * cos(time * signalSpeed + myUV.y * scanlineSize), 0.78, 0.9);
+          scanlines *= max(0.25, sin(time * signalSpeed) * 1.0);
+          scanlines *= completionPct;
+
+          float r = random(vUv.x, vUv.y);
+          float g = random(vUv.y * 20.2, vUv.y * 0.2);
+          float b = random(vUv.y * 0.9, vUv.y * 0.2);
+          hColor += vec4(r * scanlines, b * scanlines, r, 1.0) / 84.0;
+          vec4 scanlineMix = mix(vec4(0.0), hColor, hColor.a);
+
+          vec3 viewDir = normalize(cameraPosition - vPositionW);
+          float fresnelEffect = dot(viewDir, vNormalW) * (1.6 - fresnelOpacity / 2.0);
+          fresnelEffect = clamp(fresnelAmount - fresnelEffect, 0.0, fresnelOpacity);
+          fresnelEffect *= mix(0.3, 1.0, completionPct);
+
+          float blink = flicker(0.6 - signalSpeed, time * signalSpeed * 0.02);
+
+          vec3 finalColor = scanlineMix.rgb * blink + fresnelEffect;
+          gl_FragColor = vec4(finalColor, hologramOpacity * mix(0.05, 0.7, completionPct));
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+  }
+}
+
+// ─── Body mesh rendering ────────────────────────────────────────────────────
+const BodyMesh: React.FC<{ pct: number }> = ({ pct }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const obj = useLoader(OBJLoader, '/body.obj');
+
+  const { geometry, scale, offsetY, material } = useMemo(() => {
+    let geo: THREE.BufferGeometry | null = null;
+    obj.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh && !geo) {
+        geo = (child as THREE.Mesh).geometry;
+      }
+    });
+    const scale = 0.0250;
+    const offsetY = 0.8;
+    const mat = new HolographicBodyMaterial();
+    mat.uniforms.hologramColor.value.set(getThemeColor('video-exact'));
+    return { geometry: geo, scale, offsetY, material: mat };
+  }, [obj]);
+
+  useFrame((state) => {
+    if (meshRef.current && meshRef.current.material instanceof HolographicBodyMaterial) {
+      const mat = meshRef.current.material as HolographicBodyMaterial;
+      mat.uniforms.time.value = state.clock.elapsedTime;
+      mat.uniforms.completionPct.value = pct;
+    }
+  });
+
+  if (!geometry) {
+    return null;
+  }
+
+  return (
+    <mesh
+      ref={meshRef}
+      geometry={geometry}
+      material={material}
+      scale={[scale, scale, scale]}
+      position={[0, offsetY, 0]}
+      rotation={[-1 * Math.PI / 2, 0, 0]}
+    />
+  );
+};
+
+// ─── Wireframe overlay ──────────────────────────────────────────────────────
+const BodyWireframe: React.FC<{ pct: number }> = ({ pct }) => {
+  const obj = useLoader(OBJLoader, '/body.obj');
+
+  const lineSegmentsRef = useRef<THREE.LineSegments>(null);
+
+  const { lineSegmentsGeometry, material, scale, offsetY } = useMemo(() => {
+    let srcGeo: THREE.BufferGeometry | null = null;
+    obj.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh && !srcGeo) {
+        srcGeo = (child as THREE.Mesh).geometry;
+      }
+    });
+    if (!srcGeo) return { lineSegmentsGeometry: null, material: null, scale: 1, offsetY: 0 };
+
+    const wfGeo = new THREE.WireframeGeometry(srcGeo);
+    const positions = wfGeo.attributes.position.array;
+    const colors: number[] = [];
+    const wireframeColor = new THREE.Color(getThemeColor('video-exact'));
+    for (let i = 0; i < positions.length; i += 3) {
+      colors.push(wireframeColor.r, wireframeColor.g, wireframeColor.b);
+    }
+    wfGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    const mat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.4,
+      blending: THREE.NormalBlending,
+      depthWrite: false,
+    });
+
+    const scale = 0.0275;
+    const offsetY = 0.3;
+
+    return { lineSegmentsGeometry: wfGeo, material: mat, scale, offsetY };
+  }, [obj]);
+
+  useFrame(() => {
+    if (lineSegmentsRef.current && lineSegmentsRef.current.material instanceof THREE.LineBasicMaterial) {
+      (lineSegmentsRef.current.material as THREE.LineBasicMaterial).opacity = 0.4 + pct * 0.5;
+    }
+  });
+
+  if (!lineSegmentsGeometry || !material) return null;
+
+  return (
+    <lineSegments
+      ref={lineSegmentsRef}
+      geometry={lineSegmentsGeometry}
+      material={material}
+      scale={[scale, scale, scale]}
+      position={[0, offsetY, 0]}
+      rotation={[-1 * Math.PI / 2, 0, 0]}
+    />
+  );
+};
+
+// ─── Body scene ─────────────────────────────────────────────────────────────
+const BodyScene: React.FC<{ pct: number }> = ({ pct }) => {
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.5;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.5, 0]}>
+      <Suspense fallback={null}>
+        <BodyMesh pct={pct} />
+        <BodyWireframe pct={pct} />
+      </Suspense>
+    </group>
+  );
+};
+
+// ─── Calculate day completion ───────────────────────────────────────────────
+function calculateDayCompletion(
+  habits: any[],
+  completions: Record<string, string[]>
+): number {
+  const activeHabits = habits.filter((h) => h.isActive);
+  const totalPossible = activeHabits.length || 1;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const day = now.getDate();
+  const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+  const dayCompletions = completions[dateKey] || [];
+  let totalCompleted = 0;
+  dayCompletions.forEach((habitId) => {
+    if (activeHabits.find((h) => h.id === habitId)) {
+      totalCompleted++;
+    }
+  });
+
+  return totalPossible === 0 ? 0 : Math.round((totalCompleted / totalPossible) * 100);
+}
+
+// ─── Main component ────────────────────────────────────────────────────────
+const BodyHologramPanelComponent: React.FC = () => {
+  const habitHudData = useHabitHudData();
+
+  const pct = calculateDayCompletion(
+    habitHudData.habits,
+    habitHudData.completions,
+  ) / 100;
+
+  return (
+    <HudPanel title="VITALS" meta="HOLOGRAM">
+      <div style={{ width: '100%', height: '400px' }}>
+        <Canvas
+          camera={{ position: [0, 0, 5.5], fov: 40 }}
+          gl={{ alpha: true, antialias: true }}
+          style={{ background: 'transparent', width: '100%', height: '100%' }}
+        >
+          <Suspense fallback={null}>
+            <BodyScene pct={pct} />
+            <EffectComposer>
+              <Bloom
+                intensity={pct * 1.2}
+                luminanceThreshold={0.2}
+                luminanceSmoothing={0.9}
+                radius={0.8}
+              />
+            </EffectComposer>
+          </Suspense>
+        </Canvas>
+        <div
+          style={{
+            textAlign: 'center',
+            fontFamily: '"IBM Plex Mono", "Space Mono", ui-monospace, monospace',
+            fontSize: '11px',
+            fontWeight: 'bold',
+            color: 'rgba(95, 179, 255, 0.8)',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            marginTop: '4px',
+          }}
+        >
+          {Math.round(pct * 100)}%
+        </div>
+      </div>
+    </HudPanel>
+  );
+};
+
+export const BodyHologramPanel = memo(BodyHologramPanelComponent);

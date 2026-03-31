@@ -7,6 +7,7 @@ import { MarketsPanel } from './MarketsPanel';
 import { NumericLatticePanel } from './NumericLatticePanel';
 import { RadarSweepPanel } from './RadarSweepPanel';
 import { RingGaugesPanel } from './RingGaugesPanel';
+import { SignalWaveformPanel } from './SignalWaveformPanel';
 import { TelemetryStrip, type TelemetryItem } from './TelemetryStrip';
 import { TodayEventsPanel } from './TodayEventsPanel';
 import { useHabitHudData } from '../hooks/useHabitHudData';
@@ -144,10 +145,11 @@ export function VideoExactDashboard({
             )}
           </RailShell>
 
-          <RailShell title="Center Rail" rows="40fr 60fr">
+          <RailShell title="Center Rail" rows="35fr 20fr 45fr">
             {centerRail ?? (
               <>
                 <HelixCorePanel />
+                <SignalWaveformPanel weeklySeries={habitHudData.weeklyProgressSeries} />
                 <FrequencySpectrumPanel
                   monthlyChecklistDays={weeklyChecklistDays}
                   monthlyChecklistRows={habitHudData.monthlyChecklistRows}

@@ -43,18 +43,18 @@ export function FrequencySpectrumPanel({
           gap: '4px',
           height: '100%',
           minHeight: 0,
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          paddingTop: '12px',
-          paddingBottom: '12px',
+          paddingLeft: '12px',
+          paddingRight: '12px',
+          paddingTop: '10px',
+          paddingBottom: '10px',
         }}
       >
         {/* Scrollable grid */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '240px minmax(0, 1fr)',
-            gap: '4px',
+            gridTemplateColumns: '200px minmax(0, 1fr)',
+            gap: '6px',
             minHeight: 0,
             overflow: 'auto',
           }}
@@ -64,17 +64,17 @@ export function FrequencySpectrumPanel({
             style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '3px',
+              gap: '0px',
             }}
           >
             {/* Header: "HABIT" */}
             <div
               style={{
-                height: '52px',
+                height: '44px',
                 display: 'flex',
                 alignItems: 'center',
                 color: 'rgba(255,255,255,0.64)',
-                fontSize: '12px',
+                fontSize: '11px',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 fontWeight: '500',
@@ -87,10 +87,10 @@ export function FrequencySpectrumPanel({
             {/* Percentage row */}
             <div
               style={{
-                height: '52px',
+                height: '44px',
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: '12px',
+                fontSize: '11px',
               }}
             />
 
@@ -99,10 +99,10 @@ export function FrequencySpectrumPanel({
               <div
                 key={row.habitId}
                 style={{
-                  height: '40px',
+                  height: '32px',
                   display: 'flex',
                   alignItems: 'center',
-                  fontSize: '11px',
+                  fontSize: '10px',
                   color: 'rgba(255,255,255,0.72)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
@@ -119,9 +119,9 @@ export function FrequencySpectrumPanel({
           <div
             style={{
               display: 'flex',
-              gap: '4px',
+              gap: '3px',
               overflow: 'auto',
-              paddingBottom: '4px',
+              paddingBottom: '2px',
             }}
           >
             {resolvedDays.map((day) => (
@@ -130,21 +130,22 @@ export function FrequencySpectrumPanel({
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '3px',
+                  gap: '0px',
                   minWidth: 'max-content',
                 }}
               >
                 {/* Day header */}
                 <div
                   style={{
-                    height: '52px',
-                    width: '40px',
+                    height: '44px',
+                    width: '36px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '2px',
+                    gap: '1px',
                     color: day.isToday ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.64)',
+                    fontSize: '10px',
                     borderBottom: day.isToday ? '1px solid rgba(255,255,255,0.24)' : '1px solid rgba(255,255,255,0.06)',
                   }}
                 >
@@ -159,13 +160,13 @@ export function FrequencySpectrumPanel({
                 {/* Percentage */}
                 <div
                   style={{
-                    height: '52px',
-                    width: '40px',
+                    height: '44px',
+                    width: '36px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     color: getPercentageColor(day.completionPct),
-                    fontSize: '11px',
+                    fontSize: '10px',
                     letterSpacing: '0.08em',
                     fontWeight: '500',
                   }}
@@ -183,8 +184,8 @@ export function FrequencySpectrumPanel({
                       type="button"
                       onClick={() => onToggleHabit?.(row.habitId, day.date)}
                       style={{
-                        width: '40px',
-                        height: '40px',
+                        width: '32px',
+                        height: '32px',
                         padding: 0,
                         border: day.isToday
                           ? '1px solid rgba(255,255,255,0.42)'
@@ -195,7 +196,7 @@ export function FrequencySpectrumPanel({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '18px',
+                        fontSize: '14px',
                         color: isCompleted ? 'rgba(255,255,255,0.72)' : 'transparent',
                         fontWeight: 'bold',
                         transition: 'all 100ms ease-out',
