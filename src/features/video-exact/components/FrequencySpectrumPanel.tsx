@@ -40,13 +40,13 @@ export function FrequencySpectrumPanel({
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '4px',
+          gap: '2px',
           height: '100%',
           minHeight: 0,
           paddingLeft: '12px',
           paddingRight: '12px',
-          paddingTop: '10px',
-          paddingBottom: '10px',
+          paddingTop: '8px',
+          paddingBottom: '8px',
         }}
       >
         {/* Scrollable grid */}
@@ -70,7 +70,7 @@ export function FrequencySpectrumPanel({
             {/* Header: "HABIT" */}
             <div
               style={{
-                height: '44px',
+                height: '36px',
                 display: 'flex',
                 alignItems: 'center',
                 color: 'rgba(255,255,255,0.64)',
@@ -87,7 +87,7 @@ export function FrequencySpectrumPanel({
             {/* Percentage row */}
             <div
               style={{
-                height: '44px',
+                height: '36px',
                 display: 'flex',
                 alignItems: 'center',
                 fontSize: '11px',
@@ -99,7 +99,7 @@ export function FrequencySpectrumPanel({
               <div
                 key={row.habitId}
                 style={{
-                  height: '32px',
+                  height: '28px',
                   display: 'flex',
                   alignItems: 'center',
                   fontSize: '10px',
@@ -137,7 +137,7 @@ export function FrequencySpectrumPanel({
                 {/* Day header */}
                 <div
                   style={{
-                    height: '44px',
+                    height: '36px',
                     width: '48px',
                     display: 'flex',
                     flexDirection: 'column',
@@ -160,7 +160,7 @@ export function FrequencySpectrumPanel({
                 {/* Percentage */}
                 <div
                   style={{
-                    height: '44px',
+                    height: '36px',
                     width: '48px',
                     display: 'flex',
                     alignItems: 'center',
@@ -185,7 +185,7 @@ export function FrequencySpectrumPanel({
                       onClick={() => onToggleHabit?.(row.habitId, day.date)}
                       style={{
                         width: '40px',
-                        height: '32px',
+                        height: '28px',
                         padding: 0,
                         border: day.isToday
                           ? '1px solid rgba(255,255,255,0.42)'
