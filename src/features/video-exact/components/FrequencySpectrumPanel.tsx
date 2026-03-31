@@ -99,7 +99,7 @@ export function FrequencySpectrumPanel({
               <div
                 key={row.habitId}
                 style={{
-                  height: '28px',
+                  height: '36px',
                   display: 'flex',
                   alignItems: 'center',
                   fontSize: '10px',
