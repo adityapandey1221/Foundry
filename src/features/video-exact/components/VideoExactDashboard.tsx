@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { useMemo } from 'react';
 import { FlowLadderPanel } from './FlowLadderPanel';
 import { FrequencySpectrumPanel } from './FrequencySpectrumPanel';
 import { HelixCorePanel } from './HelixCorePanel';
@@ -6,10 +7,12 @@ import { MarketsPanel } from './MarketsPanel';
 import { NumericLatticePanel } from './NumericLatticePanel';
 import { RadarSweepPanel } from './RadarSweepPanel';
 import { RingGaugesPanel } from './RingGaugesPanel';
-import { SignalWaveformPanel } from './SignalWaveformPanel';
 import { TelemetryStrip, type TelemetryItem } from './TelemetryStrip';
 import { TodayEventsPanel } from './TodayEventsPanel';
 import { useHabitHudData } from '../hooks/useHabitHudData';
+import { useCurrentDate } from '../../../hooks/useCurrentDate';
+import { getWeekStart, getDayName } from '../../../utils/dates';
+import { parseLocalDate } from '../../../utils/timezone';
 
 type VideoExactDashboardProps = {
   className?: string;
@@ -59,6 +62,34 @@ export function VideoExactDashboard({
   navTabs,
 }: VideoExactDashboardProps) {
   const habitHudData = useHabitHudData();
+  const currentDate = useCurrentDate();
+  const weekStart = getWeekStart(currentDate.today);
+
+  const weeklyChecklistDays = useMemo(() => {
+    const days = [];
+    const today = currentDate.today;
+
+    // weekStart is already set to Sunday by getWeekStart (ISO string)
+    const weekStartDate = parseLocalDate(weekStart);
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(weekStartDate);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayLabel = getDayName(dateStr).toUpperCase().substring(0, 3);
+
+      // Find matching day from monthly data or create new
+      const existingDay = habitHudData.monthlyChecklistDays.find(d => d.date === dateStr);
+
+      days.push({
+        ...(existingDay || { date: dateStr, completionPct: 0 }),
+        date: dateStr,
+        day: dayLabel,
+        isToday: dateStr === today,
+      });
+    }
+    return days;
+  }, [habitHudData.monthlyChecklistDays, weekStart, currentDate.today]);
 
   return (
     <main
@@ -113,15 +144,12 @@ export function VideoExactDashboard({
             )}
           </RailShell>
 
-          <RailShell title="Center Rail" rows="40fr 30fr 30fr">
+          <RailShell title="Center Rail" rows="40fr 60fr">
             {centerRail ?? (
               <>
                 <HelixCorePanel />
-                <SignalWaveformPanel
-                  series={habitHudData.monthlyProgressSeries}
-                />
                 <FrequencySpectrumPanel
-                  monthlyChecklistDays={habitHudData.monthlyChecklistDays}
+                  monthlyChecklistDays={weeklyChecklistDays}
                   monthlyChecklistRows={habitHudData.monthlyChecklistRows}
                   onToggleHabit={(habitId, date) => {
                     habitHudData.toggleHabitCompletion(habitId, date);

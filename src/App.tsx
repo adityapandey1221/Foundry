@@ -4,6 +4,7 @@ import { useHabitStore } from './hooks/useHabitStore';
 
 const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewChange: (view: 'dashboard' | 'planner' | 'config') => void }) => {
   const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentDate, setCurrentDate] = useState<string>('');
 
   useEffect(() => {
     const updateTime = () => {
@@ -12,6 +13,11 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
       const minutes = String(now.getMinutes()).padStart(2, '0');
       const seconds = String(now.getSeconds()).padStart(2, '0');
       setCurrentTime(`${hours}:${minutes}:${seconds}`);
+
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      setCurrentDate(`${year}-${month}-${day}`);
     };
 
     updateTime();
@@ -27,7 +33,7 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
           onClick={() => onViewChange('dashboard')}
           style={{
             padding: '4px 10px',
-            backgroundColor: currentView === 'dashboard' ? 'rgba(0,102,255,0.8)' : 'transparent',
+            backgroundColor: currentView === 'dashboard' ? 'rgba(255,255,255,0.15)' : 'transparent',
             color: currentView === 'dashboard' ? '#fff' : 'rgba(255,255,255,0.5)',
             border: '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer',
@@ -36,13 +42,13 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
             transition: 'all 150ms ease-out',
           }}
         >
-          DASH
+          DASHBOARD
         </button>
         <button
           onClick={() => onViewChange('planner')}
           style={{
             padding: '4px 10px',
-            backgroundColor: currentView === 'planner' ? 'rgba(0,102,255,0.8)' : 'transparent',
+            backgroundColor: currentView === 'planner' ? 'rgba(255,255,255,0.15)' : 'transparent',
             color: currentView === 'planner' ? '#fff' : 'rgba(255,255,255,0.5)',
             border: '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer',
@@ -57,7 +63,7 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
           onClick={() => onViewChange('config')}
           style={{
             padding: '4px 10px',
-            backgroundColor: currentView === 'config' ? 'rgba(0,102,255,0.8)' : 'transparent',
+            backgroundColor: currentView === 'config' ? 'rgba(255,255,255,0.15)' : 'transparent',
             color: currentView === 'config' ? '#fff' : 'rgba(255,255,255,0.5)',
             border: '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer',
@@ -75,9 +81,10 @@ const NavTabs = ({ currentView, onViewChange }: { currentView: string; onViewCha
         FOUNDRY
       </div>
 
-      {/* Right - Timer */}
-      <div style={{ padding: '0 12px', color: 'rgba(255,255,255,0.6)', fontSize: '10px', letterSpacing: '0.05em', fontFamily: 'monospace' }}>
-        {currentTime || '00:00:00'}
+      {/* Right - Date and Timer */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', padding: '0 12px', color: 'rgba(255,255,255,0.6)', fontSize: '9px', letterSpacing: '0.05em', fontFamily: 'monospace', gap: '2px' }}>
+        <div>{currentDate || '0000-00-00'}</div>
+        <div>{currentTime || '00:00:00'}</div>
       </div>
     </div>
   );
