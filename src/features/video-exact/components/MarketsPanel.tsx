@@ -125,7 +125,14 @@ export function MarketsPanel() {
       }
       compact
     >
-      <div style={{ minWidth: 0 }}>
+      <div
+        style={{
+          height: '100%',
+          minHeight: 0,
+          overflowY: 'auto',
+          minWidth: 0,
+        }}
+      >
         <table
           aria-label="Weekly tasks table"
           style={{
@@ -153,14 +160,15 @@ export function MarketsPanel() {
                           r.dayNum === row.dayNum
                       ).length}
                       style={{
-                        padding: '6px 8px 6px 0',
-                        color: 'rgba(255, 255, 255, 0.9)',
-                        fontSize: '10px',
-                        letterSpacing: '0.12em',
+                        padding: '4px 10px 4px 0',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontSize: '8px',
+                        letterSpacing: '0.08em',
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap',
                         verticalAlign: 'top',
                         fontWeight: '500',
+                        width: '50px',
                       }}
                     >
                       {row.dayLabel} {row.dayNum}
