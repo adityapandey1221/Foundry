@@ -7,6 +7,7 @@ export type FrequencySpectrumPanelProps = {
   monthlyChecklistDays?: HabitHudMonthlyChecklistDay[];
   monthlyChecklistRows?: HabitHudMonthlyChecklistRow[];
   onToggleHabit?: (habitId: string, date: string) => void;
+  weeklyCompletionPct?: number;
   className?: string;
 };
 
@@ -22,6 +23,7 @@ export function FrequencySpectrumPanel({
   monthlyChecklistDays,
   monthlyChecklistRows,
   onToggleHabit,
+  weeklyCompletionPct = 0,
   className,
 }: FrequencySpectrumPanelProps) {
   const fallback = useHabitHudData();
@@ -30,8 +32,8 @@ export function FrequencySpectrumPanel({
 
   return (
     <HudPanel
-      title="MONTHLY CHECKLIST"
-      meta="HABIT COMPLETION"
+      title="WEEKLY CHECKLIST"
+      meta={`HABIT COMPLETION • ${Math.round(weeklyCompletionPct * 100)}%`}
       className={className}
       bodyClassName="video-exact-fill"
       compact

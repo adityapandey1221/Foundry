@@ -180,6 +180,7 @@ export function VideoExactDashboard({
                 <FrequencySpectrumPanel
                   monthlyChecklistDays={weeklyChecklistDays}
                   monthlyChecklistRows={habitHudData.monthlyChecklistRows}
+                  weeklyCompletionPct={weeklyCompletionPct}
                   onToggleHabit={(habitId, date) => {
                     habitHudData.toggleHabitCompletion(habitId, date);
                   }}
