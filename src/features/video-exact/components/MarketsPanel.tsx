@@ -52,6 +52,8 @@ interface TaskRow {
   taskTitle: string;
   isCompleted: boolean;
   rowIndex: number;
+  dayIndex: number;
+  taskId: string;
 }
 
 const makeTrend = (seed: string | number, clockSeconds: number, count = 28): number[] => {
@@ -66,7 +68,7 @@ const makeTrend = (seed: string | number, clockSeconds: number, count = 28): num
 export function MarketsPanel() {
   const currentDate = useCurrentDate();
   const weekStart = getWeekStart(currentDate.today);
-  const { weekPlan } = useWeeklyPlan(weekStart);
+  const { weekPlan, toggleDayTask } = useWeeklyPlan(weekStart);
   const clock = useRafClock({ fps: 24 });
   const clockSeconds = clock.elapsedMs / 1000;
 
@@ -78,7 +80,7 @@ export function MarketsPanel() {
     let totalTasks = 0;
     let rowIndex = 0;
 
-    weekPlan.days.forEach((day) => {
+    weekPlan.days.forEach((day, dayIndex) => {
       const dayLabel = getDayName(day.date).toUpperCase();
       const dayNum = new Date(`${day.date}T00:00:00`).getDate();
 
@@ -92,6 +94,8 @@ export function MarketsPanel() {
           taskTitle: task.title,
           isCompleted: task.completed,
           rowIndex: rowIndex++,
+          dayIndex,
+          taskId: task.id,
         });
       });
     });
@@ -180,6 +184,7 @@ export function MarketsPanel() {
                         gap: '6px',
                         cursor: 'pointer',
                       }}
+                      onClick={() => toggleDayTask(row.dayIndex, row.taskId)}
                     >
                       <input
                         type="checkbox"
