@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { HudPanel } from './HudPanel';
 import { useHabitHudData } from '../hooks/useHabitHudData';
+import { parseLocalDate } from '../../../utils/timezone';
 import type { HabitHudMonthlyChecklistDay, HabitHudMonthlyChecklistRow } from '../utils/habitHudData';
 
 export type FrequencySpectrumPanelProps = {
@@ -84,7 +85,7 @@ export function FrequencySpectrumPanel({
             }}
           >
             <span>{day.day}</span>
-            <span style={{ opacity: 0.6 }}>{new Date(day.date).getDate()}</span>
+            <span style={{ opacity: 0.6 }}>{parseLocalDate(day.date).getDate()}</span>
           </div>
         ))}
 
