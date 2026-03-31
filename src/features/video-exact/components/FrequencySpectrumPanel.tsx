@@ -138,7 +138,7 @@ export function FrequencySpectrumPanel({
                 <div
                   style={{
                     height: '44px',
-                    width: '36px',
+                    width: '48px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -161,7 +161,7 @@ export function FrequencySpectrumPanel({
                 <div
                   style={{
                     height: '44px',
-                    width: '36px',
+                    width: '48px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -184,7 +184,7 @@ export function FrequencySpectrumPanel({
                       type="button"
                       onClick={() => onToggleHabit?.(row.habitId, day.date)}
                       style={{
-                        width: '32px',
+                        width: '40px',
                         height: '32px',
                         padding: 0,
                         border: day.isToday
