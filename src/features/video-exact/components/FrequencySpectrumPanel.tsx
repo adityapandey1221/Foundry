@@ -175,18 +175,21 @@ export function FrequencySpectrumPanel({
                         padding: 0,
                         border: day.isToday
                           ? '1px solid rgba(255,255,255,0.42)'
-                          : `1px solid ${isCompleted ? 'rgba(255,255,255,0.24)' : 'rgba(255,255,255,0.06)'}`,
+                          : '1px solid rgba(255,255,255,0.06)',
                         borderRadius: '1px',
-                        background: isCompleted
-                          ? 'rgba(255,255,255,0.24)'
-                          : 'rgba(255,255,255,0.03)',
+                        background: 'transparent',
                         cursor: 'pointer',
-                        boxShadow: isCompleted
-                          ? 'inset 0 0 4px rgba(255,255,255,0.08)'
-                          : 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        color: isCompleted ? 'rgba(255,255,255,0.72)' : 'transparent',
+                        fontWeight: 'bold',
                         transition: 'all 100ms ease-out',
                       }}
-                    />
+                    >
+                      {isCompleted ? '✓' : ''}
+                    </button>
                   );
                 })}
               </div>
