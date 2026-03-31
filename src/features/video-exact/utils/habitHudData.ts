@@ -223,9 +223,11 @@ export const buildHabitHudData = (
     const weekDates = getWeekDates(currentWeekStart);
     const days = weekDates
       .filter((date) => date >= yearStart && date <= yearEnd)
-      .map((date, weekdayIndex) => {
+      .map((date) => {
         const stats = countCompletedHabits(habits, completions, date);
         const completionPct = toPct(stats.completedCount, stats.activeCount);
+        const dateObj = parseLocalDate(date);
+        const weekdayIndex = dateObj.getDay(); // Get actual day of week (0=Sun, 1=Mon, etc.)
         return {
           date,
           weekdayIndex,

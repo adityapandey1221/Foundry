@@ -95,6 +95,7 @@ export function NumericLatticePanel({
               fontWeight: '500',
               textAlign: 'right',
               paddingRight: '4px',
+              paddingTop: '15px',
               textTransform: 'uppercase',
             }}
           >
@@ -132,10 +133,12 @@ export function NumericLatticePanel({
                     gap: '2px',
                   }}
                 >
-                  {weeksInMonth.map((week) =>
+                  {weeksInMonth.map((week, weekIdx) =>
                     week.days.map((cell) => {
                       const band = Math.max(0, Math.min(4, cell.intensityBand));
                       const color = HEATMAP_COLORS[band];
+                      const gridColumn = weekIdx + 1; // 1-indexed
+                      const gridRow = cell.weekdayIndex + 1; // 1-indexed (0=Sun → row 1)
 
                       return (
                         <button
@@ -156,6 +159,8 @@ export function NumericLatticePanel({
                                 ? `inset 0 0 4px rgba(255, 255, 255, ${0.04 + band * 0.04})`
                                 : 'none',
                             transition: 'all 150ms ease-out',
+                            gridColumn,
+                            gridRow,
                           }}
                         />
                       );

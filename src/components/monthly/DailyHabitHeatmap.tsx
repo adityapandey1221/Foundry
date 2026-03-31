@@ -59,7 +59,9 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
     <div className="p-4">
       <div className="flex items-start gap-4 overflow-x-auto pb-4">
         {/* Day labels on the left */}
-        <div className="flex flex-col gap-1 justify-start pt-6 flex-shrink-0">
+        <div className="flex flex-col gap-1 justify-start flex-shrink-0">
+          {/* Placeholder for month label alignment */}
+          <div className="text-xs font-bold h-5" />
           {dayLabels.map(day => (
             <div key={day} className="text-xs h-5 w-6 flex items-center justify-center" style={{ color: '#39FF14' }}>
               {day}
@@ -75,7 +77,7 @@ export const DailyHabitHeatmap = ({ habits, completions, currentDate }) => {
             return (
               <div key={monthIndex} className="flex flex-col gap-2">
                 {/* Month label */}
-                <div className="text-xs font-bold h-5 flex items-end pb-1" style={{ color: '#39FF14' }}>
+                <div className="text-xs font-bold h-5 flex items-center" style={{ color: '#39FF14' }}>
                   {monthName}
                 </div>
 
