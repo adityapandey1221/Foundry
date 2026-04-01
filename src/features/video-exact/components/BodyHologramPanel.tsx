@@ -280,7 +280,7 @@ const BodyHologramPanelComponent: React.FC = () => {
       <div style={{ width: '100%', height: '400px' }}>
         <Canvas
           camera={{ position: [0, 0, 5.5], fov: 40 }}
-          gl={{ alpha: true, antialias: true }}
+          gl={{ alpha: true, antialias: true, preserveDrawingBuffer: true, premultipliedAlpha: false }}
           style={{ background: 'transparent', width: '100%', height: '100%' }}
         >
           <Suspense fallback={null}>

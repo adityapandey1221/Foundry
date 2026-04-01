@@ -97,7 +97,7 @@ export function VideoExactDashboard({
     const days = [];
     const today = currentDate.today;
 
-    // weekStart is already set to Sunday by getWeekStart (ISO string)
+    // weekStart is already set to Monday by getWeekStart (ISO string)
     const weekStartDate = parseLocalDate(weekStart);
 
     for (let i = 0; i < 7; i++) {
@@ -118,6 +118,25 @@ export function VideoExactDashboard({
     }
     return days;
   }, [habitHudData.monthlyChecklistDays, weekStart, currentDate.today]);
+
+  const weeklyChecklistRows = useMemo(() => {
+    const activeHabits = habitHudData.habits.filter((h) => h.isActive);
+    const weekDates = weeklyChecklistDays.map(d => d.date);
+
+    return activeHabits.map((habit) => {
+      const completions_map: Record<string, boolean> = {};
+      weekDates.forEach((date) => {
+        completions_map[date] = (habitHudData.completions[date] ?? []).includes(habit.id);
+      });
+
+      return {
+        habitId: habit.id,
+        name: habit.name,
+        category: habit.category,
+        completions: completions_map,
+      };
+    });
+  }, [habitHudData.habits, habitHudData.completions, weeklyChecklistDays]);
 
   return (
     <main
@@ -179,7 +198,7 @@ export function VideoExactDashboard({
                 <SignalWaveformPanel weeklySeries={habitHudData.weeklyProgressSeries} />
                 <FrequencySpectrumPanel
                   monthlyChecklistDays={weeklyChecklistDays}
-                  monthlyChecklistRows={habitHudData.monthlyChecklistRows}
+                  monthlyChecklistRows={weeklyChecklistRows}
                   weeklyCompletionPct={weeklyCompletionPct}
                   onToggleHabit={(habitId, date) => {
                     habitHudData.toggleHabitCompletion(habitId, date);

@@ -124,8 +124,7 @@ const MonthlyGridContent = ({ habits, completions, toggleHabitCompletion, curren
                 {monthDates.map((date) => {
                   const dayCompletions = completions[date] || [];
                   const isCompleted = dayCompletions.includes(habit.id);
-                  const cellDate = parseLocalDate(date);
-                  const isFuture = cellDate > today;
+                  const isPastOrToday = date <= currentDate.today;
                   const isToday = date === currentDate.today;
 
                   return (
@@ -137,8 +136,8 @@ const MonthlyGridContent = ({ habits, completions, toggleHabitCompletion, curren
                       }}
                     >
                       <button
-                        onClick={() => !isFuture && handleToggle(habit.id, date)}
-                        disabled={isFuture}
+                        onClick={() => isPastOrToday && handleToggle(habit.id, date)}
+                        disabled={!isPastOrToday}
                         className={`inline-flex items-center justify-center w-5 h-5 rounded-sm transition-all duration-150 font-mono-sm text-xs ${
                           lastBurst === `${habit.id}-${date}` ? 'animate-burst' : ''
                         }`}
@@ -146,8 +145,8 @@ const MonthlyGridContent = ({ habits, completions, toggleHabitCompletion, curren
                           backgroundColor: isCompleted ? categoryColor : 'transparent',
                           border: `1px solid ${isCompleted ? categoryColor : 'rgba(57, 255, 20, 0.5)'}`,
                           color: isCompleted ? '#fff' : 'var(--text-muted)',
-                          opacity: isFuture ? 0.4 : 1,
-                          cursor: isFuture ? 'not-allowed' : 'pointer',
+                          opacity: isPastOrToday ? 1 : 0.4,
+                          cursor: isPastOrToday ? 'pointer' : 'not-allowed',
                         }}
                       >
                         {isCompleted ? '✓' : ''}
