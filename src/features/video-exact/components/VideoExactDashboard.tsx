@@ -96,6 +96,8 @@ export function VideoExactDashboard({
   const weeklyChecklistDays = useMemo(() => {
     const days = [];
     const today = currentDate.today;
+    const activeHabits = habitHudData.habits.filter((h) => h.isActive);
+    const activeCount = activeHabits.length;
 
     // weekStart is already set to Monday by getWeekStart (ISO string)
     const weekStartDate = parseLocalDate(weekStart);
@@ -106,18 +108,20 @@ export function VideoExactDashboard({
       const dateStr = date.toISOString().split('T')[0];
       const dayLabel = getDayName(dateStr).toUpperCase().substring(0, 3);
 
-      // Find matching day from monthly data or create new
-      const existingDay = habitHudData.monthlyChecklistDays.find(d => d.date === dateStr);
+      // Calculate completion % from actual completions data
+      const dayCompletions = habitHudData.completions[dateStr] || [];
+      const completedCount = activeHabits.filter(h => dayCompletions.includes(h.id)).length;
+      const completionPct = activeCount > 0 ? Math.round((completedCount / activeCount) * 100) : 0;
 
       days.push({
-        ...(existingDay || { date: dateStr, completionPct: 0 }),
         date: dateStr,
+        completionPct,
         day: dayLabel,
         isToday: dateStr === today,
       });
     }
     return days;
-  }, [habitHudData.monthlyChecklistDays, weekStart, currentDate.today]);
+  }, [habitHudData.habits, habitHudData.completions, weekStart, currentDate.today]);
 
   const weeklyChecklistRows = useMemo(() => {
     const activeHabits = habitHudData.habits.filter((h) => h.isActive);
