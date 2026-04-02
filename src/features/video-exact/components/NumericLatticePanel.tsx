@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { formatDate } from '../../../utils/dates';
+import { formatDate, getMonthDates } from '../../../utils/dates';
 import { HudPanel } from './HudPanel';
 import { useHabitHudData } from '../hooks/useHabitHudData';
 import type { HabitHudHeatmapWeek, HabitHudSummary } from '../utils/habitHudData';
@@ -44,17 +44,44 @@ export function NumericLatticePanel({
   const resolvedSummary = todaySummary ?? fallback.todaySummary;
   const legend = useMemo(() => buildLegend(), []);
 
-  // Group weeks by month
+  // Build month grids from actual month dates so cross-month boundary days stay
+  // in their own month instead of following the source week's start date.
   const monthGroups = useMemo(() => {
-    const groups: Map<string, typeof resolvedWeeks> = new Map();
-    resolvedWeeks.forEach((week) => {
-      const month = getMonthLabel(week.weekStart);
-      if (!groups.has(month)) {
-        groups.set(month, []);
+    const cellMap = new Map(
+      resolvedWeeks.flatMap((week) => week.days.map((cell) => [cell.date, cell] as const))
+    );
+    const year =
+      resolvedWeeks[0]?.days[0]?.date.slice(0, 4) ??
+      resolvedWeeks[0]?.weekStart.slice(0, 4) ??
+      `${new Date().getFullYear()}`;
+
+    return Array.from({ length: 12 }, (_, monthIndex) => {
+      const monthDates = getMonthDates(Number(year), monthIndex);
+      const month = getMonthLabel(monthDates[0]);
+      const leadingEmptyCells = new Date(Number(year), monthIndex, 1).getDay();
+      const weeks: (typeof resolvedWeeks[number]['days'][number] | null)[][] = [];
+      let currentWeek: (typeof resolvedWeeks[number]['days'][number] | null)[] = Array.from(
+        { length: leadingEmptyCells },
+        () => null
+      );
+
+      monthDates.forEach((date) => {
+        currentWeek.push(cellMap.get(date) ?? null);
+        if (currentWeek.length === 7) {
+          weeks.push(currentWeek);
+          currentWeek = [];
+        }
+      });
+
+      if (currentWeek.length > 0) {
+        while (currentWeek.length < 7) {
+          currentWeek.push(null);
+        }
+        weeks.push(currentWeek);
       }
-      groups.get(month)!.push(week);
-    });
-    return Array.from(groups.entries());
+
+      return [month, weeks] as const;
+    }).filter(([, weeks]) => weeks.length > 0);
   }, [resolvedWeeks]);
 
   return (
@@ -134,11 +161,21 @@ export function NumericLatticePanel({
                   }}
                 >
                   {weeksInMonth.map((week, weekIdx) =>
-                    week.days.map((cell) => {
+                    week.map((cell, dayIdx) => {
+                      const gridColumn = weekIdx + 1;
+                      const gridRow = dayIdx + 1;
+
+                      if (!cell) {
+                        return (
+                          <div
+                            key={`empty-${month}-${weekIdx}-${dayIdx}`}
+                            style={{ width: '14px', height: '14px', gridColumn, gridRow }}
+                          />
+                        );
+                      }
+
                       const band = Math.max(0, Math.min(4, cell.intensityBand));
                       const color = HEATMAP_COLORS[band];
-                      const gridColumn = weekIdx + 1; // 1-indexed
-                      const gridRow = cell.weekdayIndex + 1; // 1-indexed (0=Sun → row 1)
 
                       return (
                         <button
