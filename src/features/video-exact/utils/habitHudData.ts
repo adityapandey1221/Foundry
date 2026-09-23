@@ -212,14 +212,20 @@ export const buildHabitHudData = (
     };
   });
 
-  // Generate weeks for the current calendar year (Jan 1 - Dec 31)
+  // Generate heatmap weeks aligned to calendar weeks (Sun-Sat) across the year.
   const year = currentDate.year;
   const yearStart = `${year}-01-01`;
   const yearEnd = `${year}-12-31`;
+  const yearStartDate = parseLocalDate(yearStart);
+  const yearEndDate = parseLocalDate(yearEnd);
+  const firstWeekStartDate = new Date(yearStartDate);
+  firstWeekStartDate.setDate(firstWeekStartDate.getDate() - firstWeekStartDate.getDay());
+  const lastWeekEndDate = new Date(yearEndDate);
+  lastWeekEndDate.setDate(lastWeekEndDate.getDate() + (6 - lastWeekEndDate.getDay()));
   const heatmapWeeks: HabitHudHeatmapWeek[] = [];
-  let currentWeekStart = yearStart;
+  let currentWeekStart = formatLocalDate(firstWeekStartDate);
 
-  while (currentWeekStart <= yearEnd) {
+  while (parseLocalDate(currentWeekStart) <= lastWeekEndDate) {
     const weekDates = getWeekDates(currentWeekStart);
     const days = weekDates
       .filter((date) => date >= yearStart && date <= yearEnd)
@@ -290,4 +296,3 @@ export const buildHabitHudData = (
     monthlyChecklistRows,
   };
 };
-

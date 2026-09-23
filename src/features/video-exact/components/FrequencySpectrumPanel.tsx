@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { HudPanel } from './HudPanel';
 import { useHabitHudData } from '../hooks/useHabitHudData';
+import { useCurrentDate } from '../../../hooks/useCurrentDate';
 import { parseLocalDate } from '../../../utils/timezone';
 import type { HabitHudMonthlyChecklistDay, HabitHudMonthlyChecklistRow } from '../utils/habitHudData';
 
@@ -28,6 +29,7 @@ export function FrequencySpectrumPanel({
   className,
 }: FrequencySpectrumPanelProps) {
   const fallback = useHabitHudData();
+  const currentDate = useCurrentDate();
   const resolvedDays = monthlyChecklistDays?.length ? monthlyChecklistDays : fallback.monthlyChecklistDays;
   const resolvedRows = monthlyChecklistRows?.length ? monthlyChecklistRows : fallback.monthlyChecklistRows;
 
@@ -133,21 +135,24 @@ export function FrequencySpectrumPanel({
             </div>
             {resolvedDays.map((day) => {
               const isCompleted = row.completions[day.date] ?? false;
+              const isFuture = day.date > currentDate.today;
               return (
                 <button
                   key={`cell-${row.habitId}-${day.date}`}
                   type="button"
-                  onClick={() => onToggleHabit?.(row.habitId, day.date)}
+                  onClick={() => !isFuture && onToggleHabit?.(row.habitId, day.date)}
+                  disabled={isFuture}
                   style={{
                     height: '32px',
                     padding: '2px',
                     border: 'none',
                     borderBottom: '1px solid rgba(255,255,255,0.04)',
                     background: 'transparent',
-                    cursor: 'pointer',
+                    cursor: isFuture ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    opacity: isFuture ? 0.4 : 1,
                   }}
                 >
                   <div

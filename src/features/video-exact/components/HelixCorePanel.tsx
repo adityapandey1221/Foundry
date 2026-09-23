@@ -377,7 +377,7 @@ function HelixScene({ weeklyCompletionPct = 0 }: { weeklyCompletionPct?: number 
       orthographic
       dpr={[1, 1.75]}
       camera={{ position: [0, 0, 120], zoom: 4.8, near: 0.1, far: 500 }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true, premultipliedAlpha: false, clearColor: 0x090909 }}
       style={{ width: '100%', height: '100%' }}
     >
       <color attach="background" args={['#090909']} />
@@ -425,7 +425,7 @@ export function HelixCorePanel({ className, weeklyCompletionPct = 0 }: HelixCore
             background:
               'radial-gradient(circle at 50% 44%, rgba(255,255,255,0.34), rgba(255,255,255,0.115) 16%, rgba(255,255,255,0) 36%)',
             mixBlendMode: 'screen',
-            opacity: 1,
+            opacity: 0.85,
           }}
         />
         <div
@@ -436,7 +436,7 @@ export function HelixCorePanel({ className, weeklyCompletionPct = 0 }: HelixCore
             inset: 0,
             background:
               'repeating-linear-gradient(180deg, rgba(255,255,255,0.026) 0, rgba(255,255,255,0.026) 1px, transparent 1px, transparent 3px)',
-            opacity: 0.16,
+            opacity: 0.08,
             mixBlendMode: 'screen',
           }}
         />

@@ -24,9 +24,9 @@ export const TodayEventsPanel = () => {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          height: '100%',
           minHeight: 0,
-          overflow: 'auto',
+          overflow: 'hidden',
         }}
       >
         {/* Header */}
@@ -42,64 +42,78 @@ export const TodayEventsPanel = () => {
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             fontWeight: 500,
+            flexShrink: 0,
           }}
         >
           <div>TIME</div>
           <div>EVENTS</div>
         </div>
 
-        {sortedEvents.length === 0 ? (
-          <div
-            style={{
-              color: 'rgba(255, 255, 255, 0.34)',
-              fontSize: '11px',
-              padding: '8px',
-            }}
-          >
-            No events scheduled
-          </div>
-        ) : (
-          sortedEvents.map((event) => (
+        {/* Scrollable content */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            minHeight: 0,
+            overflow: 'auto',
+            flex: 1,
+          }}
+        >
+
+          {sortedEvents.length === 0 ? (
             <div
-              key={event.id}
               style={{
-                display: 'grid',
-                gridTemplateColumns: '60px minmax(0, 1fr)',
-                gap: '10px',
-                alignItems: 'start',
-                padding: '6px 0',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                color: 'rgba(255, 255, 255, 0.34)',
+                fontSize: '11px',
+                padding: '8px',
               }}
             >
-              <div
-                style={{
-                  color: 'rgba(255, 255, 255, 0.54)',
-                  fontSize: '11px',
-                  lineHeight: 1.2,
-                  letterSpacing: '0.08em',
-                  textAlign: 'left',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {event.time}
-              </div>
-              <div
-                style={{
-                  color: 'rgba(255, 255, 255, 0.82)',
-                  fontSize: '11px',
-                  lineHeight: 1.25,
-                  letterSpacing: '0.08em',
-                  wordBreak: 'break-word',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {event.title}
-              </div>
+              No events scheduled
             </div>
-          ))
-        )}
+          ) : (
+            sortedEvents.map((event) => (
+              <div
+                key={event.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '60px minmax(0, 1fr)',
+                  gap: '10px',
+                  alignItems: 'start',
+                  padding: '6px 0',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                }}
+              >
+                <div
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: '11px',
+                    lineHeight: 1.2,
+                    letterSpacing: '0.08em',
+                    textAlign: 'left',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {event.time}
+                </div>
+                <div
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.82)',
+                    fontSize: '11px',
+                    lineHeight: 1.25,
+                    letterSpacing: '0.08em',
+                    wordBreak: 'break-word',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {event.title}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </HudPanel>
   );
