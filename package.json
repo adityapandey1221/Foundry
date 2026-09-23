@@ -17,6 +17,7 @@
     "cyber-matrix-particles": "github:arsanjani/CyberMatrix-Particles",
     "ical.js": "^2.2.1",
     "lucide-react": "^1.0.1",
+    "postprocessing": "^6.36.0",
     "rain-char": "^2.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
